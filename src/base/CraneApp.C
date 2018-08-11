@@ -42,9 +42,10 @@ CraneApp::registerObjects(Factory & factory)
 }
 
 void
-CraneApp::associateSyntax(Syntax & /*syntax*/, ActionFactory & action_factory)
+CraneApp::associateSyntax(Syntax & syntax, ActionFactory & action_factory)
 {
   Registry::registerActionsTo(action_factory, {"CraneApp"});
+  syntax.registerActionSyntax("AddLotsOfTwoBodyReactions", "LotsOfTwoBodyReactions");
 
   /* Uncomment Syntax parameter and register your new production objects here! */
 }
