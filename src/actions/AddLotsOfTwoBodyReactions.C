@@ -100,10 +100,13 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
   std::string token2;
   std::vector<std::string> rate_coefficient_string;
   std::vector<std::string> threshold_energy_string;
+  std::vector<std::string> _rate_equation_string;
 
   size_t pos;
   size_t pos_start;
   size_t pos_end;
+  size_t eq_start;
+  size_t eq_end;
   int counter;
   counter = 0;
   while (std::getline(iss >> std::ws, token)) // splits by \n character (default) and ignores leading whitespace
@@ -116,8 +119,12 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
     pos_start = token.find('[');
     pos_end = token.find(']');
 
+    eq_start = token.find('{');
+    eq_end = token.find('}');
+
     _reaction.push_back(token.substr(0, pos)); // Stores reactions
     rate_coefficient_string.push_back(token.substr(pos+1, pos_start - (pos+1)));
+
     trim(_reaction[counter]);
     trim(rate_coefficient_string[counter]);
 
@@ -129,6 +136,16 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
     else
     {
       threshold_energy_string.push_back("\0");
+    }
+
+    if (eq_start != std::string::npos)
+    {
+      _rate_equation_string.push_back(token.substr(eq_start + 1, eq_end-eq_start-1));
+      _rate_equation.push_back(true);
+    }
+    else
+    {
+      _rate_equation.push_back(false);
     }
     counter += 1;
   }
@@ -156,6 +173,10 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
     }
 
     if (rate_coefficient_string[i] == std::string("BOLOS"))
+    {
+      _rate_coefficient[i] = NAN;
+    }
+    else if (_rate_equation[i] == true)
     {
       _rate_coefficient[i] = NAN;
     }
@@ -381,7 +402,7 @@ AddLotsOfTwoBodyReactions::act()
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
       _reaction_coefficient_name[i] = "alpha_"+_reaction[i];
-      if (isnan(_rate_coefficient[i]))
+      if (isnan(_rate_coefficient[i]) && _rate_equation[i] == false)
       {
         Real position_units = getParam<Real>("position_units");
         InputParameters params = _factory.getValidParams("GenericEnergyDependentReactionRate");

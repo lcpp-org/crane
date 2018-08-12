@@ -36,6 +36,7 @@ protected:
   std::vector<Real> _threshold_energy;
   std::vector<std::string> _reaction;
   std::vector<std::string> _reaction_coefficient_name;
+  std::vector<bool> _rate_equation;
   // std::vector<std::string> _rate_coefficient_string;
   std::vector<Real> _rate_coefficient;
   std::vector<Real> _test;

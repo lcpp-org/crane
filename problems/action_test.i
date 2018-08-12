@@ -37,7 +37,8 @@
   reactions = 'x -> x + x             : 0.666667
                x + y <-> y             : 1.333333
                y + x -> x + y + y     : 1
-               y -> z                 : 1'
+               y -> z                 : 1
+               z -> z                 : {T * exp(Tgas/300)}'
 []
 
 [Executioner]
