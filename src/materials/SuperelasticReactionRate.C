@@ -16,6 +16,8 @@ validParams<SuperelasticReactionRate>()
   // params.addRequiredParam<Real>("reaction_rate_value", "The value of the reaction rate (constant).");
   params.addRequiredParam<std::vector<std::string>>("reactants", "The reactants in the reaction.");
   params.addRequiredParam<std::vector<std::string>>("products", "The products in the reaction.");
+  params.addRequiredParam<std::vector<Real>>("stoichiometric_coeff", "The coefficients of each reactant and product.");
+  params.addRequiredParam<std::vector<std::string>>("all_species", "All reaction participants.");
   // params.addRequiredParam<std::string>("file_location", "The name of the file that stores the reaction rate tables.");
   params.addCoupledVar("gas_temperature", "The temperature of the background gas. Needed for rate constant calculation. Default: 300 K.");
   return params;

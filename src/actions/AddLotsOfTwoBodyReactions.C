@@ -185,7 +185,7 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
       _rate_coefficient[i] = stof(rate_coefficient_string[i]);
     }
   }
-  _reaction_coefficient_name.resize(_num_reactions);
+
   _reactants.resize(_num_reactions);
   _products.resize(_num_reactions);
   _reversible_reaction.resize(_num_reactions);
@@ -347,16 +347,6 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
         _reaction.push_back(new_reaction);
       }
 
-      if (_rate_equation[i] == true)
-      {
-        _rate_equation.push_back(true);
-      }
-      else
-      {
-        _rate_equation.push_back(false);
-      }
-
-
       // Calculate coefficients
       for (unsigned int j = 0; j < _species.size(); ++j)
       {
@@ -386,11 +376,7 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
   }
 
   _num_reactions += superelastic_reactions;
-
-  for (unsigned int i = 0; i < _num_reactions; ++i)
-  {
-    std::cout << _superelastic_reaction[i] << std::endl;
-  }
+  _reaction_coefficient_name.resize(_num_reactions);
   // Find the unique species across all reaction pathways
   // Note that this also accounts for species that are not tracked in case
   // some of the species are considered to be uniform background gases or
@@ -537,14 +523,43 @@ AddLotsOfTwoBodyReactions::act()
       }
       else if (_superelastic_reaction[i] == true)
       {
+        // first we need to figure out which participants exist, and pass only
+        // those stoichiometric coefficients and names.
+        std::vector<std::string> active_participants;
+
+        for (unsigned int k = 0; k < _reactants[i].size(); ++k)
+        {
+          active_participants.push_back(_reactants[i][k]);
+        }
+        for (unsigned int k = 0; k < _products[i].size(); ++k)
+        {
+          active_participants.push_back(_products[i][k]);
+        }
+        sort(active_participants.begin(), active_participants.end());
+        std::vector<std::string>:: iterator it;
+        it = std::unique(active_participants.begin(), active_participants.end());
+        active_participants.resize(std::distance(active_participants.begin(), it));
+
+        // Now we find the right index to assign stoichiometric values
+        std::vector<std::string>::iterator iter;
+        std::vector<int> active_index;
+        active_index.resize(active_participants.size());
+        for (unsigned int k = 0; k < active_participants.size(), ++k)
+        {
+          iter = std::find(active_participants.begin(), active_participants.end(), _species[i]);
+          active_index[k] = std::distance(active_participants.begin(), iter);
+        }
+
+
         InputParameters params = _factory.getValidParams("SuperelasticReactionRate");
         params.set<std::string>("reaction") = _reaction[i];
         params.set<std::string>("original_reaction") = _reaction[_superelastic_index[i]];
         params.set<std::vector<std::string>>("reactants") = _reactants[i];
         params.set<std::vector<std::string>>("products") = _products[i];
+        params.set<std::vector<Real>>("stoichiometric_coeff") = _stoichiometric_coeff[i];
+        params.set<std::vector<std::string>>("all_species") = _all_participants;
         _problem->addMaterial("SuperelasticReactionRate", "reaction_"+std::to_string(i), params);
       }
-
     }
   }
 
