@@ -30,7 +30,8 @@ protected:
   virtual void computeQpProperties();
 
   MaterialProperty<Real> & _reaction_rate;
-  Real _rate_value;
+  const MaterialProperty<Real> & _reversible_rate;
+  // Real _rate_value;
   const VariableValue & _Tgas;
 
 };

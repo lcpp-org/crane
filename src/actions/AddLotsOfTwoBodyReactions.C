@@ -188,8 +188,7 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
   _reaction_coefficient_name.resize(_num_reactions);
   _reactants.resize(_num_reactions);
   _products.resize(_num_reactions);
-  _species_count.resize(_num_reactions, std::vector<Real>(_species.size()));
-  _superelastic_reaction.resize(_num_reactions);
+  _reversible_reaction.resize(_num_reactions);
   _electron_index.resize(_num_reactions, 0);
   // _species_electron.resize(_num_reactions, std::vector<bool>(_species.size()));
 
@@ -217,7 +216,7 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
       {
         // If "=", switch from reactants to products, reset counter, and then
         // skip to next iteration.
-        _superelastic_reaction[i] = false;
+        _reversible_reaction[i] = false;
         react_check = false;
         counter = 0;
         continue;
@@ -225,7 +224,7 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
       else if (token == "<=>" || token == "<->")
       {
         superelastic_reactions += 1;
-        _superelastic_reaction[i] = true;
+        _reversible_reaction[i] = true;
 
         react_check = false;
         counter = 0;
@@ -250,48 +249,78 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
     _num_reactants.push_back(_reactants[i].size());
     _num_products.push_back(_products[i].size());
 
-    for (unsigned int j = 0; j < _species.size(); ++j)
-    {
-      for (unsigned int k = 0; k < _reactants[i].size(); ++k)
-      {
-        if (_reactants[i][k] == _species[j])
-        {
-          _species_count[i][j] -= 1;
-        }
-        if (getParam<bool>("include_electrons") == true)
-        {
-          if (_reactants[i][k] == getParam<std::string>("electron_density"))
-          {
-            _electron_index[i] = k;
-          }
-        }
-      }
-      for (unsigned int k = 0; k < _products[i].size(); ++k)
-      {
-        if (_products[i][k] == _species[j])
-        {
-          _species_count[i][j] += 1;
-        }
-      }
-    }
+    // for (unsigned int j = 0; j < _species.size(); ++j)
+    // {
+    //   for (unsigned int k = 0; k < _reactants[i].size(); ++k)
+    //   {
+    //     if (_reactants[i][k] == _species[j])
+    //     {
+    //       _species_count[i][j] -= 1;
+    //     }
+    //     if (getParam<bool>("include_electrons") == true)
+    //     {
+    //       if (_reactants[i][k] == getParam<std::string>("electron_density"))
+    //       {
+    //         _electron_index[i] = k;
+    //       }
+    //     }
+    //   }
+    //   for (unsigned int k = 0; k < _products[i].size(); ++k)
+    //   {
+    //     if (_products[i][k] == _species[j])
+    //     {
+    //       _species_count[i][j] += 1;
+    //     }
+    //   }
+    // }
   }
 
-  // _num_reactions = _num_reactions + superelastic_reactions;
-  // _superelastic_index.resize(superelastic_reactions);
   std::string new_reaction;
+  int new_index = _num_reactions - 1;
 
+  // We also need to resize rate_coefficient and threshold_energy to account
+  // for the new reaction(s)
+  _superelastic_index.resize(_num_reactions + superelastic_reactions, 0);
+  _superelastic_reaction.resize(_num_reactions + superelastic_reactions, false);
+  _rate_coefficient.resize(_num_reactions + superelastic_reactions);
+  _threshold_energy.resize(_num_reactions + superelastic_reactions);
+  _rate_equation.resize(_num_reactions + superelastic_reactions);
+  _species_count.resize(_num_reactions + superelastic_reactions, std::vector<Real>(_species.size()));
   if (superelastic_reactions > 0)
   {
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
-      if (_superelastic_reaction[i] == true)
+      if (_reversible_reaction[i] == true)
       {
-        _superelastic_index.push_back(i);
+        // _reaction.resize(_num_reactions + 1);
+        _reactants.resize(_num_reactions + 1);
+        _products.resize(_num_reactions + 1);
+        new_index += 1;
+        // This index refers to the ORIGINAL reaction. Example:
+        // If reaction #2 out of 5 (index = 1 from [0,4]) is reversible, then a
+        // 6th reaction (index = 5) will be added. This is the superelastic reaction.
+        // _superelastic_index is intended to refer back to the original reversible
+        // reaction later in the code, so we can reverse any energy change and refer
+        // to the forward reaction rate if necessary. Thus in this particular case,
+        // _superelastic_index[5] = 1.
+        _superelastic_index[new_index] = i;
+        _superelastic_reaction[new_index] = true;
+        _rate_coefficient[new_index] = NAN;
+        _threshold_energy[new_index] = -_threshold_energy[i];
+        if (_rate_equation[i] == true)
+        {
+          _rate_equation[new_index] = true;
+        }
+        else
+        {
+          _rate_equation[new_index] = false;
+        }
 
         // Here we reverse the products and reactants to build superelastic reactions.
         for (unsigned int j = 0; j < _num_products[i]; ++j)
         {
           new_reaction.append(_products[i][j]);
+          _reactants[new_index].push_back(_products[i][j]);
           if (j == _num_products[i] - 1)
           {
             break;
@@ -302,10 +331,11 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
           }
         }
         new_reaction.append(" -> ");
-        for (unsigned int j = 0; j < _num_reactants[i]; ++j)
+        for (unsigned int j = 0; j < _reactants[i].size(); ++j)
         {
           new_reaction.append(_reactants[i][j]);
-          if (j == _num_reactants[i] - 1)
+          _products[new_index].push_back(_reactants[i][j]);
+          if (j == _reactants[i].size() - 1)
           {
             break;
           }
@@ -314,12 +344,53 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
             new_reaction.append(" + ");
           }
         }
-        std::cout << _reaction[i] << std::endl;
-        std::cout << new_reaction << std::endl;
+        _reaction.push_back(new_reaction);
+      }
+
+      if (_rate_equation[i] == true)
+      {
+        _rate_equation.push_back(true);
+      }
+      else
+      {
+        _rate_equation.push_back(false);
+      }
+
+
+      // Calculate coefficients
+      for (unsigned int j = 0; j < _species.size(); ++j)
+      {
+        for (unsigned int k = 0; k < _reactants[i].size(); ++k)
+        {
+          if (_reactants[i][k] == _species[j])
+          {
+            _species_count[i][j] -= 1;
+          }
+          if (getParam<bool>("include_electrons") == true)
+          {
+            if (_reactants[i][k] == getParam<std::string>("electron_density"))
+            {
+              _electron_index[i] = k;
+            }
+          }
+        }
+        for (unsigned int k = 0; k < _products[i].size(); ++k)
+        {
+          if (_products[i][k] == _species[j])
+          {
+            _species_count[i][j] += 1;
+          }
+        }
       }
     }
   }
 
+  _num_reactions += superelastic_reactions;
+
+  for (unsigned int i = 0; i < _num_reactions; ++i)
+  {
+    std::cout << _superelastic_reaction[i] << std::endl;
+  }
   // Find the unique species across all reaction pathways
   // Note that this also accounts for species that are not tracked in case
   // some of the species are considered to be uniform background gases or
@@ -402,7 +473,7 @@ AddLotsOfTwoBodyReactions::act()
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
       _reaction_coefficient_name[i] = "alpha_"+_reaction[i];
-      if (isnan(_rate_coefficient[i]) && _rate_equation[i] == false)
+      if (isnan(_rate_coefficient[i]) && _rate_equation[i] == false && _superelastic_reaction[i] == false)
       {
         Real position_units = getParam<Real>("position_units");
         InputParameters params = _factory.getValidParams("GenericEnergyDependentReactionRate");
@@ -452,12 +523,26 @@ AddLotsOfTwoBodyReactions::act()
 
         _problem->addMaterial("GenericEnergyDependentReactionRate", "reaction_"+std::to_string(i), params);
       }
-      else
+      else if (_rate_equation[i] == false && _superelastic_reaction[i] == false)
       {
         InputParameters params = _factory.getValidParams("GenericReactionRate");
         params.set<std::string>("reaction") = _reaction[i];
         params.set<Real>("reaction_rate_value") = _rate_coefficient[i];
         _problem->addMaterial("GenericReactionRate", "reaction_"+std::to_string(i), params);
+      }
+      else if (_rate_equation[i] == true)
+      {
+        std::cout << "WARNING: CRANE cannot yet handle equation-based equations." << std::endl;
+        // This should be a mooseError...but I'm using it for testing purposes.
+      }
+      else if (_superelastic_reaction[i] == true)
+      {
+        InputParameters params = _factory.getValidParams("SuperelasticReactionRate");
+        params.set<std::string>("reaction") = _reaction[i];
+        params.set<std::string>("original_reaction") = _reaction[_superelastic_index[i]];
+        params.set<std::vector<std::string>>("reactants") = _reactants[i];
+        params.set<std::vector<std::string>>("products") = _products[i];
+        _problem->addMaterial("SuperelasticReactionRate", "reaction_"+std::to_string(i), params);
       }
 
     }
@@ -470,21 +555,21 @@ AddLotsOfTwoBodyReactions::act()
     std::vector<std::string>::iterator iter;
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
-      if (!isnan(_rate_coefficient[i]))
+      if (!isnan(_rate_coefficient[i]) || _rate_equation[i] == true || _superelastic_reaction[i] == true)
       {
-        if (_num_reactants[i] == 1)
+        if (_reactants[i].size() == 1)
         {
           product_kernel_name = "ProductFirstOrder";
           reactant_kernel_name = "ReactantFirstOrder";
         }
-        else if (_num_reactants[i] == 2)
+        else if (_reactants[i].size() == 2)
         {
         product_kernel_name = "ProductSecondOrder";
         reactant_kernel_name = "ReactantSecondOrder";
         }
         else
         {
-          mooseError("LotsOfTwoBodyReactions cannot handle "+std::to_string(_num_reactants[i])+"-body reactions! \nReaction: "+_reaction[i]);
+          mooseError("LotsOfTwoBodyReactions cannot handle "+std::to_string(_reactants[i].size())+"-body reactions! \nReaction: "+_reaction[i]);
         }
       }
       else

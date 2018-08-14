@@ -26,6 +26,7 @@ protected:
   // std::vector<VariableName> _potential;
   std::vector<std::vector<Real>> _species_count;
   std::vector<unsigned int> _electron_index;
+  std::vector<bool> _reversible_reaction;
   std::vector<bool> _superelastic_reaction;
   // std::vector<std::vector<bool>> _species_electron;
   std::vector<bool> _electron_reaction;
