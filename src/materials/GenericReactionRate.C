@@ -21,7 +21,8 @@ GenericReactionRate::GenericReactionRate(const InputParameters & parameters)
   : Material(parameters),
     _reaction_rate(declareProperty<Real>("k_" + getParam<std::string>("reaction"))),
     _rate_value(getParam<Real>("reaction_rate_value"))
-{}
+{
+}
 
 void
 GenericReactionRate::computeQpProperties()

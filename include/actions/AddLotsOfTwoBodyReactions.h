@@ -23,6 +23,8 @@ protected:
   std::string _input_reactions;
   Real _r_units;
   std::string _coefficient_format;
+  std::string _sampling_format;
+  bool _energy_change;
   // std::vector<VariableName> _potential;
   std::vector<std::vector<Real>> _species_count;
   std::vector<unsigned int> _electron_index;

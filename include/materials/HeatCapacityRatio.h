@@ -11,35 +11,34 @@
 /*                                                              */
 /*              See COPYRIGHT for full restrictions             */
 /****************************************************************/
-#ifndef SUPERELASTICREACTIONRATE_H_
-#define SUPERELASTICREACTIONRATE_H_
+#ifndef HEATCAPACITYRATIO_H_
+#define HEATCAPACITYRATIO_H_
 
-#include "Material.h"
+// #include "Material.h"
+#include "SpeciesSum.h"
 
-class SuperelasticReactionRate;
+class HeatCapacityRatio;
 
 template <>
-InputParameters validParams<SuperelasticReactionRate>();
+InputParameters validParams<HeatCapacityRatio>();
 
-class SuperelasticReactionRate : public Material
+class HeatCapacityRatio : public SpeciesSum
 {
 public:
-  SuperelasticReactionRate(const InputParameters & parameters);
+  HeatCapacityRatio(const InputParameters & parameters);
 
 protected:
   virtual void computeQpProperties();
-
-  MaterialProperty<Real> & _reaction_rate;
-  MaterialProperty<Real> & _enthalpy_reaction;
-  const MaterialProperty<Real> & _reversible_rate;
-  const std::vector<Real> & _coefficients;
-  const std::vector<std::string> & _participants;
+  MaterialProperty<Real> & _gamma_heat;
+  const std::vector<std::string> & _species;
+  const MaterialProperty<Real> & _species_sum;
   const VariableValue & _Tgas;
+  std::vector<std::vector<Real>> _polynomial_coefficients;
+  std::vector<Real> _molar_heat_capacity;
 
-  Real _power_coefficient;
-  std::vector<Real> delta_a;
-  Real _equilibrium_constant;
+private:
+  std::vector<const VariableValue *> _vals;
 
 };
 
-#endif // SUPERELASTICREACTIONRATE_H_
+#endif // HEATCAPACITYRATIO_H_

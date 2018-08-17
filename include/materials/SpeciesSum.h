@@ -11,35 +11,30 @@
 /*                                                              */
 /*              See COPYRIGHT for full restrictions             */
 /****************************************************************/
-#ifndef SUPERELASTICREACTIONRATE_H_
-#define SUPERELASTICREACTIONRATE_H_
+#ifndef SPECIESSUM_H_
+#define SPECIESSUM_H_
 
 #include "Material.h"
 
-class SuperelasticReactionRate;
+class SpeciesSum;
 
 template <>
-InputParameters validParams<SuperelasticReactionRate>();
+InputParameters validParams<SpeciesSum>();
 
-class SuperelasticReactionRate : public Material
+class SpeciesSum : public Material
 {
 public:
-  SuperelasticReactionRate(const InputParameters & parameters);
+  SpeciesSum(const InputParameters & parameters);
 
 protected:
   virtual void computeQpProperties();
 
-  MaterialProperty<Real> & _reaction_rate;
-  MaterialProperty<Real> & _enthalpy_reaction;
-  const MaterialProperty<Real> & _reversible_rate;
-  const std::vector<Real> & _coefficients;
-  const std::vector<std::string> & _participants;
-  const VariableValue & _Tgas;
+  MaterialProperty<Real> & _total_sum;
 
-  Real _power_coefficient;
-  std::vector<Real> delta_a;
-  Real _equilibrium_constant;
+private:
+  std::vector<const VariableValue *> _vals;
+  // std::vector<const VariableGradient *> _grad_vals;
 
 };
 
-#endif // SUPERELASTICREACTIONRATE_H_
+#endif // SPECIESSUM_H_

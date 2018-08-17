@@ -11,35 +11,38 @@
 /*                                                              */
 /*              See COPYRIGHT for full restrictions             */
 /****************************************************************/
-#ifndef SUPERELASTICREACTIONRATE_H_
-#define SUPERELASTICREACTIONRATE_H_
+#ifndef ELECTRICFIELD_H_
+#define ELECTRICFIELD_H_
 
 #include "Material.h"
+#include "SplineInterpolation.h"
 
-class SuperelasticReactionRate;
+class ElectricField;
 
 template <>
-InputParameters validParams<SuperelasticReactionRate>();
+InputParameters validParams<ElectricField>();
 
-class SuperelasticReactionRate : public Material
+class ElectricField : public Material
 {
 public:
-  SuperelasticReactionRate(const InputParameters & parameters);
+  ElectricField(const InputParameters & parameters);
 
 protected:
-  virtual void computeQpProperties();
+  virtual void computeQpProperties() override;
+  virtual void initQpStatefulProperties() override;
 
-  MaterialProperty<Real> & _reaction_rate;
-  MaterialProperty<Real> & _enthalpy_reaction;
-  const MaterialProperty<Real> & _reversible_rate;
-  const std::vector<Real> & _coefficients;
-  const std::vector<std::string> & _participants;
-  const VariableValue & _Tgas;
+  SplineInterpolation _mobility;
 
-  Real _power_coefficient;
-  std::vector<Real> delta_a;
-  Real _equilibrium_constant;
+  MaterialProperty<Real> & _reduced_field;
+  const MaterialProperty<Real> & _voltage;
+  const MaterialProperty<Real> & _gap_length;
+  const MaterialProperty<Real> & _resistance;
+  const MaterialProperty<Real> & _gap_area;
+  MaterialProperty<Real> & _Vdr;
+  const VariableValue & _electron_density;
+  const VariableValue & _gas_density;
+  const MaterialProperty<Real> & _reduced_field_old;
 
 };
 
-#endif // SUPERELASTICREACTIONRATE_H_
+#endif // ELECTRICFIELD_H_

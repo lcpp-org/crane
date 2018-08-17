@@ -8,17 +8,28 @@
 []
 
 [Variables]
+  # Temperature variable
+  [./Tgas]
+    initial_condition = 300
+  [../]
+
   # ODE variables
-  [./x]
+  [./O2]
     initial_condition = 1
   [../]
 
-  [./y]
+  [./]
     initial_condition = 1
   [../]
 []
 
 [Kernels]
+  # Time derivatives
+  [./dT_dt]
+    type = TimeDerivative
+    variable = Tgas
+  [../]
+
   # Time derivatives
   [./dx_dt]
     type = TimeDerivative
@@ -52,7 +63,7 @@
   type = Transient
   start_time = 0
   dt = 0.1
-  num_steps = 500
+  num_steps = 1
   #solve_type = 'NEWTON'
   scheme = 'crank-nicolson'
 []

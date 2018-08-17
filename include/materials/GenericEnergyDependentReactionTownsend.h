@@ -11,22 +11,22 @@
 /*                                                              */
 /*              See COPYRIGHT for full restrictions             */
 /****************************************************************/
-#ifndef GENERICENERGYDEPENDENTREACTIONRATE_H_
-#define GENERICENERGYDEPENDENTREACTIONRATE_H_
+#ifndef GENERICENERGYDEPENDENTREACTIONTOWNSEND_H_
+#define GENERICENERGYDEPENDENTREACTIONTOWNSEND_H_
 
 #include "Material.h"
 /* #include "LinearInterpolation.h" */
 #include "SplineInterpolation.h"
 
-class GenericEnergyDependentReactionRate;
+class GenericEnergyDependentReactionTownsend;
 
 template <>
-InputParameters validParams<GenericEnergyDependentReactionRate>();
+InputParameters validParams<GenericEnergyDependentReactionTownsend>();
 
-class GenericEnergyDependentReactionRate : public Material
+class GenericEnergyDependentReactionTownsend : public Material
 {
 public:
-  GenericEnergyDependentReactionRate(const InputParameters & parameters);
+  GenericEnergyDependentReactionTownsend(const InputParameters & parameters);
 
 protected:
   virtual void computeQpProperties();
@@ -34,10 +34,21 @@ protected:
   SplineInterpolation _coefficient_interpolation;
 
   Real _r_units;
+  std::string _coefficient_format;
   MaterialProperty<Real> & _reaction_rate;
+  MaterialProperty<Real> & _townsend_coefficient;
+  MaterialProperty<Real> & _energy_elastic;
   MaterialProperty<Real> & _d_k_d_en;
-  std::string _sampling_format;
-  const MaterialProperty<Real> & _reduced_field;
+  MaterialProperty<Real> & _d_alpha_d_en;
+  const MaterialProperty<Real> & _n_gas;
+  const MaterialProperty<Real> & _massIncident;
+  const MaterialProperty<Real> & _massTarget;
+
+  const VariableValue & _target_species;
+  const VariableValue & _em;
+  const VariableValue & _mean_en;
+
+  bool _elastic_collision;
 };
 
-#endif // GenericEnergyDependentReactionRate_H_
+#endif // GENERICENERGYDEPENDENTREACTIONTOWNSEND_H_
