@@ -12,35 +12,30 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef REACTANTSECONDORDER_H
-#define REACTANTSECONDORDER_H
+#ifndef TIMEDERIVATIVELOG_H
+#define TIMEDERIVATIVELOG_H
 
-#include "Kernel.h"
+#include "TimeKernel.h"
 
 // Forward Declaration
-class ReactantSecondOrder;
+class TimeDerivativeLog;
 
 template <>
-InputParameters validParams<ReactantSecondOrder>();
+InputParameters validParams<TimeDerivativeLog>();
 
-class ReactantSecondOrder : public Kernel
+class TimeDerivativeLog : public TimeKernel
 {
 public:
-  ReactantSecondOrder(const InputParameters & parameters);
+  TimeDerivativeLog(const InputParameters & parameters);
+
+  /* virtual void computeJacobian(); */
 
 protected:
   virtual Real computeQpResidual();
   virtual Real computeQpJacobian();
-  virtual Real computeQpOffDiagJacobian(unsigned int jvar);
+  /* virtual Real computeQpOffDiagJacobian(unsigned int jvar); */
 
-  // The reaction coefficient
-  // MooseVariable & _coupled_var_A;
-  const MaterialProperty<Real> & _reaction_coeff;
-  const VariableValue & _v;
-  unsigned int _v_id;
-  const MaterialProperty<Real> & _n_gas;
-  Real _stoichiometric_coeff;
-  bool _v_eq_u;
-
+  bool _lumping;
 };
-#endif // ReactantSecondOrder_H
+
+#endif // TIMEDERIVATIVELOG_H

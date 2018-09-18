@@ -1,14 +1,14 @@
-#include "GenericEnergyDependentReactionRate.h"
+#include "EEDFRateConstant.h"
 #include "MooseUtils.h"
 
 // MOOSE includes
 #include "MooseVariable.h"
 
-registerMooseObject("CraneApp", GenericEnergyDependentReactionRate);
+registerMooseObject("CraneApp", EEDFRateConstant);
 
 template <>
 InputParameters
-validParams<GenericEnergyDependentReactionRate>()
+validParams<EEDFRateConstant>()
 {
   InputParameters params = validParams<Material>();
   params.addRequiredParam<FileName>(
@@ -21,7 +21,7 @@ validParams<GenericEnergyDependentReactionRate>()
   return params;
 }
 
-GenericEnergyDependentReactionRate::GenericEnergyDependentReactionRate(const InputParameters & parameters)
+EEDFRateConstant::EEDFRateConstant(const InputParameters & parameters)
   : Material(parameters),
     _r_units(1. / getParam<Real>("position_units")),
     _reaction_rate(declareProperty<Real>("k_"+getParam<std::string>("reaction"))),
@@ -29,7 +29,7 @@ GenericEnergyDependentReactionRate::GenericEnergyDependentReactionRate(const Inp
     _sampling_format(getParam<std::string>("sampling_format")),
     _reduced_field(getMaterialProperty<Real>("reduced_field"))
 {
-  std::vector<Real> actual_mean_energy;
+  std::vector<Real> reduced_field;
   std::vector<Real> rate_coefficient;
   std::string file_name = getParam<std::string>("file_location") + "/" + getParam<FileName>("property_file");
   MooseUtils::checkFileReadable(file_name);
@@ -41,7 +41,7 @@ GenericEnergyDependentReactionRate::GenericEnergyDependentReactionRate(const Inp
   {
     while (myfile >> value)
     {
-      actual_mean_energy.push_back(value);
+      reduced_field.push_back(value);
       myfile >> value;
       rate_coefficient.push_back(value);
     }
@@ -50,21 +50,20 @@ GenericEnergyDependentReactionRate::GenericEnergyDependentReactionRate(const Inp
   else
     mooseError("Unable to open file");
 
-  _coefficient_interpolation.setData(actual_mean_energy, rate_coefficient);
+  _coefficient_interpolation.setData(reduced_field, rate_coefficient);
 }
 
 void
-GenericEnergyDependentReactionRate::computeQpProperties()
+EEDFRateConstant::computeQpProperties()
 {
   if (_sampling_format == "electron_energy")
   {
     mooseError("Cannot sample with energy currently. Sample with reduced electric field.");
-  // _reaction_rate[_qp] = _coefficient_interpolation.sample(actual_mean_energy);
-  // _d_k_d_en[_qp] = _coefficient_interpolation.sampleDerivative(actual_mean_energy);
   }
   else if (_sampling_format == "reduced_field")
   {
     _reaction_rate[_qp] = _coefficient_interpolation.sample(_reduced_field[_qp]);
+    // _reaction_rate[_qp] = _reaction_rate[_qp] * 6.022e23; // convert from [dens]/s to [dens]/mol/s
     _d_k_d_en[_qp] = _coefficient_interpolation.sampleDerivative(_reduced_field[_qp]);
   }
 

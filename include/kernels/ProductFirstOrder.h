@@ -40,5 +40,6 @@ protected:
   // The reaction coefficient
   const MaterialProperty<Real> & _reaction_coeff;
   Real _stoichiometric_coeff;
+  bool _v_eq_u;
 };
 #endif // ProductFirstOrder_H

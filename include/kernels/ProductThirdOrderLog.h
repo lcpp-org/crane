@@ -12,28 +12,39 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef REACTANTARXN_H
-#define REACTANTARXN_H
+#ifndef PRODUCTTHIRDORDERLOG_H
+#define PRODUCTTHIRDORDERLOG_H
 
-#include "NodalKernel.h"
+#include "Kernel.h"
 
 // Forward Declaration
-class ReactantARxn;
+class ProductThirdOrderLog;
 
 template <>
-InputParameters validParams<ReactantARxn>();
+InputParameters validParams<ProductThirdOrderLog>();
 
-class ReactantARxn : public NodalKernel
+class ProductThirdOrderLog : public Kernel
 {
 public:
-  ReactantARxn(const InputParameters & parameters);
+  ProductThirdOrderLog(const InputParameters & parameters);
 
 protected:
-  virtual Real computeQpResidual() override;
-  virtual Real computeQpJacobian() override;
+  virtual Real computeQpResidual();
+  virtual Real computeQpJacobian();
+  virtual Real computeQpOffDiagJacobian(unsigned int jvar);
+
+  // MooseVariable & _coupled_var_A;
+  // MooseVariable & _coupled_var_B;
+  const VariableValue & _v;
+  const VariableValue & _w;
+  const VariableValue & _x;
+  unsigned int _v_id;
+  unsigned int _w_id;
+  unsigned int _x_id;
+  // const MaterialProperty<Real> & _n_gas;
 
   // The reaction coefficient
-  Real _rate_coefficient;
+  const MaterialProperty<Real> & _reaction_coeff;
   Real _stoichiometric_coeff;
 };
-#endif // REACTANTARXN_H
+#endif // PRODUCTTHIRDORDERLOG_H

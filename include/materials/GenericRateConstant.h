@@ -11,40 +11,28 @@
 /*                                                              */
 /*              See COPYRIGHT for full restrictions             */
 /****************************************************************/
-#ifndef ELECTRICFIELD_H_
-#define ELECTRICFIELD_H_
+#ifndef GENERICRATECONSTANT_H_
+#define GENERICRATECONSTANT_H_
 
 #include "Material.h"
-#include "SplineInterpolation.h"
 
-class ElectricField;
+class GenericRateConstant;
 
 template <>
-InputParameters validParams<ElectricField>();
+InputParameters validParams<GenericRateConstant>();
 
-class ElectricField : public Material
+class GenericRateConstant : public Material
 {
 public:
-  ElectricField(const InputParameters & parameters);
+  GenericRateConstant(const InputParameters & parameters);
 
 protected:
-  virtual void initQpStatefulProperties() override;
-  virtual void computeQpProperties() override;
+  virtual void computeQpProperties();
 
-  SplineInterpolation _mobility;
+  MaterialProperty<Real> & _reaction_rate;
 
-  MaterialProperty<Real> & _reduced_field;
-  const MaterialProperty<Real> & _voltage;
-  const MaterialProperty<Real> & _gap_length;
-  const MaterialProperty<Real> & _resistance;
-  const MaterialProperty<Real> & _gap_area;
-  MaterialProperty<Real> & _Vdr;
-  const VariableValue & _electron_density;
-  const VariableValue & _gas_density;
-  const MaterialProperty<Real> & _reduced_field_old;
-  bool _use_log;
-  const MaterialProperty<Real> & _n_gas;
+  Real _rate_value;
 
 };
 
-#endif // ELECTRICFIELD_H_
+#endif // GENERICRATECONSTANT_H_

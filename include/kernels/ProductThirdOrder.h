@@ -12,35 +12,43 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef REACTANTSECONDORDER_H
-#define REACTANTSECONDORDER_H
+#ifndef PRODUCTTHIRDORDER_H
+#define PRODUCTTHIRDORDER_H
 
 #include "Kernel.h"
 
 // Forward Declaration
-class ReactantSecondOrder;
+class ProductThirdOrder;
 
 template <>
-InputParameters validParams<ReactantSecondOrder>();
+InputParameters validParams<ProductThirdOrder>();
 
-class ReactantSecondOrder : public Kernel
+class ProductThirdOrder : public Kernel
 {
 public:
-  ReactantSecondOrder(const InputParameters & parameters);
+  ProductThirdOrder(const InputParameters & parameters);
 
 protected:
   virtual Real computeQpResidual();
   virtual Real computeQpJacobian();
   virtual Real computeQpOffDiagJacobian(unsigned int jvar);
 
-  // The reaction coefficient
   // MooseVariable & _coupled_var_A;
-  const MaterialProperty<Real> & _reaction_coeff;
+  // MooseVariable & _coupled_var_B;
   const VariableValue & _v;
+  const VariableValue & _w;
+  const VariableValue & _x;
   unsigned int _v_id;
+  unsigned int _w_id;
+  unsigned int _x_id;
   const MaterialProperty<Real> & _n_gas;
-  Real _stoichiometric_coeff;
-  bool _v_eq_u;
 
+  // The reaction coefficient
+  const MaterialProperty<Real> & _reaction_coeff;
+  Real _stoichiometric_coeff;
+
+  bool _v_eq_u;
+  bool _w_eq_u;
+  bool _x_eq_u;
 };
-#endif // ReactantSecondOrder_H
+#endif // PRODUCTTHIRDORDER_H

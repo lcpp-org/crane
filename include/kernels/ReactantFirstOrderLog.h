@@ -12,31 +12,33 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef REACTANT2BODY_H
-#define REACTANT2BODY_H
+#ifndef REACTANTFIRSTORDERLOG_H
+#define REACTANTFIRSTORDERLOG_H
 
-#include "NodalKernel.h"
+#include "Kernel.h"
 
 // Forward Declaration
-class Reactant2Body;
+class ReactantFirstOrderLog;
 
 template <>
-InputParameters validParams<Reactant2Body>();
+InputParameters validParams<ReactantFirstOrderLog>();
 
-class Reactant2Body : public NodalKernel
+class ReactantFirstOrderLog : public Kernel
 {
 public:
-  Reactant2Body(const InputParameters & parameters);
+  ReactantFirstOrderLog(const InputParameters & parameters);
 
 protected:
-  virtual Real computeQpResidual() override;
-  virtual Real computeQpJacobian() override;
-
-  MooseVariable & _coupled_var_A;
-  const VariableValue & _v;
+  virtual Real computeQpResidual();
+  virtual Real computeQpJacobian();
+  virtual Real computeQpOffDiagJacobian(unsigned int jvar);
 
   // The reaction coefficient
-  Real _rate_coefficient;
+  // MooseVariable & _coupled_var_A;
+  // const MaterialProperty<Real> & _reaction_coeff;
+  const MaterialProperty<Real> & _diff_rate;
+  // const MaterialProperty<Real> & _n_gas;
   Real _stoichiometric_coeff;
+
 };
-#endif // REACTANT2BODY_H
+#endif // REACTANTFIRSTORDERLOG_H

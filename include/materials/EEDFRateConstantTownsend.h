@@ -11,28 +11,44 @@
 /*                                                              */
 /*              See COPYRIGHT for full restrictions             */
 /****************************************************************/
-#ifndef GENERICREACTIONRATE_H_
-#define GENERICREACTIONRATE_H_
+#ifndef EEDFRATECONSTANTTOWNSEND_H_
+#define EEDFRATECONSTANTTOWNSEND_H_
 
 #include "Material.h"
+/* #include "LinearInterpolation.h" */
+#include "SplineInterpolation.h"
 
-class GenericReactionRate;
+class EEDFRateConstantTownsend;
 
 template <>
-InputParameters validParams<GenericReactionRate>();
+InputParameters validParams<EEDFRateConstantTownsend>();
 
-class GenericReactionRate : public Material
+class EEDFRateConstantTownsend : public Material
 {
 public:
-  GenericReactionRate(const InputParameters & parameters);
+  EEDFRateConstantTownsend(const InputParameters & parameters);
 
 protected:
   virtual void computeQpProperties();
 
+  SplineInterpolation _coefficient_interpolation;
+
+  Real _r_units;
+  std::string _coefficient_format;
   MaterialProperty<Real> & _reaction_rate;
+  MaterialProperty<Real> & _townsend_coefficient;
+  MaterialProperty<Real> & _energy_elastic;
+  MaterialProperty<Real> & _d_k_d_en;
+  MaterialProperty<Real> & _d_alpha_d_en;
+  const MaterialProperty<Real> & _n_gas;
+  const MaterialProperty<Real> & _massIncident;
+  const MaterialProperty<Real> & _massTarget;
 
-  Real _rate_value;
+  const VariableValue & _target_species;
+  const VariableValue & _em;
+  const VariableValue & _mean_en;
 
+  bool _elastic_collision;
 };
 
-#endif // GENERICREACTIONRATE_H_
+#endif // EEDFRATECONSTANTTOWNSEND_H_

@@ -1,14 +1,14 @@
-#include "GenericEnergyDependentReactionTownsend.h"
+#include "EEDFRateConstantTownsend.h"
 #include "MooseUtils.h"
 
 // MOOSE includes
 #include "MooseVariable.h"
 
-registerMooseObject("CraneApp", GenericEnergyDependentReactionTownsend);
+registerMooseObject("CraneApp", EEDFRateConstantTownsend);
 
 template <>
 InputParameters
-validParams<GenericEnergyDependentReactionTownsend>()
+validParams<EEDFRateConstantTownsend>()
 {
   InputParameters params = validParams<Material>();
   params.addRequiredParam<FileName>(
@@ -27,7 +27,7 @@ validParams<GenericEnergyDependentReactionTownsend>()
   return params;
 }
 
-GenericEnergyDependentReactionTownsend::GenericEnergyDependentReactionTownsend(const InputParameters & parameters)
+EEDFRateConstantTownsend::EEDFRateConstantTownsend(const InputParameters & parameters)
   : Material(parameters),
     _r_units(1. / getParam<Real>("position_units")),
     _coefficient_format(getParam<std::string>("reaction_coefficient_format")),
@@ -76,7 +76,7 @@ GenericEnergyDependentReactionTownsend::GenericEnergyDependentReactionTownsend(c
 }
 
 void
-GenericEnergyDependentReactionTownsend::computeQpProperties()
+EEDFRateConstantTownsend::computeQpProperties()
 {
   Real actual_mean_energy = std::exp(_mean_en[_qp] - _em[_qp]);
   if (_coefficient_format == "townsend")

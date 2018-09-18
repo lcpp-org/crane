@@ -11,33 +11,30 @@
 /*                                                              */
 /*              See COPYRIGHT for full restrictions             */
 /****************************************************************/
-#ifndef GENERICENERGYDEPENDENTREACTIONRATE_H_
-#define GENERICENERGYDEPENDENTREACTIONRATE_H_
+#ifndef DIFFUSIONRATETEMP_H_
+#define DIFFUSIONRATETEMP_H_
 
 #include "Material.h"
-/* #include "LinearInterpolation.h" */
 #include "SplineInterpolation.h"
 
-class GenericEnergyDependentReactionRate;
+class DiffusionRateTemp;
 
 template <>
-InputParameters validParams<GenericEnergyDependentReactionRate>();
+InputParameters validParams<DiffusionRateTemp>();
 
-class GenericEnergyDependentReactionRate : public Material
+class DiffusionRateTemp : public Material
 {
 public:
-  GenericEnergyDependentReactionRate(const InputParameters & parameters);
+  DiffusionRateTemp(const InputParameters & parameters);
 
 protected:
   virtual void computeQpProperties();
 
-  SplineInterpolation _coefficient_interpolation;
+  SplineInterpolation _elec_temp;
 
-  Real _r_units;
-  MaterialProperty<Real> & _reaction_rate;
-  MaterialProperty<Real> & _d_k_d_en;
-  std::string _sampling_format;
-  const MaterialProperty<Real> & _reduced_field;
+  MaterialProperty<Real> & _diff_rate;
+  const MaterialProperty<Real> & _gap_length;
+  const MaterialProperty<Real> & _radius;
 };
 
-#endif // GenericEnergyDependentReactionRate_H_
+#endif // DIFFUSIONRATETEMP_H_

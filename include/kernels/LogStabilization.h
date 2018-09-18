@@ -12,33 +12,27 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef PRODUCT2BODY_H
-#define PRODUCT2BODY_H
+#ifndef LOGSTABILIZATION_H
+#define LOGSTABILIZATION_H
 
-#include "NodalKernel.h"
+#include "Kernel.h"
 
-// Forward Declaration
-class Product2Body;
+class LogStabilization;
 
 template <>
-InputParameters validParams<Product2Body>();
+InputParameters validParams<LogStabilization>();
 
-class Product2Body : public NodalKernel
+class LogStabilization : public Kernel
 {
 public:
-  Product2Body(const InputParameters & parameters);
+  LogStabilization(const InputParameters & parameters);
+  virtual ~LogStabilization();
 
 protected:
-  virtual Real computeQpResidual() override;
-  virtual Real computeQpJacobian() override;
+  virtual Real computeQpResidual();
+  virtual Real computeQpJacobian();
 
-  MooseVariable & _coupled_var_A;
-  const VariableValue & _v;
-  MooseVariable & _coupled_var_B;
-  const VariableValue & _w;
-
-  // The reaction coefficient
-  Real _rate_coefficient;
-  Real _stoichiometric_coeff;
+  Real _offset;
 };
-#endif // PRODUCT2BODY_H
+
+#endif /* LOGSTABILIZATION_H */

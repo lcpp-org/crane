@@ -12,21 +12,21 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef REACTANTSECONDORDER_H
-#define REACTANTSECONDORDER_H
+#ifndef REACTANTTHIRDORDERLOG_H
+#define REACTANTTHIRDORDERLOG_H
 
 #include "Kernel.h"
 
 // Forward Declaration
-class ReactantSecondOrder;
+class ReactantThirdOrderLog;
 
 template <>
-InputParameters validParams<ReactantSecondOrder>();
+InputParameters validParams<ReactantThirdOrderLog>();
 
-class ReactantSecondOrder : public Kernel
+class ReactantThirdOrderLog : public Kernel
 {
 public:
-  ReactantSecondOrder(const InputParameters & parameters);
+  ReactantThirdOrderLog(const InputParameters & parameters);
 
 protected:
   virtual Real computeQpResidual();
@@ -37,10 +37,11 @@ protected:
   // MooseVariable & _coupled_var_A;
   const MaterialProperty<Real> & _reaction_coeff;
   const VariableValue & _v;
+  const VariableValue & _w;
   unsigned int _v_id;
+  unsigned int _w_id;
   const MaterialProperty<Real> & _n_gas;
   Real _stoichiometric_coeff;
-  bool _v_eq_u;
 
 };
-#endif // ReactantSecondOrder_H
+#endif // REACTANTTHIRDORDERLOG_H

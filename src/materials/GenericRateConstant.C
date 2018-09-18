@@ -1,14 +1,14 @@
-#include "GenericReactionRate.h"
+#include "GenericRateConstant.h"
 #include "MooseUtils.h"
 
 // MOOSE includes
 #include "MooseVariable.h"
 
-registerMooseObject("CraneApp", GenericReactionRate);
+registerMooseObject("CraneApp", GenericRateConstant);
 
 template <>
 InputParameters
-validParams<GenericReactionRate>()
+validParams<GenericRateConstant>()
 {
   InputParameters params = validParams<Material>();
   params.addRequiredParam<std::string>("reaction", "The full reaction equation.");
@@ -17,7 +17,7 @@ validParams<GenericReactionRate>()
   return params;
 }
 
-GenericReactionRate::GenericReactionRate(const InputParameters & parameters)
+GenericRateConstant::GenericRateConstant(const InputParameters & parameters)
   : Material(parameters),
     _reaction_rate(declareProperty<Real>("k_" + getParam<std::string>("reaction"))),
     _rate_value(getParam<Real>("reaction_rate_value"))
@@ -25,7 +25,7 @@ GenericReactionRate::GenericReactionRate(const InputParameters & parameters)
 }
 
 void
-GenericReactionRate::computeQpProperties()
+GenericRateConstant::computeQpProperties()
 {
   _reaction_rate[_qp] = _rate_value;
 }

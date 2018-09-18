@@ -18,6 +18,7 @@ validParams<ReactantFirstOrder>()
 ReactantFirstOrder::ReactantFirstOrder(const InputParameters & parameters)
   : Kernel(parameters),
     _reaction_coeff(getMaterialProperty<Real>("k_"+getParam<std::string>("reaction"))),
+    // _reaction_coeff(getMaterialProperty<Real>("diffusion_rate")),
     // _n_gas(getMaterialProperty<Real>("n_gas")),
     _stoichiometric_coeff(getParam<Real>("coefficient"))
 {
@@ -32,11 +33,11 @@ ReactantFirstOrder::computeQpResidual()
 Real
 ReactantFirstOrder::computeQpJacobian()
 {
-  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * _u[_qp] * _phi[_j][_qp];
+  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * _phi[_j][_qp];
 }
 
 Real
-ReactantFirstOrder::computeQpOffDiagJacobian(unsigned int jvar)
+ReactantFirstOrder::computeQpOffDiagJacobian()
 {
   return 0.0;
 }
