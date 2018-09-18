@@ -1,19 +1,19 @@
-#ifndef ADDLOTSOFTWOBODYREACTIONS_H
-#define ADDLOTSOFTWOBODYREACTIONS_H
+#ifndef CHEMICALREACTIONS_H
+#define CHEMICALREACTIONS_H
 
 #include "AddVariableAction.h"
 #include "Action.h"
 
-class AddLotsOfTwoBodyReactions;
+class ChemicalReactions;
 
 template <>
-InputParameters validParams<AddLotsOfTwoBodyReactions>();
+InputParameters validParams<ChemicalReactions>();
 
-// class AddLotsOfTwoBodyReactions : public AddVariableAction
-class AddLotsOfTwoBodyReactions : public Action
+// class ChemicalReactions : public AddVariableAction
+class ChemicalReactions : public Action
 {
 public:
-  AddLotsOfTwoBodyReactions(InputParameters params);
+  ChemicalReactions(InputParameters params);
 
   virtual void act();
 
@@ -25,6 +25,8 @@ protected:
   std::string _coefficient_format;
   std::string _sampling_format;
   bool _use_log;
+  bool _scalar_problem;
+
   bool _energy_change;
   // std::vector<VariableName> _potential;
   std::vector<std::vector<Real>> _species_count;
@@ -41,6 +43,8 @@ protected:
   std::vector<std::string> _reaction;
   std::vector<std::string> _reaction_coefficient_name;
   std::vector<bool> _rate_equation;
+  std::vector<std::string> _rate_type;
+  std::vector<AuxVariableName> _aux_var_name;
   // std::vector<std::string> _rate_coefficient_string;
   std::vector<Real> _rate_coefficient;
   std::vector<Real> _test;
@@ -52,9 +56,10 @@ protected:
   std::vector<std::vector<Real>> _stoichiometric_coeff;
   std::vector<int> _num_reactants;
   std::vector<int> _num_products;
+  std::vector<std::string> _rate_equation_string;
   /// Number of reactions
   unsigned int _num_reactions;
 
 };
 
-#endif // ADDLOTSOFTWOBODYREACTIONS_H
+#endif // CHEMICALREACTIONS_H

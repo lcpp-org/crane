@@ -9,38 +9,34 @@
 [Variables]
   # ODE variables
   [./x]
+    family = SCALAR
+    order = FIRST
     initial_condition = 1
   [../]
 
   [./y]
+    family = SCALAR
+    order = FIRST
     initial_condition = 1
   [../]
 []
 
-[Kernels]
+[ScalarKernels]
   # Time derivatives
   [./dx_dt]
-    type = TimeDerivative
+    type = ODETimeDerivative
     variable = x
   [../]
   [./dy_dt]
-    type = TimeDerivative
+    type = ODETimeDerivative
     variable = y
-  [../]
-[]
-
-[Materials]
-  [./ngas]
-    type = GenericConstantMaterial
-    prop_names = 'n_gas'
-    prop_values = 1
   [../]
 []
 
 [ChemicalReactions]
   species = 'x y'
   reaction_coefficient_format = 'rate'
-  scalar_problem = false
+  scalar_problem = true
   reactions = 'x -> x + x             : 0.666667
                x + y -> y             : 1.333333
                y + x -> x + y + y     : 1
@@ -55,13 +51,11 @@
   scheme = crank-nicolson
 []
 
-[Preconditioning]
-  [./smp]
-    type = SMP
-    full = true
-  [../]
-[]
-
 [Outputs]
-  exodus = true
+  csv = true
+  perf_log = true
+  [./csv_out]
+    type = CSV
+    show = 'x y'
+  [../]
 []

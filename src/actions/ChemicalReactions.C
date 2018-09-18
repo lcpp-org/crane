@@ -1,4 +1,4 @@
-#include "AddLotsOfTwoBodyReactions.h"
+#include "ChemicalReactions.h"
 #include "Parser.h"
 #include "FEProblem.h"
 #include "Factory.h"
@@ -26,13 +26,18 @@
 #include "libmesh/string_to_enum.h"
 #include "libmesh/fe.h"
 
-registerMooseAction("CraneApp", AddLotsOfTwoBodyReactions, "add_material");
-registerMooseAction("CraneApp", AddLotsOfTwoBodyReactions, "add_kernel");
-registerMooseAction("CraneApp", AddLotsOfTwoBodyReactions, "add_bc");
+registerMooseAction("CraneApp", ChemicalReactions, "add_aux_variable");
+registerMooseAction("CraneApp", ChemicalReactions, "add_aux_scalar_kernel");
+registerMooseAction("CraneApp", ChemicalReactions, "add_material");
+registerMooseAction("CraneApp", ChemicalReactions, "add_kernel");
+registerMooseAction("CraneApp", ChemicalReactions, "add_scalar_kernel");
+// registerMooseAction("CraneApp", ChemicalReactions, "add_bc");
+// registerMooseAction("CraneApp", ChemicalReactions, "add_user_object");
+registerMooseAction("CraneApp", ChemicalReactions, "add_function");
 
 template <>
 InputParameters
-validParams<AddLotsOfTwoBodyReactions>()
+validParams<ChemicalReactions>()
 {
   MooseEnum families(AddVariableAction::getNonlinearVariableFamilies());
   MooseEnum orders(AddVariableAction::getNonlinearVariableOrders());
@@ -40,6 +45,7 @@ validParams<AddLotsOfTwoBodyReactions>()
   InputParameters params = validParams<AddVariableAction>();
   params.addRequiredParam<std::vector<NonlinearVariableName>>(
     "species", "List of (tracked) species included in reactions (both products and reactants)");
+  params.addParam<std::vector<Real>>("reaction_coefficient", "The reaction coefficients.");
   params.addParam<bool>("include_electrons", false, "Whether or not electrons are being considered.");
   params.addParam<bool>("track_energy", false, "Whether or not to track gas energy/temperature.");
   params.addParam<bool>("track_electron_energy", false, "Whether or not to track electron energy.");
@@ -52,6 +58,8 @@ validParams<AddLotsOfTwoBodyReactions>()
   params.addParam<std::vector<std::string>>("gas_species", "All of the background gas species in the system.");
   params.addParam<std::vector<Real>>("gas_fraction", "The initial fraction of each gas species.");
   params.addParam<bool>("gas_tracking", false, "If false, neutral gas is treated as uniform background (_n_gas).");
+  params.addParam<bool>("gas_temperature", false, "If false, neutral gas temperature is not a solution variable.");
+  params.addParam<std::vector<VariableName>>("gas_temperature_variable", "The gas temperature variable (if applicable).");
   params.addParam<std::vector<VariableName>>("potential", "The electric potential, used for energy-dependent reaction rates.");
   params.addRequiredParam<std::string>("reactions", "The list of reactions to be added");
   params.addParam<Real>("position_units", 1.0, "The units of position.");
@@ -60,6 +68,11 @@ validParams<AddLotsOfTwoBodyReactions>()
   params.addParam<std::string>("file_location", "", "The location of the reaction rate files. Default: empty string (current directory).");
   params.addParam<bool>("use_moles", "Whether to use molar units.");
   params.addParam<std::string>("sampling_format", "reduced_field", "Sample rate constants with E/N (reduced_field) or Te (electron_energy).");
+  params.addParam<bool>("scalar_problem", false, "The problem is scalar if it is a pure ODE problem (Global/0D).");
+  params.addParam<std::vector<std::string>>("equation_constants", "The constants included in the reaction equation(s).");
+  params.addParam<std::vector<std::string>>("equation_values", "The values of the constants included in the reaction equation(s).");
+  params.addParam<std::vector<NonlinearVariableName>>("equation_variables", "Any nonlinear variables that appear in the equations.");
+  params.addParam<std::vector<VariableName>>("rate_provider_var", "The name of the variable used to sample from BOLOS files.");
   params.addClassDescription("This Action automatically adds the necessary kernels and materials for a reaction network.");
 
   return params;
@@ -67,24 +80,24 @@ validParams<AddLotsOfTwoBodyReactions>()
 
 // Here are a few functions for removing whitespace before/after expressions.
 // (Makes the reaction input formatting more forgiving!)
-static inline string &ltrim1(string &s)
+static inline string &ltrim(string &s)
 {
   s.erase(s.begin(),find_if_not(s.begin(),s.end(),[](int c){return isspace(c);}));
   return s;
 }
 
-static inline string &rtrim1(string &s)
+static inline string &rtrim(string &s)
 {
   s.erase(find_if_not(s.rbegin(),s.rend(),[](int c){return isspace(c);}).base(), s.end());
   return s;
 }
 
-static inline string trim1(string &s)
+static inline string trim(string &s)
 {
-  return ltrim1(rtrim1(s));
+  return ltrim(rtrim(s));
 }
 
-AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
+ChemicalReactions::ChemicalReactions(InputParameters params)
   : Action(params),
     _species(getParam<std::vector<NonlinearVariableName>>("species")),
     _species_energy(getParam<std::vector<NonlinearVariableName>>("species_energy")),
@@ -92,7 +105,9 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
     _r_units(getParam<Real>("position_units")),
     _coefficient_format(getParam<std::string>("reaction_coefficient_format")),
     _sampling_format(getParam<std::string>("sampling_format")),
-    _use_log(getParam<bool>("use_log"))
+    _use_log(getParam<bool>("use_log")),
+    _scalar_problem(getParam<bool>("scalar_problem"))
+    // _scalar_problem(getParam<bool>("scalar_problem"))
 {
   // 1) split into reactants and products
   // 2) split products into products and reaction rate
@@ -105,7 +120,7 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
   std::string token2;
   std::vector<std::string> rate_coefficient_string;
   std::vector<std::string> threshold_energy_string;
-  std::vector<std::string> _rate_equation_string;
+  // std::vector<std::string> _rate_equation_string;
 
   size_t pos;
   size_t pos_start;
@@ -131,8 +146,8 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
     _reaction.push_back(token.substr(0, pos)); // Stores reactions
     rate_coefficient_string.push_back(token.substr(pos+1, pos_start - (pos+1)));
 
-    trim1(_reaction[counter]);
-    trim1(rate_coefficient_string[counter]);
+    trim(_reaction[counter]);
+    trim(rate_coefficient_string[counter]);
 
     if (pos_start != std::string::npos)
     {
@@ -151,6 +166,7 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
     }
     else
     {
+      _rate_equation_string.push_back("NONE");
       _rate_equation.push_back(false);
     }
     counter += 1;
@@ -161,7 +177,8 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
   _threshold_energy.resize(_num_reactions, 0);
 
   _elastic_collision.resize(_num_reactions, false);
-
+  _rate_type.resize(_num_reactions);
+  _aux_var_name.resize(_num_reactions);
   for (unsigned int i = 0; i < _num_reactions; ++i)
   {
     if (threshold_energy_string[i] == "\0")
@@ -175,20 +192,39 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
     }
     else
     {
-      _threshold_energy[i] = stof(threshold_energy_string[i]);
+      _threshold_energy[i] = std::stod(threshold_energy_string[i]);
     }
-
+    _aux_var_name[i] = "rate_constant"+std::to_string(i);  // Stores name of rate coefficients
     if (rate_coefficient_string[i] == std::string("BOLOS"))
     {
       _rate_coefficient[i] = NAN;
+      _rate_type[i] = "EEDF";
     }
     else if (_rate_equation[i] == true)
     {
       _rate_coefficient[i] = NAN;
+      _rate_type[i] = "Equation";
+      // USE THIS CODE TO SEE IF VARIABLE IS CONTAINED WITHIN EQUATION
+      //////////
+      // if (_rate_equation_string[i].find("Tgas") != std::string::npos)
+      // {
+      //   std::cout << "found!" << std::endl;
+      // }
+      //////////
+
+      // Here we need to parse the individual reaction equations to find the
+      // variables and constants.
+      // std::istringstream iss(_rate_equation_string[i]);
+      // std::string token;
+      // while (std::getline(iss >> std::ws, token,'/'))
+      // {
+      //   std::cout << token << std::endl;
+      // }
     }
     else
     {
-      _rate_coefficient[i] = stof(rate_coefficient_string[i]);
+      _rate_coefficient[i] = std::stod(rate_coefficient_string[i]);
+      _rate_type[i] = "Constant";
     }
   }
 
@@ -294,6 +330,7 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
   _species_count.resize(_num_reactions + superelastic_reactions, std::vector<Real>(_species.size()));
   _reactants.resize(_reactants.size() + superelastic_reactions);
   _products.resize(_products.size() + superelastic_reactions);
+  _aux_var_name.resize(_num_reactions + superelastic_reactions);
   if (superelastic_reactions > 0)
   {
     for (unsigned int i = 0; i < _num_reactions; ++i)
@@ -313,6 +350,7 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
         _superelastic_reaction[new_index] = true;
         _rate_coefficient[new_index] = NAN;
         _threshold_energy[new_index] = -_threshold_energy[i];
+        _aux_var_name[new_index] = "rate_constant"+std::to_string(i);
         if (_rate_equation[i] == true)
         {
           _rate_equation[new_index] = true;
@@ -436,11 +474,19 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
 }
 
 void
-AddLotsOfTwoBodyReactions::act()
+ChemicalReactions::act()
 {
   int v_index;
+  std::vector<int> other_index;
+  std::vector<int> reactant_indices;
+  std::vector<std::string> other_variables;
+  other_variables.resize(3);
+  other_variables[0] = "v";
+  other_variables[1] = "w";
+  other_variables[2] = "x";
   bool find_other;
   bool species_v, species_w;
+  std::vector<bool> include_species;
   unsigned int target; // stores index of target species for electron-impact reactions
   std::string product_kernel_name;
   std::string reactant_kernel_name;
@@ -456,15 +502,136 @@ AddLotsOfTwoBodyReactions::act()
 
   if (gas_tracking)
   {
-    mooseError("Functionality for tracking neutral gas densities and temperatures is under development.");
+    // mooseError("Functionality for tracking neutral gas densities and temperatures is under development.");
+    std::cout << "WARNING: Functionality for tracking neutral gas densities is still under development." << std::endl;
   }
 
-  if (_current_task == "add_material")
+  else if (_current_task == "add_function" && _scalar_problem == false)
+  {
+    mooseError("Unable to add parsed materials! (Work in progress...)");
+  }
+  //
+  // if (_current_task == "add_user_object" && _scalar_problem == true)
+  // {
+  //   for (unsigned int i=0; i<_num_reactions; ++i)
+  //   {
+  //     // if (_rate_type[i] == "EEDF")
+  //     // {
+  //     //   InputParameters params = _factory.getValidParams("RateCoefficientProvider");
+  //     //   params.set<std::string>("file_location") = getParam<std::string>("file_location");
+  //     //   params.set<std::string>("sampling_format") = _sampling_format;
+  //     //   params.set<FileName>("property_file") = "reaction_"+_reaction[i]+".txt";
+  //     //   params.set<std::string>("rate_format") = _rate_type[i];
+  //     //   params.set<std::vector<VariableName>>("reduced_field") = getParam<std::vector<VariableName>>("rate_provider_var");
+  //     //   // params.set<std::vector<VariableName>>("reduced_field") = {"Te"};
+  //     //   _problem->addUserObject("RateCoefficientProvider", "rate_coefficient"+std::to_string(i), params);
+  //     // }
+  //     // else if (_rate_type[i] == "Constant")
+  //     if (_rate_type[i] == "Constant")
+  //     {
+  //       InputParameters params = _factory.getValidParams("RateCoefficientProvider");
+  //       params.set<Real>("rate_constant") = _rate_coefficient[i];
+  //       params.set<std::string>("rate_format") = _rate_type[i];
+  //       _problem->addUserObject("RateCoefficientProvider", "rate_coefficient"+std::to_string(i), params);
+  //     }
+  //     // else if (_rate_type[i] == "Equation")
+  //     else if (_rate_type[i] == "Equation" || _rate_type[i] == "EEDF")
+  //     {
+  //       // This is essentially a "default" UserObject. It is not used.
+  //       // This is done to prevent having multiple different kernels just to distinguish between
+  //       // equation-based rate constants and the file or constant values.
+  //       // Possible to include default UserObject from kernel? Not sure...
+  //       InputParameters params = _factory.getValidParams("RateCoefficientProvider");
+  //       // params.set<std::string>("rate_format") = _rate_type[i];
+  //       params.set<std::string>("rate_format") = "Equation";
+  //       _problem->addUserObject("RateCoefficientProvider", "rate_coefficient"+std::to_string(i), params);
+  //     }
+  //     else
+  //     {
+  //       mooseError("No scalar kernel available for rate format type " + _rate_type[i] + "!");
+  //     }
+  //   }
+  // }
+
+  if (_current_task == "add_aux_variable" && _scalar_problem == true)
+  {
+    for (unsigned int i=0; i < _num_reactions; ++i)
+    {
+      // if (_rate_type[i] == "Equation" || _rate_type[i] == "EEDF")
+      // {
+      // if (_rate_type[i] == "Constant")
+      // {
+        // _problem->addAuxScalarVariable(_aux_var_name[i], FIRST);
+        // _problem->createInitialConditionAction(_aux_var_name[i], 5.0);
+      // }
+      // else
+      _problem->addAuxScalarVariable(_aux_var_name[i], FIRST);
+    }
+  }
+
+  if (_current_task == "add_aux_scalar_kernel" && _scalar_problem == true)
+  {
+    for (unsigned int i=0; i < _num_reactions; ++i)
+    {
+      if (_rate_type[i] == "EEDF")
+      {
+        InputParameters params = _factory.getValidParams("DataReadScalar");
+        params.set<AuxVariableName>("variable") = {_aux_var_name[i]};
+        params.set<std::vector<VariableName>>("sampler") = {"reduced_field"};
+        params.set<FileName>("property_file") = "reaction_"+_reaction[i]+".txt";
+        params.set<std::string>("file_location") = "OutputRates_Crane_ex3";
+        params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
+        _problem->addAuxScalarKernel("DataReadScalar", "aux_rate"+std::to_string(i), params);
+      }
+      else if (_rate_type[i] == "Equation")
+      {
+        InputParameters params = _factory.getValidParams("ParsedScalarRateCoefficient");
+        params.set<AuxVariableName>("variable") = {_aux_var_name[i]};
+        params.set<std::string>("function") = _rate_equation_string[i];
+        params.set<bool>("file_read") = true;
+        params.set<std::vector<std::string>>("file_value") = {"Te"};
+        params.set<std::vector<std::string>>("constant_names") = getParam<std::vector<std::string>>("equation_constants");
+        params.set<std::vector<std::string>>("constant_expressions") = getParam<std::vector<std::string>>("equation_values");
+        params.set<UserObjectName>("electron_temperature") = "value_provider";
+        params.set<std::vector<VariableName>>("reduced_field") = {"reduced_field"};
+        if (getParam<bool>("gas_temperature"))
+        {
+          params.set<bool>("gas_temperature") = true;
+          std::vector<NonlinearVariableName> gas_temp = getParam<std::vector<NonlinearVariableName>>("equation_variables");
+          std::string temp_var;
+          for (unsigned int m = 0; m<gas_temp.size(); ++m)
+          {
+            if (gas_temp[m] == "Tgas")
+              temp_var = gas_temp[m];
+              break;
+          }
+          params.set<std::vector<VariableName>>("args") = {temp_var};
+
+        }
+        params.set<std::vector<VariableName>>("args") = {"Te"};
+        // params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN NONLINEAR";
+        params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
+        _problem->addAuxScalarKernel("ParsedScalarRateCoefficient", "aux_rate"+std::to_string(i), params);
+      }
+      else // Constant is only other option
+      {
+        InputParameters params = _factory.getValidParams("AuxInitialConditionScalar");
+        params.set<Real>("initial_condition") = _rate_coefficient[i];
+        params.set<AuxVariableName>("variable") = {_aux_var_name[i]};
+        params.set<ExecFlagEnum>("execute_on") = "INITIAL";
+        _problem->addAuxScalarKernel("AuxInitialConditionScalar", "aux_initialization_rxn"+std::to_string(i), params);
+      }
+        // continue;
+        // InputParameters params = _factory.getValidParams("")
+    }
+  }
+
+  if (_current_task == "add_material" && _scalar_problem == false)
   {
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
       _reaction_coefficient_name[i] = "alpha_"+_reaction[i];
-      if (isnan(_rate_coefficient[i]) && _rate_equation[i] == false && _superelastic_reaction[i] == false && _coefficient_format == "townsend")
+      if (_rate_type[i] == "EEDF" && _coefficient_format == "townsend")
       {
         // BOLOS and BOLSIG+ both get stored as NAN in _rate_coefficient, as to
         // rate constants based on an equation (_rate_equation).
@@ -518,7 +685,7 @@ AddLotsOfTwoBodyReactions::act()
 
         _problem->addMaterial("EEDFRateConstantTownsend", "reaction_"+std::to_string(i), params);
       }
-      else if (isnan(_rate_coefficient[i]) && _rate_equation[i] == false && _superelastic_reaction[i] == false && _coefficient_format == "rate")
+      else if (_rate_type[i] == "EEDF" && _coefficient_format == "rate")
       {
         Real position_units = getParam<Real>("position_units");
         InputParameters params = _factory.getValidParams("EEDFRateConstant");
@@ -529,14 +696,14 @@ AddLotsOfTwoBodyReactions::act()
         params.set<FileName>("property_file") = "reaction_"+_reaction[i]+".txt";
         _problem->addMaterial("EEDFRateConstant", "reaction_"+std::to_string(i), params);
       }
-      else if (!isnan(_rate_coefficient[i]) && _rate_equation[i] == false && _superelastic_reaction[i] == false)
+      else if (_rate_type[i] == "Constant")
       {
         InputParameters params = _factory.getValidParams("GenericRateConstant");
         params.set<std::string>("reaction") = _reaction[i];
         params.set<Real>("reaction_rate_value") = _rate_coefficient[i];
         _problem->addMaterial("GenericRateConstant", "reaction_"+std::to_string(i), params);
       }
-      else if (_rate_equation[i] == true)
+      else if (_rate_type[i] == "Equation")
       {
         std::cout << "WARNING: CRANE cannot yet handle equation-based equations." << std::endl;
         // This should be a mooseError...but I'm using it for testing purposes.
@@ -562,13 +729,10 @@ AddLotsOfTwoBodyReactions::act()
 
         // Now we find the correct index to obtain the necessary stoichiometric values
         std::vector<std::string>::iterator iter;
-        // std::vector<int> active_index;
         std::vector<Real> active_constants;
-        // active_index.resize(active_participants.size());
         for (unsigned int k = 0; k < active_participants.size(); ++k)
         {
           iter = std::find(_all_participants.begin(), _all_participants.end(), active_participants[k]);
-          // active_index[k] = std::distance(_all_participants.begin(), iter);
           active_constants.push_back(_stoichiometric_coeff[i][std::distance(_all_participants.begin(), iter)]);
         }
 
@@ -580,56 +744,169 @@ AddLotsOfTwoBodyReactions::act()
         params.set<std::string>("file_location") = "PolynomialCoefficients";
         _problem->addMaterial("SuperelasticReactionRate", "reaction_"+std::to_string(i), params);
       }
+
+      // Now we check for reactions that include a change of energy.
+      // Will this require  its own material?
       if (_energy_change == true)
       {
-        // First we need to apply the
-        // InputParameters params = _factory.getValidParams("")
+        // Gas temperature is almost in place, but not finished yet.
         std::cout << "WARNING: energy dependence is not yet implemented." << std::endl;
       }
     }
   }
 
+  // adds scalar kernels (if 0D problem)
+  if (_current_task == "add_scalar_kernel" && _scalar_problem == true)
+  {
+    int index; // stores index of species in the reactant/product arrays
+    std::vector<std::string>::iterator iter;
+    std::vector<Real> rxn_coeff = getParam<std::vector<Real>>("reaction_coefficient");
+    for (unsigned int i = 0; i < _num_reactions; ++i)
+    {
+      // std::cout << rxn_coeff[i] << std::endl;
+      if (_reactants[i].size() == 1)
+      {
+        product_kernel_name = "Product1BodyScalar";
+        reactant_kernel_name = "Reactant1BodyScalar";
+      }
+      else if (_reactants[i].size() == 2)
+      {
+        product_kernel_name = "Product2BodyScalar";
+        reactant_kernel_name = "Reactant2BodyScalar";
+      }
+      else
+      {
+        product_kernel_name = "Product3BodyScalar";
+        reactant_kernel_name = "Reactant3BodyScalar";
+      }
+
+      for (int j = 0; j < _species.size(); ++j)
+      {
+        iter = std::find(_reactants[i].begin(), _reactants[i].end(), _species[j]);
+        index = std::distance(_reactants[i].begin(), iter);
+
+        if (iter != _reactants[i].end())
+        {
+          reactant_indices.resize(_reactants[i].size());
+          for (unsigned int k=0; k<_reactants[i].size(); ++k)
+            reactant_indices[k] = k;
+          reactant_indices.erase(reactant_indices.begin() + index);
+          for (unsigned int k=0; k<reactant_indices.size(); ++k)
+          {
+            find_other = std::find(_species.begin(), _species.end(), _reactants[i][reactant_indices[k]]) != _species.end();
+            if (find_other)
+              continue;
+            else
+              reactant_indices.erase(reactant_indices.begin() + k);
+          }
+          v_index = std::abs(index - 1);
+          find_other = std::find(_species.begin(), _species.end(), _reactants[i][v_index]) != _species.end();
+          if (_species_count[i][j] < 0)
+          {
+            InputParameters params = _factory.getValidParams(reactant_kernel_name);
+            params.set<NonlinearVariableName>("variable") = _species[j];
+            params.set<Real>("coefficient") = _species_count[i][j];
+            // params.set<Real>("n_gas") = 3.219e24;
+            params.set<Real>("n_gas") = 3.219e18;
+            // params.set<Real>("n_gas") = 1;
+            // params.set<UserObjectName>("rate_provider") = "rate_coefficient"+std::to_string(i);
+            // params.set<std::string>("reaction") = _reaction[i];
+            // if (_rate_equation[i])
+            // if (_rate_type[i] == "Equation" || _rate_type[i] == "EEDF")
+            // {
+              params.set<std::vector<VariableName>>("rate_coefficient") = {_aux_var_name[i]};
+              params.set<bool>("rate_constant_equation") = true;
+            // }
+            if (find_other)
+            {
+              for (unsigned int k=0; k<reactant_indices.size(); ++k)
+                params.set<std::vector<VariableName>>(other_variables[k]) = {_reactants[i][reactant_indices[k]]};
+            }
+            _problem->addScalarKernel(reactant_kernel_name, "kernel"+std::to_string(j)+"_"+_reaction[i], params);
+
+          }
+        }
+
+        iter = std::find(_products[i].begin(), _products[i].end(), _species[j]);
+        include_species.resize(_reactants[i].size());
+        for (unsigned int k=0; k<_reactants[i].size(); ++k)
+        {
+          include_species[k] = std::find(_species.begin(), _species.end(), _reactants[i][k]) != _species.end();
+        }
+        if (iter != _products[i].end())
+        {
+
+          if (_species_count[i][j] > 0)
+          {
+            // std::cout << _species_count[i][j] << std::endl;
+            // std::cout <<
+            InputParameters params = _factory.getValidParams(product_kernel_name);
+            params.set<NonlinearVariableName>("variable") = _species[j];
+            // params.set<Real>("n_gas") = 3.219e24;
+            params.set<Real>("n_gas") = 3.219e18;
+            // params.set<Real>("n_gas") = 1;
+            // params.set<Real>("reaction_coefficient") = rxn_coeff[i];
+            // params.set<UserObjectName>("rate_provider") = "rate_coefficient"+std::to_string(i);
+            // if (_rate_equation[i])
+            // if (_rate_type[i] == "Equation" || _rate_type[i] == "EEDF")
+            // {
+              params.set<std::vector<VariableName>>("rate_coefficient") = {_aux_var_name[i]};
+              params.set<bool>("rate_constant_equation") = true;
+            // }
+            params.set<Real>("coefficient") = _species_count[i][j];
+            for (unsigned int k=0; k<_reactants[i].size(); ++k)
+            {
+              if (include_species[k])
+              {
+                params.set<std::vector<VariableName>>(other_variables[k]) = {_reactants[i][k]};
+                if (_species[j] == _reactants[i][k])
+                {
+                  params.set<bool>(other_variables[k]+"_eq_u") = true;
+                }
+              }
+
+            }
+            _problem->addScalarKernel(product_kernel_name, "kernel_prod"+std::to_string(j)+"_"+_reaction[i], params);
+          }
+        }
+
+      }
+    }
+  }
+
+
   // Add appropriate kernels to each reactant and product.
-  if (_current_task == "add_kernel")
+  if (_current_task == "add_kernel" && _scalar_problem == false)
   {
     int index; // stores index of species in the reactant/product arrays
     std::vector<std::string>::iterator iter;
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
-      if (!isnan(_rate_coefficient[i]) || _rate_equation[i] == true || _superelastic_reaction[i] == true || getParam<bool>("track_electron_energy") == false)
+      // if (!isnan(_rate_coefficient[i]) || _rate_equation[i] == true || _superelastic_reaction[i] == true || getParam<bool>("track_electron_energy") == false)
+      if (_coefficient_format == "rate")
       {
         if (_reactants[i].size() == 1)
         {
-          if (_use_log)
-          {
-            product_kernel_name = "ProductFirstOrderLog";
-            reactant_kernel_name = "ReactantFirstOrderLog";
-          }
-          else
-          {
-            product_kernel_name = "ProductFirstOrder";
-            reactant_kernel_name = "ReactantFirstOrder";
-          }
+          product_kernel_name = "ProductFirstOrder";
+          reactant_kernel_name = "ReactantFirstOrder";
         }
         else if (_reactants[i].size() == 2)
         {
-          if (_use_log)
-          {
-            product_kernel_name = "ProductSecondOrderLog";
-            reactant_kernel_name = "ReactantSecondOrderLog";
-          }
-          else
-          {
-            product_kernel_name = "ProductSecondOrder";
-            reactant_kernel_name = "ReactantSecondOrder";
-          }
+          product_kernel_name = "ProductSecondOrder";
+          reactant_kernel_name = "ReactantSecondOrder";
         }
         else
         {
-          mooseError("LotsOfTwoBodyReactions cannot handle "+std::to_string(_reactants[i].size())+"-body reactions! \nReaction: "+_reaction[i]);
+          product_kernel_name = "ProductThirdOrder";
+          reactant_kernel_name = "ReactantThirdOrder";
+        }
+        if (_use_log)
+        {
+          product_kernel_name += "Log";
+          reactant_kernel_name += "Log";
         }
       }
-      else
+      else if (_coefficient_format == "townsend")
       {
         if (getParam<bool>("track_electron_energy") == true)
         {
@@ -637,40 +914,6 @@ AddLotsOfTwoBodyReactions::act()
           {
             product_kernel_name = "ElectronImpactReactionProduct";
             reactant_kernel_name = "ElectronImpactReactionReactant";
-            energy_kernel_name = "ElectronEnergyTerm";
-
-            // Add energy equation source/sink term(s)
-            InputParameters params = _factory.getValidParams(energy_kernel_name);
-            params.set<NonlinearVariableName>("variable") = _species_energy[0];
-            if (_coefficient_format == "townsend")
-              params.set<std::vector<VariableName>>("potential") = getParam<std::vector<VariableName>>("potential");
-            params.set<std::vector<VariableName>>("em") = {getParam<std::string>("electron_density")};
-            params.set<std::string>("reaction") = _reaction[i];
-            params.set<Real>("threshold_energy") = _threshold_energy[i];
-            params.set<Real>("position_units") = _r_units;
-            _problem->addKernel(energy_kernel_name, "energy_kernel"+std::to_string(i)+"_"+_reaction[i], params);
-          }
-          else
-          {
-            iter = std::find(_reactants[i].begin(), _reactants[i].end(), getParam<std::string>("electron_density"));
-            index = std::distance(_reactants[i].begin(), iter);
-            v_index = std::abs(index - 1);
-            find_other = std::find(_species.begin(), _species.end(), _reactants[i][v_index]) != _species.end();
-
-
-            // product_kernel_name = "ProductABRxn";
-            // reactant_kernel_name = "ReactantABRxn2";
-            energy_kernel_name = "ElectronEnergyTermRate";
-
-            InputParameters params = _factory.getValidParams(energy_kernel_name);
-            params.set<NonlinearVariableName>("variable") = _species_energy[0];
-            params.set<std::vector<VariableName>>("em") = {getParam<std::string>("electron_density")};
-            if (find_other)
-              params.set<std::vector<VariableName>>("v") = {_reactants[i][v_index]};
-            params.set<std::string>("reaction") = _reaction[i];
-            params.set<Real>("threshold_energy") = _threshold_energy[i];
-            params.set<Real>("position_units") = _r_units;
-            _problem->addKernel(energy_kernel_name, "energy_kernel"+std::to_string(i)+"_"+_reaction[i], params);
           }
         }
       }
@@ -686,11 +929,36 @@ AddLotsOfTwoBodyReactions::act()
           // We only treat two-body reactions now. This will need to be changed for three-body reactions.
           // e.g. 1) find size of reactants array 2) use find() to search other values inside that size that are not == index
           // 3) same result!
+          reactant_indices.resize(_reactants[i].size());
+          for (unsigned int k=0; k<_reactants[i].size(); ++k)
+            reactant_indices[k] = k;
+          reactant_indices.erase(reactant_indices.begin() + index);
+          for (unsigned int k=0; k<reactant_indices.size(); ++k)
+          {
+            find_other = std::find(_species.begin(), _species.end(), _reactants[i][reactant_indices[k]]) != _species.end();
+            if (find_other)
+              continue;
+            else
+              reactant_indices.erase(reactant_indices.begin() + k);
+          }
           v_index = std::abs(index - 1);
           find_other = std::find(_species.begin(), _species.end(), _reactants[i][v_index]) != _species.end();
           if (_species_count[i][j] < 0)
           {
-            if (!isnan(_rate_coefficient[i]))
+            if (_coefficient_format == "townsend")
+            {
+              InputParameters params = _factory.getValidParams(reactant_kernel_name);
+              // params.set<NonlinearVariableName>("variable") = _reactants[i][index];
+              params.set<NonlinearVariableName>("variable") = _species[j];
+              params.set<std::vector<VariableName>>("mean_en") = getParam<std::vector<VariableName>>("electron_energy");
+              params.set<std::vector<VariableName>>("potential") = getParam<std::vector<VariableName>>("potential");
+              params.set<std::vector<VariableName>>("em") = {getParam<std::string>("electron_density")};
+              params.set<Real>("position_units") = _r_units;
+              params.set<std::string>("reaction") = _reaction[i];
+              // params.set<std::string>("reaction_coefficient_name") = _reaction_coefficient_name[i];
+              _problem->addKernel(reactant_kernel_name, "kernel"+std::to_string(j)+"_"+_reaction[i], params);
+            }
+            else if (_coefficient_format == "rate")
             {
               InputParameters params = _factory.getValidParams(reactant_kernel_name);
               params.set<NonlinearVariableName>("variable") = _species[j];
@@ -699,99 +967,71 @@ AddLotsOfTwoBodyReactions::act()
 
               if (find_other)
               {
-                params.set<std::vector<VariableName>>("v") = {_reactants[i][v_index]};
+                for (unsigned int k=0; k<reactant_indices.size(); ++k)
+                  params.set<std::vector<VariableName>>(other_variables[k]) = {_reactants[i][reactant_indices[k]]};
+                // params.set<std::vector<VariableName>>("v") = {_reactants[i][v_index]};
               }
               _problem->addKernel(reactant_kernel_name, "kernel"+std::to_string(j)+"_"+_reaction[i], params);
-            }
-            else
-            {
-              if (_coefficient_format == "townsend")
-              {
-                InputParameters params = _factory.getValidParams(reactant_kernel_name);
-                // params.set<NonlinearVariableName>("variable") = _reactants[i][index];
-                params.set<NonlinearVariableName>("variable") = _species[j];
-                params.set<std::vector<VariableName>>("mean_en") = getParam<std::vector<VariableName>>("electron_energy");
-                if (_coefficient_format == "townsend")
-                  params.set<std::vector<VariableName>>("potential") = getParam<std::vector<VariableName>>("potential");
-                params.set<std::vector<VariableName>>("em") = {getParam<std::string>("electron_density")};
-                params.set<Real>("position_units") = _r_units;
-                params.set<std::string>("reaction") = _reaction[i];
-                params.set<std::string>("reaction_coefficient_name") = _reaction_coefficient_name[i];
-                _problem->addKernel(reactant_kernel_name, "kernel"+std::to_string(j)+"_"+_reaction[i], params);
-              }
-              else if (_coefficient_format == "rate")
-              {
-                InputParameters params = _factory.getValidParams(reactant_kernel_name);
-                params.set<NonlinearVariableName>("variable") = _species[j];
-                params.set<Real>("coefficient") = _species_count[i][j];
-                params.set<std::string>("reaction") = _reaction[i];
-
-                if (find_other)
-                {
-                  params.set<std::vector<VariableName>>("v") = {_reactants[i][v_index]};
-                }
-                _problem->addKernel(reactant_kernel_name, "kernel"+std::to_string(j)+"_"+_reaction[i], params);
-
-              }
             }
           }
         }
 
         // Now we do the same thing for the products side of the reaction
         iter = std::find(_products[i].begin(), _products[i].end(), _species[j]);
-        index = std::distance(_products[i].begin(), iter);
-        species_v = std::find(_species.begin(), _species.end(), _reactants[i][0]) != _species.end();
-        species_w = std::find(_species.begin(), _species.end(), _reactants[i][1]) != _species.end();
-
+        // index = std::distance(_products[i].begin(), iter);
+        // species_v = std::find(_species.begin(), _species.end(), _reactants[i][0]) != _species.end();
+        // species_w = std::find(_species.begin(), _species.end(), _reactants[i][1]) != _species.end();
+        include_species.resize(_reactants[i].size());
+        for (unsigned int k=0; k<_reactants[i].size(); ++k)
+        {
+          include_species[k] = std::find(_species.begin(), _species.end(), _reactants[i][k]) != _species.end();
+        }
         if (iter != _products[i].end())
         {
 
           if (_species_count[i][j] > 0)
           {
-            if (!isnan(_rate_coefficient[i]))
+            if (_coefficient_format == "townsend")
+            {
+              InputParameters params = _factory.getValidParams(product_kernel_name);
+              params.set<NonlinearVariableName>("variable") = _species[j];
+              params.set<std::vector<VariableName>>("mean_en") = getParam<std::vector<VariableName>>("electron_energy");
+              if (_coefficient_format == "townsend")
+                params.set<std::vector<VariableName>>("potential") = getParam<std::vector<VariableName>>("potential");
+              params.set<std::vector<VariableName>>("em") = {getParam<std::string>("electron_density")};
+              params.set<Real>("position_units") = _r_units;
+              params.set<std::string>("reaction") = _reaction[i];
+              params.set<std::string>("reaction_coefficient_name") = _reaction_coefficient_name[i];
+              _problem->addKernel(product_kernel_name, "kernel_prod"+std::to_string(j)+"_"+_reaction[i], params);
+            }
+            else if (_coefficient_format == "rate")
             {
               InputParameters params = _factory.getValidParams(product_kernel_name);
               params.set<NonlinearVariableName>("variable") = _species[j];
               params.set<std::string>("reaction") = _reaction[i];
-              if (species_v)
-                params.set<std::vector<VariableName>>("v") = {_reactants[i][0]};
-              if (species_w)
-                params.set<std::vector<VariableName>>("w") = {_reactants[i][1]};
+              // This loop includes reactants as long as they are tracked species.
+              // If a species is not tracked, it is treated as a background gas.
+              for (unsigned int k=0; k<_reactants[i].size(); ++k)
+              {
+                if (include_species[k])
+                {
+                  params.set<std::vector<VariableName>>(other_variables[k]) = {_reactants[i][k]};
+                  if (_species[j] == _reactants[i][k])
+                  {
+                    params.set<bool>("_"+other_variables[k]+"_eq_u") = true;
+                  }
+                }
+
+              }
               params.set<Real>("coefficient") = _species_count[i][j];
               _problem->addKernel(product_kernel_name, "kernel_prod"+std::to_string(j)+"_"+_reaction[i], params);
-            }
-            else
-            {
-              if (_coefficient_format == "townsend")
-              {
-                InputParameters params = _factory.getValidParams(product_kernel_name);
-                params.set<NonlinearVariableName>("variable") = _species[j];
-                params.set<std::vector<VariableName>>("mean_en") = getParam<std::vector<VariableName>>("electron_energy");
-                if (_coefficient_format == "townsend")
-                  params.set<std::vector<VariableName>>("potential") = getParam<std::vector<VariableName>>("potential");
-                params.set<std::vector<VariableName>>("em") = {getParam<std::string>("electron_density")};
-                params.set<Real>("position_units") = _r_units;
-                params.set<std::string>("reaction") = _reaction[i];
-                params.set<std::string>("reaction_coefficient_name") = _reaction_coefficient_name[i];
-                _problem->addKernel(product_kernel_name, "kernel_prod"+std::to_string(j)+"_"+_reaction[i], params);
-              }
-              else if (_coefficient_format == "rate")
-              {
-                InputParameters params = _factory.getValidParams(product_kernel_name);
-                params.set<NonlinearVariableName>("variable") = _species[j];
-                params.set<std::string>("reaction") = _reaction[i];
-                if (species_v)
-                  params.set<std::vector<VariableName>>("v") = {_reactants[i][0]};
-                if (species_w)
-                  params.set<std::vector<VariableName>>("w") = {_reactants[i][1]};
-                params.set<Real>("coefficient") = _species_count[i][j];
-                _problem->addKernel(product_kernel_name, "kernel_prod"+std::to_string(j)+"_"+_reaction[i], params);
-              }
             }
           }
         }
 
       }
+
+      // To do: add energy kernels here
     }
   }
 
