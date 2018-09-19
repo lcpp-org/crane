@@ -73,7 +73,6 @@ DataReadScalar::computeValue()
   // Ensure positivity
   if (val < 0.0)
   {
-    std::cout << _sampler_var[0] << std::endl;
     val = 0.0;
     // val = abs(val);
   }

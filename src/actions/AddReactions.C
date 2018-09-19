@@ -66,7 +66,6 @@ validParams<ChemicalReactions>()
   params.addParam<std::string>("file_location", "", "The location of the reaction rate files. Default: empty string (current directory).");
   params.addParam<bool>("use_moles", "Whether to use molar units.");
   params.addParam<std::string>("sampling_format", "reduced_field", "Sample rate constants with E/N (reduced_field) or Te (electron_energy).");
-  params.addParam<bool>("scalar_problem", false, "The problem is scalar if it is a pure ODE problem (Global/0D).");
   params.addParam<std::vector<std::string>>("equation_constants", "The constants included in the reaction equation(s).");
   params.addParam<std::vector<std::string>>("equation_values", "The values of the constants included in the reaction equation(s).");
   params.addParam<std::vector<NonlinearVariableName>>("equation_variables", "Any nonlinear variables that appear in the equations.");
@@ -76,25 +75,6 @@ validParams<ChemicalReactions>()
   return params;
 }
 
-// Here are a few functions for removing whitespace before/after expressions.
-// (Makes the reaction input formatting more forgiving!)
-// static inline string &ltrim(string &s)
-// {
-//   s.erase(s.begin(),find_if_not(s.begin(),s.end(),[](int c){return isspace(c);}));
-//   return s;
-// }
-//
-// static inline string &rtrim(string &s)
-// {
-//   s.erase(find_if_not(s.rbegin(),s.rend(),[](int c){return isspace(c);}).base(), s.end());
-//   return s;
-// }
-//
-// static inline string trim(string &s)
-// {
-//   return ltrim(rtrim(s));
-// }
-
 ChemicalReactions::ChemicalReactions(InputParameters params)
   : Action(params),
     _species(getParam<std::vector<NonlinearVariableName>>("species")),
@@ -103,9 +83,7 @@ ChemicalReactions::ChemicalReactions(InputParameters params)
     _r_units(getParam<Real>("position_units")),
     _coefficient_format(getParam<std::string>("reaction_coefficient_format")),
     _sampling_format(getParam<std::string>("sampling_format")),
-    _use_log(getParam<bool>("use_log")),
-    _scalar_problem(getParam<bool>("scalar_problem"))
-    // _scalar_problem(getParam<bool>("scalar_problem"))
+    _use_log(getParam<bool>("use_log"))
 {
   // 1) split into reactants and products
   // 2) split products into products and reaction rate
@@ -503,66 +481,11 @@ ChemicalReactions::act()
     std::cout << "WARNING: Functionality for tracking neutral gas densities is still under development." << std::endl;
   }
 
-  else if (_current_task == "add_function" && _scalar_problem == false)
-  {
-    mooseError("Unable to add parsed materials! (Work in progress...)");
-  }
-  //
-  // if (_current_task == "add_user_object" && _scalar_problem == true)
-  // {
-  //   for (unsigned int i=0; i<_num_reactions; ++i)
-  //   {
-  //     // if (_rate_type[i] == "EEDF")
-  //     // {
-  //     //   InputParameters params = _factory.getValidParams("RateCoefficientProvider");
-  //     //   params.set<std::string>("file_location") = getParam<std::string>("file_location");
-  //     //   params.set<std::string>("sampling_format") = _sampling_format;
-  //     //   params.set<FileName>("property_file") = "reaction_"+_reaction[i]+".txt";
-  //     //   params.set<std::string>("rate_format") = _rate_type[i];
-  //     //   params.set<std::vector<VariableName>>("reduced_field") = getParam<std::vector<VariableName>>("rate_provider_var");
-  //     //   // params.set<std::vector<VariableName>>("reduced_field") = {"Te"};
-  //     //   _problem->addUserObject("RateCoefficientProvider", "rate_coefficient"+std::to_string(i), params);
-  //     // }
-  //     // else if (_rate_type[i] == "Constant")
-  //     if (_rate_type[i] == "Constant")
-  //     {
-  //       InputParameters params = _factory.getValidParams("RateCoefficientProvider");
-  //       params.set<Real>("rate_constant") = _rate_coefficient[i];
-  //       params.set<std::string>("rate_format") = _rate_type[i];
-  //       _problem->addUserObject("RateCoefficientProvider", "rate_coefficient"+std::to_string(i), params);
-  //     }
-  //     // else if (_rate_type[i] == "Equation")
-  //     else if (_rate_type[i] == "Equation" || _rate_type[i] == "EEDF")
-  //     {
-  //       // This is essentially a "default" UserObject. It is not used.
-  //       // This is done to prevent having multiple different kernels just to distinguish between
-  //       // equation-based rate constants and the file or constant values.
-  //       // Possible to include default UserObject from kernel? Not sure...
-  //       InputParameters params = _factory.getValidParams("RateCoefficientProvider");
-  //       // params.set<std::string>("rate_format") = _rate_type[i];
-  //       params.set<std::string>("rate_format") = "Equation";
-  //       _problem->addUserObject("RateCoefficientProvider", "rate_coefficient"+std::to_string(i), params);
-  //     }
-  //     else
-  //     {
-  //       mooseError("No scalar kernel available for rate format type " + _rate_type[i] + "!");
-  //     }
-  //   }
-  // }
-
-  if (_current_task == "add_aux_variable" && _scalar_problem == true)
+  if (_current_task == "add_aux_variable")
   {
     for (unsigned int i=0; i < _num_reactions; ++i)
     {
-      // if (_rate_type[i] == "Equation" || _rate_type[i] == "EEDF")
-      // {
-      // if (_rate_type[i] == "Constant")
-      // {
-        // _problem->addAuxScalarVariable(_aux_var_name[i], FIRST);
-        // _problem->createInitialConditionAction(_aux_var_name[i], 5.0);
-      // }
-      // else
-      _problem->addAuxScalarVariable(_aux_var_name[i], FIRST);
+      _problem->addAuxVariable(_aux_var_name[i], FIRST);
     }
   }
 

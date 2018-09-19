@@ -111,60 +111,34 @@
 
 # Ar2+ + Ar -> Ar^+ + Ar + Ar  : 2.526e-30 {6.06e-6 / Tgas * exp(-15130.0/Tgas)}
 [ChemicalReactions]
-  species = 'e Ar* Ar+ Ar Ar2+'
-  reaction_coefficient_format = 'rate'
-  include_electrons = true
-  electron_density = e
-  # file_location = 'OutputRates_Crane'
-  # file_location = 'OutputRates_Crane_ex2'
-  # file_location = 'OutputRates_Crane_ex3'
-  file_location = 'OutputRates_BOLSIG'
-  scalar_problem = true
+  [./ScalarNetwork]
+    species = 'e Ar* Ar+ Ar Ar2+'
+    reaction_coefficient_format = 'rate'
+    include_electrons = true
+    electron_density = e
+    file_location = 'OutputRates_BOLSIG'
 
-  # These are parameters required equation-based rate coefficients
-  equation_constants = 'Tgas J pi'
-  equation_values = '300 2.405 3.141'
-  equation_variables = 'Te'
-  rate_provider_var = 'reduced_field'
-  # equation_variables = 'Tgas'
-  # gas_temperature = true
+    # These are parameters required equation-based rate coefficients
+    equation_constants = 'Tgas J pi'
+    equation_values = '300 2.405 3.141'
+    equation_variables = 'Te'
+    rate_provider_var = 'reduced_field'
 
-  # Reaction coefficients in [s^-1], [cm^3/s], [cm^6/s]
-  # reactions = 'Ar2+ + Ar -> Ar                 : {6.06e-6/Tgas*exp(-15130.0/Tgas)}'
-  # reactions = 'Ar2+ + Ar -> Ar  : 1.0e-8'
-  # reactions = 'e + Ar -> e + e + Ar+          : BOLOS
-  #              e + Ar -> Ar* + e              : BOLOS
-  #              e + Ar* -> Ar + e              : 2.80566e-8
-  #              e + Ar* -> Ar+ + e + e         : BOLOS
-  #              Ar2+ + e -> Ar* + Ar           : 2.75918e-8
-  #              Ar2^+ + Ar -> Ar^+ + Ar + Ar   : 6.526e-30
-  #              Ar* + Ar* -> Ar2+ + e          : 6.0e-10
-  #              Ar+ + e + e -> Ar + e          : 1.22096e-29
-  #              Ar* + Ar + Ar -> Ar + Ar + Ar  : 1.399e-32
-  #              Ar+ + Ar + Ar -> Ar2+ + Ar     : 2.25e-31
-  #              e -> W                         : 5348.91
-  #              Ar+ -> W                       : 5348.91
-  #              Ar2+ -> W                      : 5348.91'
 
-  reactions = 'e + Ar -> e + e + Ar+          : BOLOS
-               e + Ar -> Ar* + e              : BOLOS
-               e + Ar* -> Ar + e              : BOLOS
-               e + Ar* -> Ar+ + e + e         : BOLOS
-               Ar2+ + e -> Ar* + Ar           : {8.5e-7*((Te/1.5)*11600/300.0)^(-0.67)}
-               Ar2+ + Ar -> Ar+ + Ar + Ar     : {(6.06e-6/Tgas)*exp(-15130.0/Tgas)}
-               Ar* + Ar* -> Ar2+ + e          : 6.0e-10
-               Ar+ + e + e -> Ar + e          : {8.75e-27*((Te/1.5)^(-4.5))}
-               Ar* + Ar + Ar -> Ar + Ar + Ar  : 1.399e-32
-               Ar+ + Ar + Ar -> Ar2+ + Ar     : {2.25e-31*(Tgas/300.0)^(-0.4)}
-               e -> W                         : {1.52*(760/100)*(Tgas/273.16)*(Te/1.5)*((J/0.4)^2 + (pi/0.4)^2)}
-               Ar+ -> W                       : {1.52*(760/100)*(Tgas/273.16)*(Te/1.5)*((J/0.4)^2 + (pi/0.4)^2)}
-               Ar2+ -> W                      : {1.52*(760/100)*(Tgas/273.16)*(Te/1.5)*((J/0.4)^2 + (pi/0.4)^2)}'
-  #
-  # reactions = 'e + Ar -> e + e + Ar+          : BOLOS
-  #              e + Ar -> Ar* + e              : BOLOS
-  #              e + Ar* -> Ar + e              : BOLOS
-  #              e + Ar* -> Ar+ + e + e         : BOLOS'
-  # reaction_coefficient = '7.767e-20'
+    reactions = 'e + Ar -> e + e + Ar+          : BOLOS
+                 e + Ar -> Ar* + e              : BOLOS
+                 e + Ar* -> Ar + e              : BOLOS
+                 e + Ar* -> Ar+ + e + e         : BOLOS
+                 Ar2+ + e -> Ar* + Ar           : {8.5e-7*((Te/1.5)*11600/300.0)^(-0.67)}
+                 Ar2+ + Ar -> Ar+ + Ar + Ar     : {(6.06e-6/Tgas)*exp(-15130.0/Tgas)}
+                 Ar* + Ar* -> Ar2+ + e          : 6.0e-10
+                 Ar+ + e + e -> Ar + e          : {8.75e-27*((Te/1.5)^(-4.5))}
+                 Ar* + Ar + Ar -> Ar + Ar + Ar  : 1.399e-32
+                 Ar+ + Ar + Ar -> Ar2+ + Ar     : {2.25e-31*(Tgas/300.0)^(-0.4)}
+                 e -> W                         : {1.52*(760/100)*(Tgas/273.16)*(Te/1.5)*((J/0.4)^2 + (pi/0.4)^2)}
+                 Ar+ -> W                       : {1.52*(760/100)*(Tgas/273.16)*(Te/1.5)*((J/0.4)^2 + (pi/0.4)^2)}
+                 Ar2+ -> W                      : {1.52*(760/100)*(Tgas/273.16)*(Te/1.5)*((J/0.4)^2 + (pi/0.4)^2)}'
+  [../]
 []
 
 

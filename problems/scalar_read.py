@@ -10,9 +10,10 @@ zdplaskin_file = '/Users/keniley/Documents/LCPP_Atmos/example2/Ar2Reac_1000V_100
 zdplaskin_rate_file = '/Users/keniley/Documents/LCPP_Atmos/example2/file_test.dat'
 # file = 'zdplaskin_ex2_scalar_csv_out_newton.csv'
 # file = 'zdplaskin_ex2_scalar_csv_out.csv'
-file = 'parsed_test_csv_out.csv'
-rate_file = 'parsed_test_csv_out_2.csv'
-
+# file = 'parsed_test_csv_out.csv'
+# rate_file = 'parsed_test_csv_out_2.csv'
+file = 'zdplaskin_ex2_csv_out.csv'
+rate_file = 'zdplaskin_ex2_csv_out_2.csv'
 
 ### READ REACTION RATES FROM ZDPLASKIN
 zd_rates_read = pd.read_csv(zdplaskin_rate_file, sep="  ")
@@ -114,8 +115,8 @@ plot22, = plt.loglog(zdtime, zdAri, 'g--', label='$Ar^+$, ZDPlasKin')
 plot23, = plt.loglog(zdtime, zdAr2i, 'r--', label='$Ar^{2+}$, ZDPlasKin')
 plot24, = plt.loglog(zdtime, zdArEx, 'c--', label='$Ar^*$, ZDPlasKin')
 plot25, = plt.loglog(zdtime, zde, 'k--', label='$e^-$, ZDPlasKin')
-plt.xlabel('Time [s]', fontsize=14)
-plt.ylabel('Density [$cm^{-3}$]', fontsize=14)
+# plt.xlabel('Time [s]', fontsize=14)
+# plt.ylabel('Density [$cm^{-3}$]', fontsize=14)
 # plt.tick_params(axis='both', which='major', labelsize=12)
 # plt.legend(ncol=2)
 title_proxy = Rectangle((0,0), -1, 0, color='w')
