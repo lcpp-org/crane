@@ -438,6 +438,7 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
 void
 AddLotsOfTwoBodyReactions::act()
 {
+  mooseError("AddLotsOfTwoBodyReactions is deprecated! \nPlease use ChemicalReactions/ScalarNetwork or ChemicalReactions/Network instead.");
   int v_index;
   bool find_other;
   bool species_v, species_w;

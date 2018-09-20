@@ -1,9 +1,3 @@
-# [GlobalParams]
-  #use_log = true
-  # execute_on = linear
-  # DIFF_RATE = {1.52*(760/100)*(Tgas/273.16)*(Te-2.18)*((2.405/0.4)^2 + (3.141/0.4)^2)}
-# []
-
 [Mesh]
   type = GeneratedMesh
   dim = 1
@@ -14,38 +8,18 @@
   # elem_type = EDGE2
 []
 
-# [AuxVariables]
-#   # Electron mobility (read from file)
-#   [./mu]
-#     family = SCALAR
-#     order = FIRST
-#   [../]
-# []
-#
-# [AuxScalarKernels]
-#   # Read electron mobility from BOLOS (or BOLSIG+) file
-#   [./mu_read]
-#     type = ElectronMobility
-#     variable = mu
-#     execute_on = 'timestep_begin'
-#   [../]
-# []
-
-
 [Variables]
   # ODE variables
   [./e]
     family = SCALAR
     order = FIRST
     initial_condition = 1e6
-    # scaling = 1e-6
   [../]
 
   [./Ar+]
     family = SCALAR
     order = FIRST
     initial_condition = 1e6
-    # scaling = 1e-6
   [../]
 
   [./Ar]
@@ -59,8 +33,6 @@
     family = SCALAR
     order = FIRST
     initial_condition = 1e6
-    # scaling = 1e-6
-    #scaling = 1e12
   [../]
 
   [./Ar2+]
@@ -68,12 +40,6 @@
     order = FIRST
     initial_condition = 1
   [../]
-
-  # [./Tgas]
-  #   family = SCALAR
-  #   order = FIRST
-  #   initial_condition = 300
-  # [../]
 []
 
 [ScalarKernels]
@@ -116,7 +82,7 @@
     reaction_coefficient_format = 'rate'
     include_electrons = true
     electron_density = e
-    file_location = 'OutputRates_BOLSIG'
+    file_location = 'BOLSIG_rates'
 
     # These are parameters required equation-based rate coefficients
     equation_constants = 'Tgas J pi'
@@ -224,7 +190,7 @@
     variable = mobility
     sampler = reduced_field
     # property_file = 'OutputRates_Crane_ex3/electron_mobility.txt'
-    property_file = 'OutputRates_BOLSIG/electron_mobility.txt'
+    property_file = 'BOLSIG_rates/electron_mobility.txt'
     execute_on = 'INITIAL TIMESTEP_BEGIN'
   [../]
 
@@ -233,7 +199,7 @@
     variable = Te
     sampler = reduced_field
     # property_file = 'OutputRates_Crane_ex3/electron_temperature.txt'
-    property_file = 'OutputRates_BOLSIG/electron_temperature.txt'
+    property_file = 'BOLSIG_rates/electron_temperature.txt'
     execute_on = 'INITIAL TIMESTEP_BEGIN'
   [../]
 []
@@ -244,7 +210,7 @@
   [./value_provider]
     type = ValueProvider
     # property_file = 'OutputRates_Crane_ex3/electron_temperature.txt'
-    property_file = 'OutputRates_BOLSIG/electron_temperature.txt'
+    property_file = 'BOLSIG_rates/electron_temperature.txt'
   [../]
 []
 

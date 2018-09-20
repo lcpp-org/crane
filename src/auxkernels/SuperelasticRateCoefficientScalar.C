@@ -12,13 +12,13 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include "DataReadScalar.h"
+#include "SuperelasticRateCoefficientScalar.h"
 
-registerMooseObject("CraneApp", DataReadScalar);
+registerMooseObject("CraneApp", SuperelasticRateCoefficientScalar);
 
 template <>
 InputParameters
-validParams<DataReadScalar>()
+validParams<SuperelasticRateCoefficientScalar>()
 {
   InputParameters params = validParams<AuxScalarKernel>();
   params.addCoupledVar("sampler", 0, "The variable with which the data will be sampled.");
@@ -31,7 +31,7 @@ validParams<DataReadScalar>()
   return params;
 }
 
-DataReadScalar::DataReadScalar(const InputParameters & parameters)
+SuperelasticRateCoefficientScalar::SuperelasticRateCoefficientScalar(const InputParameters & parameters)
   : AuxScalarKernel(parameters),
     _sampler_var(coupledScalarValue("sampler")),
     _sampler_const(getParam<Real>("const_sampler")),
@@ -62,7 +62,7 @@ DataReadScalar::DataReadScalar(const InputParameters & parameters)
 }
 
 Real
-DataReadScalar::computeValue()
+SuperelasticRateCoefficientScalar::computeValue()
 {
   Real val;
   if (isCoupledScalar("sampler"))

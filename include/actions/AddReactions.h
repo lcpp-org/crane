@@ -1,19 +1,19 @@
-#ifndef CHEMICALREACTIONS_H
-#define CHEMICALREACTIONS_H
+#ifndef ADDREACTIONS_H
+#define ADDREACTIONS_H
 
 #include "AddVariableAction.h"
 #include "Action.h"
 
-class ChemicalReactions;
+class AddReactions;
 
 template <>
-InputParameters validParams<ChemicalReactions>();
+InputParameters validParams<AddReactions>();
 
-// class ChemicalReactions : public AddVariableAction
-class ChemicalReactions : public Action
+// class AddReactions : public AddVariableAction
+class AddReactions : public Action
 {
 public:
-  ChemicalReactions(InputParameters params);
+  AddReactions(InputParameters params);
 
   virtual void act();
 
@@ -61,4 +61,4 @@ protected:
 
 };
 
-#endif // CHEMICALREACTIONS_H
+#endif // ADDREACTIONS_H
