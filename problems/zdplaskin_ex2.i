@@ -189,7 +189,7 @@
     type = DataReadScalar
     variable = mobility
     sampler = reduced_field
-    # property_file = 'OutputRates_Crane_ex3/electron_mobility.txt'
+    # property_file = 'BOLSIG_rates/electron_mobility.txt'
     property_file = 'BOLSIG_rates/electron_mobility.txt'
     execute_on = 'INITIAL TIMESTEP_BEGIN'
   [../]
@@ -198,7 +198,7 @@
     type = DataReadScalar
     variable = Te
     sampler = reduced_field
-    # property_file = 'OutputRates_Crane_ex3/electron_temperature.txt'
+    # property_file = 'BOLSIG_rates/electron_temperature.txt'
     property_file = 'BOLSIG_rates/electron_temperature.txt'
     execute_on = 'INITIAL TIMESTEP_BEGIN'
   [../]
@@ -209,7 +209,7 @@
 
   [./value_provider]
     type = ValueProvider
-    # property_file = 'OutputRates_Crane_ex3/electron_temperature.txt'
+    # property_file = 'BOLSIG_rates/electron_temperature.txt'
     property_file = 'BOLSIG_rates/electron_temperature.txt'
   [../]
 []

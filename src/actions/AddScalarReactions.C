@@ -511,7 +511,7 @@ AddScalarReactions::act()
         params.set<AuxVariableName>("variable") = {_aux_var_name[i]};
         params.set<std::vector<VariableName>>("sampler") = {"reduced_field"};
         params.set<FileName>("property_file") = "reaction_"+_reaction[i]+".txt";
-        params.set<std::string>("file_location") = "OutputRates_Crane_ex3";
+        params.set<std::string>("file_location") = getParam<std::string>("file_location");
         params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
         _problem->addAuxScalarKernel("DataReadScalar", "aux_rate"+std::to_string(i), params);
       }
