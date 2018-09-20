@@ -12,30 +12,40 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef SUPERELASTICRATECOEFFICIENTSCALAR_H
-#define SUPERELASTICRATECOEFFICIENTSCALAR_H
+#ifndef POLYNOMIALCOEFFICIENTS_H
+#define POLYNOMIALCOEFFICIENTS_H
 
-#include "AuxScalarKernel.h"
+#include "GeneralUserObject.h"
 #include "SplineInterpolation.h"
-#include "PolynomialCoefficients.h"
 
-class SuperelasticRateCoefficientScalar;
+// Forward Declarations
+class PolynomialCoefficients;
+// class Function;
 
 template <>
-InputParameters validParams<SuperelasticRateCoefficientScalar>();
+InputParameters validParams<PolynomialCoefficients>();
 
-class SuperelasticRateCoefficientScalar : public AuxScalarKernel
+class PolynomialCoefficients : public GeneralUserObject
 {
 public:
-  SuperelasticRateCoefficientScalar(const InputParameters & parameters);
+  PolynomialCoefficients(const InputParameters & parameters);
+
+  Real delta_a(const int i) const;
+  Real power_coefficient() const;
+
+  virtual void initialize();
+
+  virtual void execute();
+
+  virtual void finalize();
 
 protected:
-  virtual Real computeValue();
+  const std::vector<Real> & _coefficients;
+  const std::vector<std::string> & _participants;
 
-  const VariableValue & _forward_coefficient;
-  const VariableValue & _Tgas;
-  Real _Tgas_const;
-  const PolynomialCoefficients & _polynomial;
+  std::vector<std::vector<Real>> _polynomial_coefficients;
+  std::vector<Real> _delta_a;
+  Real _power_coefficient;
 };
 
-#endif // SUPERELASTICRATECOEFFICIENTSCALAR_H
+#endif /* POLYNOMIALCOEFFICIENTS_H */
