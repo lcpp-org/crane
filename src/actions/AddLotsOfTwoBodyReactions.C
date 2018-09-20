@@ -43,6 +43,7 @@ validParams<AddLotsOfTwoBodyReactions>()
   params.addParam<bool>("include_electrons", false, "Whether or not electrons are being considered.");
   params.addParam<bool>("track_energy", false, "Whether or not to track gas energy/temperature.");
   params.addParam<bool>("track_electron_energy", false, "Whether or not to track electron energy.");
+  params.addParam<bool>("use_log", false, "Whether or not to use logarithmic densities. (N = exp(n))");
   params.addParam<std::vector<NonlinearVariableName>>(
     "species_energy", "List of (tracked) energy values. (Optional; requires 'track_energy' to be True.)");
   params.addParam<std::string>("electron_density", "The variable used for density of electrons.");
@@ -66,21 +67,21 @@ validParams<AddLotsOfTwoBodyReactions>()
 
 // Here are a few functions for removing whitespace before/after expressions.
 // (Makes the reaction input formatting more forgiving!)
-static inline string &ltrim(string &s)
+static inline string &ltrim1(string &s)
 {
   s.erase(s.begin(),find_if_not(s.begin(),s.end(),[](int c){return isspace(c);}));
   return s;
 }
 
-static inline string &rtrim(string &s)
+static inline string &rtrim1(string &s)
 {
   s.erase(find_if_not(s.rbegin(),s.rend(),[](int c){return isspace(c);}).base(), s.end());
   return s;
 }
 
-static inline string trim(string &s)
+static inline string trim1(string &s)
 {
-  return ltrim(rtrim(s));
+  return ltrim1(rtrim1(s));
 }
 
 AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
@@ -90,7 +91,8 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
     _input_reactions(getParam<std::string>("reactions")),
     _r_units(getParam<Real>("position_units")),
     _coefficient_format(getParam<std::string>("reaction_coefficient_format")),
-    _sampling_format(getParam<std::string>("sampling_format"))
+    _sampling_format(getParam<std::string>("sampling_format")),
+    _use_log(getParam<bool>("use_log"))
 {
   // 1) split into reactants and products
   // 2) split products into products and reaction rate
@@ -129,8 +131,8 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
     _reaction.push_back(token.substr(0, pos)); // Stores reactions
     rate_coefficient_string.push_back(token.substr(pos+1, pos_start - (pos+1)));
 
-    trim(_reaction[counter]);
-    trim(rate_coefficient_string[counter]);
+    trim1(_reaction[counter]);
+    trim1(rate_coefficient_string[counter]);
 
     if (pos_start != std::string::npos)
     {
@@ -436,7 +438,7 @@ AddLotsOfTwoBodyReactions::AddLotsOfTwoBodyReactions(InputParameters params)
 void
 AddLotsOfTwoBodyReactions::act()
 {
-
+  mooseError("AddLotsOfTwoBodyReactions is deprecated! \nPlease use ChemicalReactions/ScalarNetwork or ChemicalReactions/Network instead.");
   int v_index;
   bool find_other;
   bool species_v, species_w;
@@ -465,10 +467,12 @@ AddLotsOfTwoBodyReactions::act()
       _reaction_coefficient_name[i] = "alpha_"+_reaction[i];
       if (isnan(_rate_coefficient[i]) && _rate_equation[i] == false && _superelastic_reaction[i] == false && _coefficient_format == "townsend")
       {
-        // This needs to be changed. It assumes electrons exist in the system.
-        // Energy-dependent reactions can exist without electrons!
+        // BOLOS and BOLSIG+ both get stored as NAN in _rate_coefficient, as to
+        // rate constants based on an equation (_rate_equation).
+        // Superelastic reactions need to have their constants calculated separately.
+        // Coefficient format chooses which specific material to apply.
         Real position_units = getParam<Real>("position_units");
-        InputParameters params = _factory.getValidParams("GenericEnergyDependentReactionTownsend");
+        InputParameters params = _factory.getValidParams("EEDFRateConstantTownsend");
         params.set<std::string>("reaction") = _reaction[i];
         params.set<std::string>("file_location") = getParam<std::string>("file_location");
         params.set<Real>("position_units") = position_units;
@@ -479,8 +483,7 @@ AddLotsOfTwoBodyReactions::act()
 
         // This section determines if the target species is a tracked variable.
         // If it isn't, the target is assumed to be the background gas (_n_gas).
-        // (This cannot handle gas mixtures yet -- base code needs to be modified to
-        // distinguish between different gas densities for that to work.)
+        // (This cannot handle gas mixtures yet.)
         bool target_species_tracked = false;
         for (unsigned int j = 0; j < _species.size(); ++j)
         {
@@ -514,25 +517,25 @@ AddLotsOfTwoBodyReactions::act()
         params.set<bool>("elastic_collision") = {_elastic_collision[i]};
         params.set<FileName>("property_file") = "reaction_"+_reaction[i]+".txt";
 
-        _problem->addMaterial("GenericEnergyDependentReactionTownsend", "reaction_"+std::to_string(i), params);
+        _problem->addMaterial("EEDFRateConstantTownsend", "reaction_"+std::to_string(i), params);
       }
       else if (isnan(_rate_coefficient[i]) && _rate_equation[i] == false && _superelastic_reaction[i] == false && _coefficient_format == "rate")
       {
         Real position_units = getParam<Real>("position_units");
-        InputParameters params = _factory.getValidParams("GenericEnergyDependentReactionRate");
+        InputParameters params = _factory.getValidParams("EEDFRateConstant");
         params.set<std::string>("reaction") = _reaction[i];
         params.set<std::string>("file_location") = getParam<std::string>("file_location");
         params.set<Real>("position_units") = position_units;
         params.set<std::string>("sampling_format") = _sampling_format;
         params.set<FileName>("property_file") = "reaction_"+_reaction[i]+".txt";
-        _problem->addMaterial("GenericEnergyDependentReactionRate", "reaction_"+std::to_string(i), params);
+        _problem->addMaterial("EEDFRateConstant", "reaction_"+std::to_string(i), params);
       }
-      else if (_rate_equation[i] == false && _superelastic_reaction[i] == false)
+      else if (!isnan(_rate_coefficient[i]) && _rate_equation[i] == false && _superelastic_reaction[i] == false)
       {
-        InputParameters params = _factory.getValidParams("GenericReactionRate");
+        InputParameters params = _factory.getValidParams("GenericRateConstant");
         params.set<std::string>("reaction") = _reaction[i];
         params.set<Real>("reaction_rate_value") = _rate_coefficient[i];
-        _problem->addMaterial("GenericReactionRate", "reaction_"+std::to_string(i), params);
+        _problem->addMaterial("GenericRateConstant", "reaction_"+std::to_string(i), params);
       }
       else if (_rate_equation[i] == true)
       {
@@ -578,7 +581,7 @@ AddLotsOfTwoBodyReactions::act()
         params.set<std::string>("file_location") = "PolynomialCoefficients";
         _problem->addMaterial("SuperelasticReactionRate", "reaction_"+std::to_string(i), params);
       }
-      else if (_energy_change == true)
+      if (_energy_change == true)
       {
         // First we need to apply the
         // InputParameters params = _factory.getValidParams("")
@@ -598,13 +601,29 @@ AddLotsOfTwoBodyReactions::act()
       {
         if (_reactants[i].size() == 1)
         {
-          product_kernel_name = "ProductFirstOrder";
-          reactant_kernel_name = "ReactantFirstOrder";
+          if (_use_log)
+          {
+            product_kernel_name = "ProductFirstOrderLog";
+            reactant_kernel_name = "ReactantFirstOrderLog";
+          }
+          else
+          {
+            product_kernel_name = "ProductFirstOrder";
+            reactant_kernel_name = "ReactantFirstOrder";
+          }
         }
         else if (_reactants[i].size() == 2)
         {
-          product_kernel_name = "ProductSecondOrder";
-          reactant_kernel_name = "ReactantSecondOrder";
+          if (_use_log)
+          {
+            product_kernel_name = "ProductSecondOrderLog";
+            reactant_kernel_name = "ReactantSecondOrderLog";
+          }
+          else
+          {
+            product_kernel_name = "ProductSecondOrder";
+            reactant_kernel_name = "ReactantSecondOrder";
+          }
         }
         else
         {
@@ -656,7 +675,7 @@ AddLotsOfTwoBodyReactions::act()
           }
         }
       }
-      std::cout << _reaction[i] << ":" << std::endl;
+
       for (int j = 0; j < _species.size(); ++j)
       {
         iter = std::find(_reactants[i].begin(), _reactants[i].end(), _species[j]);
@@ -664,7 +683,6 @@ AddLotsOfTwoBodyReactions::act()
 
         if (iter != _reactants[i].end())
         {
-          std::cout << "  " << _species_count[i][j] << std::endl;
           // Now we see if the second reactant is a tracked species.
           // We only treat two-body reactions now. This will need to be changed for three-body reactions.
           // e.g. 1) find size of reactants array 2) use find() to search other values inside that size that are not == index
@@ -760,8 +778,6 @@ AddLotsOfTwoBodyReactions::act()
               }
               else if (_coefficient_format == "rate")
               {
-                std::cout << "YES" << std::endl;
-                std::cout << product_kernel_name << std::endl;
                 InputParameters params = _factory.getValidParams(product_kernel_name);
                 params.set<NonlinearVariableName>("variable") = _species[j];
                 params.set<std::string>("reaction") = _reaction[i];

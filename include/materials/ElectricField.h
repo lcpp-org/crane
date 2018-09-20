@@ -28,8 +28,8 @@ public:
   ElectricField(const InputParameters & parameters);
 
 protected:
-  virtual void computeQpProperties() override;
   virtual void initQpStatefulProperties() override;
+  virtual void computeQpProperties() override;
 
   SplineInterpolation _mobility;
 
@@ -42,6 +42,8 @@ protected:
   const VariableValue & _electron_density;
   const VariableValue & _gas_density;
   const MaterialProperty<Real> & _reduced_field_old;
+  bool _use_log;
+  const MaterialProperty<Real> & _n_gas;
 
 };
 

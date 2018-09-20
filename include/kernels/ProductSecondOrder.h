@@ -39,10 +39,12 @@ protected:
   const VariableValue & _w;
   unsigned int _v_id;
   unsigned int _w_id;
-  // const MaterialProperty<Real> & _n_gas;
+  const MaterialProperty<Real> & _n_gas;
 
   // The reaction coefficient
   const MaterialProperty<Real> & _reaction_coeff;
   Real _stoichiometric_coeff;
+  bool _v_eq_u;
+  bool _w_eq_u;
 };
-#endif // ProductSecondOrder_H
+#endif // PRODUCTSECONDORDER_H

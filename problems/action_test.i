@@ -3,8 +3,7 @@
   dim = 1
   xmin = 0
   xmax = 1
-  nx = 10
-  elem_type = EDGE2
+  nx = 1
 []
 
 [Variables]
@@ -31,30 +30,36 @@
 []
 
 [Materials]
-  [./test]
-    type = SpeciesSum
-    coupled_vars = 'x y'
+  [./ngas]
+    type = GenericConstantMaterial
+    prop_names = 'n_gas'
+    prop_values = 1
   [../]
 []
 
-
-[LotsOfTwoBodyReactions]
+[ChemicalReactions]
   species = 'x y'
   reaction_coefficient_format = 'rate'
+  scalar_problem = false
   reactions = 'x -> x + x             : 0.666667
-               x + y <-> y            : 1.333333
+               x + y -> y             : 1.333333
                y + x -> x + y + y     : 1
-               y -> z                 : 1
-               z -> z                 : {T * exp(Tgas/300)}'
+               y -> z                 : 1'
 []
 
 [Executioner]
   type = Transient
   start_time = 0
+  end_time = 50
   dt = 0.1
-  num_steps = 500
-  #solve_type = 'NEWTON'
-  scheme = 'crank-nicolson'
+  scheme = crank-nicolson
+[]
+
+[Preconditioning]
+  [./smp]
+    type = SMP
+    full = true
+  [../]
 []
 
 [Outputs]

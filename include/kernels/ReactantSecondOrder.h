@@ -38,8 +38,9 @@ protected:
   const MaterialProperty<Real> & _reaction_coeff;
   const VariableValue & _v;
   unsigned int _v_id;
-  // const MaterialProperty<Real> & _n_gas;
+  const MaterialProperty<Real> & _n_gas;
   Real _stoichiometric_coeff;
+  bool _v_eq_u;
 
 };
 #endif // ReactantSecondOrder_H
