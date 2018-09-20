@@ -50,6 +50,8 @@ protected:
   std::vector<std::vector<std::string>> _reactants;
   std::vector<std::vector<std::string>> _products;
   std::vector<std::string> _all_participants;
+  std::vector<std::vector<std::string>> _reaction_participants;
+  std::vector<std::vector<Real>> _reaction_stoichiometric_coeff;
   std::vector<int> _superelastic_index;
   std::vector<int> _species_index;
   std::vector<std::vector<Real>> _stoichiometric_coeff;

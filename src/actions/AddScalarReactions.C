@@ -30,6 +30,7 @@ registerMooseAction("CraneApp", AddScalarReactions, "add_aux_variable");
 registerMooseAction("CraneApp", AddScalarReactions, "add_aux_scalar_kernel");
 registerMooseAction("CraneApp", AddScalarReactions, "add_scalar_kernel");
 registerMooseAction("CraneApp", AddScalarReactions, "add_function");
+registerMooseAction("CraneApp", AddScalarReactions, "add_user_object");
 
 template <>
 InputParameters
@@ -337,7 +338,7 @@ AddScalarReactions::AddScalarReactions(InputParameters params)
         _superelastic_reaction[new_index] = true;
         _rate_coefficient[new_index] = NAN;
         _threshold_energy[new_index] = -_threshold_energy[i];
-        _aux_var_name[new_index] = "rate_constant"+std::to_string(i);
+        _aux_var_name[new_index] = "rate_constant"+std::to_string(new_index);
         if (_rate_equation[i] == true)
         {
           _rate_equation[new_index] = true;
@@ -445,7 +446,8 @@ AddScalarReactions::AddScalarReactions(InputParameters params)
 
     }
   }
-
+  _reaction_participants.resize(_num_reactions);
+  _reaction_stoichiometric_coeff.resize(_num_reactions);
   // Now we find which index of _all_participants is associated with _species
   // so they can be accurately referred to later if necessary.
 
@@ -457,6 +459,61 @@ AddScalarReactions::AddScalarReactions(InputParameters params)
     iter = std::find(_all_participants.begin(), _all_participants.end(), _species[i]);
     _species_index[i] = std::distance(_all_participants.begin(), iter);
   }
+
+  // Finally, we reduce _all_participants to find just the relevant participants
+  // (and stoichiometric coefficients) for each individual reaction.
+
+  for (unsigned int i=0; i<_num_reactions; ++i)
+  {
+    std::vector<std::string> species_temp(_reactants[i]); // Copy reactants into new temporary vector
+    species_temp.insert(species_temp.end(), _products[i].begin(), _products[i].end()); // Append products to new temp vector (so it now stores all reactants and products)
+
+    // Separate out the unique values from species_temp
+    sort(species_temp.begin(), species_temp.end());
+    std::vector<std::string>:: iterator it;
+    it = std::unique(species_temp.begin(), species_temp.end());
+    species_temp.resize(std::distance(species_temp.begin(), it));
+    // _reaction_participants[i].resize(species_temp.size());
+
+    // Copy over the species from species_temp to the permanent _reaction_participants vector
+    // Now each unique participant per reaction is stored in _reaction_participants.
+    // Note that reaction_participants only stores the TRACKED species.
+    for (unsigned int j = 0; j < species_temp.size(); ++j)
+    {
+      if (std::find(_species.begin(), _species.end(), species_temp[j]) != _species.end())
+        _reaction_participants[i].push_back(species_temp[j]);
+    }
+
+    _reaction_stoichiometric_coeff[i].resize(_reaction_participants[i].size(), 0);
+
+    for (unsigned int j = 0; j < _reaction_participants[i].size(); ++j)
+    {
+      for (unsigned int k = 0; k < _reactants[i].size(); ++k)
+      {
+        if (_reactants[i][k] == _reaction_participants[i][j])
+        {
+          _reaction_stoichiometric_coeff[i][j] -= 1;
+        }
+      }
+
+      for (unsigned int k = 0; k < _products[i].size(); ++k)
+      {
+        if (_products[i][k] == _reaction_participants[i][j])
+        {
+          _reaction_stoichiometric_coeff[i][j] += 1;
+        }
+      }
+    }
+
+
+  }
+
+  // for (unsigned int i=0; i<_num_reactions; ++i)
+  // {
+  //   std::cout << "Reaction: " << _reaction[i] << std::endl;
+  //   for (unsigned int j=0; j<_reaction_participants[i].size(); ++j)
+  //     std::cout << "    " << _reaction_participants[i][j] << ", " << _reaction_stoichiometric_coeff[i][j] << std::endl;
+  // }
 
 }
 
@@ -498,6 +555,29 @@ AddScalarReactions::act()
     for (unsigned int i=0; i < _num_reactions; ++i)
     {
       _problem->addAuxScalarVariable(_aux_var_name[i], FIRST);
+    }
+  }
+
+  if (_current_task == "add_user_object")
+  {
+    for (unsigned int i=0; i < _num_reactions; ++i)
+    {
+      // If this particular reaction is not reversible, skip to the next one.
+      // If it is, we add the necessary user object to calculate the 7-term
+      // polynomial expansion.
+      // (This just sets the coefficients. The actual equilibrium constant
+      // is calculated through an auxiliary variable, as all other rate coefficients are.)
+      if (!_reversible_reaction[i])
+        continue;
+      else
+      {
+        InputParameters params = _factory.getValidParams("PolynomialCoefficients");
+        params.set<std::vector<Real>>("stoichiometric_coeff") = _reaction_stoichiometric_coeff[i];
+        params.set<std::vector<std::string>>("participants") = _reaction_participants[i];
+        params.set<std::string>("file_location") = "PolynomialCoefficients";
+        params.set<ExecFlagEnum>("execute_on") = "INITIAL";
+        _problem->addUserObject("PolynomialCoefficients", "superelastic_coeff"+std::to_string(i), params);
+      }
     }
   }
 
