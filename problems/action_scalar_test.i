@@ -43,12 +43,31 @@
   [../]
 []
 
+# [Preconditioning]
+#   active = 'smp'
+#
+#   [./smp]
+#     type = SMP
+#     full = true
+#     #ksp_norm = none
+#   [../]
+#
+#   [./fd]
+#     type = FDP
+#     full = true
+#   [../]
+# []
+
 [Executioner]
   type = Transient
   start_time = 0
   end_time = 50
-  dt = 0.1
-  scheme = crank-nicolson
+  dt = 0.01
+  solve_type = 'newton'
+  # petsc_options_iname = '-snes_linesearch_type'
+  # petsc_options_value = 'basic'
+  # scheme = crank-nicolson
+  # timestep_tolerance = 1e-6
 []
 
 [Outputs]
