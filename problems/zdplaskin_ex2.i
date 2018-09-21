@@ -80,8 +80,8 @@
   [./ScalarNetwork]
     species = 'e Ar* Ar+ Ar Ar2+'
     reaction_coefficient_format = 'rate'
-    include_electrons = true
-    electron_density = e
+    # include_electrons = true
+    # electron_density = e
     file_location = 'BOLSIG_rates'
 
     # These are parameters required equation-based rate coefficients

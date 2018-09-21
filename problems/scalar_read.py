@@ -150,8 +150,8 @@ plt.legend([title_proxy, plot12, plot13, plot14, plot15, title_proxy, plot22, pl
 # ax2.semilogx(zdtime, zdefield, 'r--', alpha=0.5)
 # ax2.set_ylabel('Reduced Field [Td]')
 # plt.show()
-# plt.savefig('ex2_true_comparison.png', bbox_inches='tight')
-# plt.close()
+plt.savefig('ex2_comparison2.png', bbox_inches='tight')
+plt.close()
 
 # plt.loglog(time[crane_ind], N_Ar[crane_ind])
 # plt.loglog(zdtime[zd_ind], zdAr[zd_ind])
@@ -159,4 +159,4 @@ plt.legend([title_proxy, plot12, plot13, plot14, plot15, title_proxy, plot22, pl
 
 # error = abs(N_Ar[crane_ind] - zdAr[zd_ind])/zdAr[zd_ind]
 # plt.plot(time[crane_ind], error)
-plt.show()
+# plt.show()

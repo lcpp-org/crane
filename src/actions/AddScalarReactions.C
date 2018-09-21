@@ -60,8 +60,6 @@ validParams<AddScalarReactions>()
   params.addParam<std::vector<VariableName>>("potential", "The electric potential, used for energy-dependent reaction rates.");
   params.addRequiredParam<std::string>("reactions", "The list of reactions to be added");
   params.addParam<Real>("position_units", 1.0, "The units of position.");
-  params.addRequiredParam<std::string>("reaction_coefficient_format",
-    "The format of the reaction coefficient. Options: rate or townsend.");
   params.addParam<std::string>("file_location", "", "The location of the reaction rate files. Default: empty string (current directory).");
   params.addParam<bool>("use_moles", "Whether to use molar units.");
   params.addParam<std::string>("sampling_format", "reduced_field", "Sample rate constants with E/N (reduced_field) or Te (electron_energy).");
@@ -99,7 +97,6 @@ AddScalarReactions::AddScalarReactions(InputParameters params)
     _species_energy(getParam<std::vector<NonlinearVariableName>>("species_energy")),
     _input_reactions(getParam<std::string>("reactions")),
     _r_units(getParam<Real>("position_units")),
-    _coefficient_format(getParam<std::string>("reaction_coefficient_format")),
     _sampling_format(getParam<std::string>("sampling_format")),
     _use_log(getParam<bool>("use_log"))
 {
