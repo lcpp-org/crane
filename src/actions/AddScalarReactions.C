@@ -379,32 +379,42 @@ AddScalarReactions::AddScalarReactions(InputParameters params)
       // Calculate coefficients
       for (unsigned int j = 0; j < _species.size(); ++j)
       {
-        for (unsigned int k = 0; k < _reactants[i].size(); ++k)
+        for (unsigned int k = 0; k < _reactants[new_index].size(); ++k)
         {
-          if (_reactants[i][k] == _species[j])
+          if (_reactants[new_index][k] == _species[j])
           {
-            _species_count[i][j] -= 1;
+            _species_count[new_index][j] -= 1;
           }
           if (getParam<bool>("include_electrons") == true)
           {
-            if (_reactants[i][k] == getParam<std::string>("electron_density"))
+            if (_reactants[new_index][k] == getParam<std::string>("electron_density"))
             {
-              _electron_index[i] = k;
+              _electron_index[new_index] = k;
             }
           }
         }
-        for (unsigned int k = 0; k < _products[i].size(); ++k)
+        for (unsigned int k = 0; k < _products[new_index].size(); ++k)
         {
-          if (_products[i][k] == _species[j])
+          if (_products[new_index][k] == _species[j])
           {
-            _species_count[i][j] += 1;
+            _species_count[new_index][j] += 1;
           }
         }
       }
     }
   }
 
+
   _num_reactions += superelastic_reactions;
+  // for (unsigned int i=0; i<_num_reactions; ++i)
+  // {
+  //   std::cout << _reaction[i] << std::endl;
+  //   for (unsigned int j=0; j<_species.size(); ++j)
+  //   {
+  //     std::cout << _species[j] << ", " << _species_count[i][j] << std::endl;
+  //   }
+  // }
+  // mooseError("TEST");
   _reaction_coefficient_name.resize(_num_reactions);
   // Find the unique species across all reaction pathways
   // Note that this also accounts for species that are not tracked in case
@@ -582,7 +592,7 @@ AddScalarReactions::act()
   {
     for (unsigned int i=0; i < _num_reactions; ++i)
     {
-      if (_rate_type[i] == "EEDF")
+      if (_rate_type[i] == "EEDF" && !_superelastic_reaction[i])
       {
         InputParameters params = _factory.getValidParams("DataReadScalar");
         params.set<AuxVariableName>("variable") = {_aux_var_name[i]};
@@ -592,7 +602,7 @@ AddScalarReactions::act()
         params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
         _problem->addAuxScalarKernel("DataReadScalar", "aux_rate"+std::to_string(i), params);
       }
-      else if (_rate_type[i] == "Equation")
+      else if (_rate_type[i] == "Equation" && !_superelastic_reaction[i])
       {
         InputParameters params = _factory.getValidParams("ParsedScalarRateCoefficient");
         params.set<AuxVariableName>("variable") = {_aux_var_name[i]};
@@ -622,13 +632,23 @@ AddScalarReactions::act()
         params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
         _problem->addAuxScalarKernel("ParsedScalarRateCoefficient", "aux_rate"+std::to_string(i), params);
       }
-      else // Constant is only other option
+      else if (_rate_type[i] == "Constant" && !_superelastic_reaction[i])
       {
         InputParameters params = _factory.getValidParams("AuxInitialConditionScalar");
         params.set<Real>("initial_condition") = _rate_coefficient[i];
         params.set<AuxVariableName>("variable") = {_aux_var_name[i]};
         params.set<ExecFlagEnum>("execute_on") = "INITIAL";
         _problem->addAuxScalarKernel("AuxInitialConditionScalar", "aux_initialization_rxn"+std::to_string(i), params);
+      }
+      else if (_superelastic_reaction[i])
+      {
+        InputParameters params = _factory.getValidParams("SuperelasticRateCoefficientScalar");
+        params.set<AuxVariableName>("variable") = {_aux_var_name[i]};
+        params.set<std::vector<VariableName>>("forward_coefficient") = {_aux_var_name[_superelastic_index[i]]};
+        params.set<Real>("Tgas_const") = 300;
+        params.set<UserObjectName>("polynomial_provider") = "superelastic_coeff"+std::to_string(_superelastic_index[i]);
+        params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
+        _problem->addAuxScalarKernel("SuperelasticRateCoefficientScalar", "aux_rate"+std::to_string(i), params);
       }
     }
   }
@@ -640,7 +660,6 @@ AddScalarReactions::act()
     std::vector<Real> rxn_coeff = getParam<std::vector<Real>>("reaction_coefficient");
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
-      // std::cout << rxn_coeff[i] << std::endl;
       if (_reactants[i].size() == 1)
       {
         product_kernel_name = "Product1BodyScalar";
