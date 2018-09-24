@@ -56,7 +56,7 @@
 []
 
 [ChemicalReactions]
-  [./ScalarNetwork]
+  [./Reactions]
     species = 'e Ar+ Ar'
     file_location = 'Example1'
     reactions = 'e + Ar -> e + e + Ar+          : BOLOS

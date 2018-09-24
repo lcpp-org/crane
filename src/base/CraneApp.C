@@ -50,6 +50,8 @@ CraneApp::associateSyntax(Syntax & syntax, ActionFactory & action_factory)
   syntax.registerActionSyntax("AddScalarReactions", "ChemicalReactions/ScalarNetwork");
   // syntax.registerActionSyntax("ScalarTest", "ChemicalReactions/ScalarTest");
   // syntax.registerActionSyntax("AddReactions", "ChemicalReactions/Network");
+  syntax.registerActionSyntax("ChemicalReactionsBase", "ChemicalReactions/Reactions");
+  syntax.registerActionSyntax("AddScalarBase", "ChemicalReactions/Reactions");
 }
 
 void
