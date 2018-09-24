@@ -24,7 +24,6 @@ protected:
   Real _r_units;
   std::string _sampling_format;
   bool _use_log;
-  bool _scalar_problem;
 
   bool _energy_change;
   // std::vector<VariableName> _potential;
@@ -50,6 +49,8 @@ protected:
   std::vector<std::vector<std::string>> _reactants;
   std::vector<std::vector<std::string>> _products;
   std::vector<std::string> _all_participants;
+  std::vector<std::vector<std::string>> _reaction_participants;
+  std::vector<std::vector<Real>> _reaction_stoichiometric_coeff;
   std::vector<int> _superelastic_index;
   std::vector<int> _species_index;
   std::vector<std::vector<Real>> _stoichiometric_coeff;
@@ -58,7 +59,6 @@ protected:
   std::vector<std::string> _rate_equation_string;
   /// Number of reactions
   unsigned int _num_reactions;
-
 };
 
 #endif // CHEMICALREACTIONSBASE_H

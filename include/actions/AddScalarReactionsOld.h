@@ -1,20 +1,19 @@
-#ifndef ADDSCALARBASE_H
-#define ADDSCALARBASE_H
+#ifndef ADDSCALARREACTIONSOLD_H
+#define ADDSCALARREACTIONSOLD_H
 
 #include "AddVariableAction.h"
 #include "Action.h"
-#include "ChemicalReactionsBase.h"
 
-class AddScalarBase;
+class AddScalarReactionsOld;
 
 template <>
-InputParameters validParams<AddScalarBase>();
+InputParameters validParams<AddScalarReactionsOld>();
 
 // class ChemicalReactions : public AddVariableAction
-class AddScalarBase : public ChemicalReactionsBase
+class AddScalarReactionsOld : public Action
 {
 public:
-  AddScalarBase(InputParameters params);
+  AddScalarReactionsOld(InputParameters params);
 
   virtual void act();
 
@@ -63,4 +62,4 @@ protected:
 
 };
 
-#endif // ADDSCALARBASE_H
+#endif // ADDSCALARREACTIONSOLD_H
