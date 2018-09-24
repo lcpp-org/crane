@@ -54,6 +54,10 @@ CraneApp::associateSyntax(Syntax & syntax, ActionFactory & action_factory)
   syntax.registerActionSyntax("AddReactions", "ChemicalReactions/Network");
   syntax.registerActionSyntax("ChemicalReactionsBase", "ChemicalReactions/Network");
 
+  // Zapdos network actions
+  syntax.registerActionSyntax("AddZapdosReactions", "ChemicalReactions/ZapdosNetwork");
+  syntax.registerActionSyntax("ChemicalReactionsBase", "ChemicalReactions/ZapdosNetwork");
+
   // Deprecated actions - to be removed
   // syntax.registerActionSyntax("ScalarTest", "ChemicalReactions/ScalarTest");
   // syntax.registerActionSyntax("AddReactions", "ChemicalReactions/Network");
