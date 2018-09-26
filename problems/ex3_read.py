@@ -6,18 +6,15 @@ import collections
 import pandas as pd
 from sklearn.metrics import mean_squared_error
 
-zdplaskin_file = '/Users/keniley/Documents/LCPP_Atmos/example2/Ar2Reac_1000V_100kOhm_100t_0.4d_0.4r.dat'
-zdplaskin_rate_file = '/Users/keniley/Documents/LCPP_Atmos/example2/file_test.dat'
-# file = 'zdplaskin_ex2_scalar_csv_out_newton.csv'
-# file = 'zdplaskin_ex2_scalar_csv_out.csv'
-# file = 'parsed_test_csv_out.csv'
-# rate_file = 'parsed_test_csv_out_2.csv'
-file = 'zdplaskin_ex2_csv_out.csv'
-rate_file = 'zdplaskin_ex2_csv_out_2.csv'
+zdplaskin_file = '/Users/keniley/Documents/LCPP_Atmos/example3/out.dat'
+# zdplaskin_rate_file = '/Users/keniley/Documents/LCPP_Atmos/example2/file_test.dat'
+
+file = 'zdplaskin_ex3_csv_out.csv'
+# rate_file = 'zdplaskin_ex2_csv_out_2.csv'
 
 ### READ REACTION RATES FROM ZDPLASKIN
-zd_rates_read = pd.read_csv(zdplaskin_rate_file, sep="  ")
-zd_rates = zd_rates_read.values
+# zd_rates_read = pd.read_csv(zdplaskin_rate_file, sep="  ")
+# zd_rates = zd_rates_read.values
 # with open(zdplaskin_file, 'rU') as infile:
 #   # read the file as a dictionary for each row ({header : value})
 #   reader = csv.DictReader(infile)
@@ -49,24 +46,24 @@ zd_rates = zd_rates_read.values
 # exit()
 
 data = np.genfromtxt(file, dtype=float, delimiter=',', skip_header=1)
-rate_data = np.genfromtxt(rate_file, dtype=float, delimiter=',', skip_header=1)
-
+# rate_data = np.genfromtxt(rate_file, dtype=float, delimiter=',', skip_header=1)
+# time,N,N+,N2,N2+,N2A,N2B,N2C,N3+,N4+,e,reduced_field
 time = data[:,0]
-N_Ar = data[:,1]
-N_Ari = data[:,3]
-N_Ar2i = data[:,4]
-N_ArEx = data[:,2]
-N_e = data[:,5]
-EN = data[:,7]
-mu = data[:,6]
+N_N = data[:,1]
+N_Ni = data[:,2]
+N_N2 = data[:,3]
+N_N2i = data[:,4]
+N_N2A = data[:,5]
+N_N2B = data[:,6]
+N_N2C = data[:,7]
+N_N3i = data[:,8]
+N_N4i = data[:,9]
+N_e = data[:,10]
+EN = data[:,11]
 
-# time = data[:,0]
-# N_Ar = data[:,1]
-# N_Ari = data[:,3]
-# N_Ar2i = data[:,4]
-# N_ArEx = data[:,2]
-# N_e = data[:,5]
-# EN = data[:,6]
+# plt.plot(time, N_e)
+# plt.show()
+# exit()
 
 # zdplaskin_data = np.genfromtxt(zdplaskin_file, delimiter='  ', skip_header=1)
 zdplaskin_data = pd.read_csv(zdplaskin_file, sep="  ", header=0)
@@ -74,15 +71,17 @@ test = zdplaskin_data.values
 zdstarttime = 1
 
 zdtime = test[zdstarttime:,0]
-zdAr = test[zdstarttime:,4]
-zdAri = test[zdstarttime:,6]
-zdAr2i = test[zdstarttime:,7]
-zdArEx = test[zdstarttime:,5]
-zde = test[zdstarttime:,3]
-zdefield = test[zdstarttime:,2]
-zdmu = test[zdstarttime:,7]
-
-n = min(len(time), len(zdtime))
+zdN = test[zdstarttime:,3]
+zdNi = test[zdstarttime:,9]
+zdN2 = test[zdstarttime:,4]
+zdN2i = test[zdstarttime:,10]
+zdN2A = test[zdstarttime:,5]
+zdN2B = test[zdstarttime:,6]
+zdN2C = test[zdstarttime:,8]
+zdN3i = test[zdstarttime:,11]
+zdN4i = test[zdstarttime:,12]
+#
+# n = min(len(time), len(zdtime))
 # out_idx = np.flatnonzero(time[:n] == zdtime[:n])
 # out_val = time[out_idx]
 
@@ -99,31 +98,43 @@ n = min(len(time), len(zdtime))
 #             crane_ind.append(i)
 #             zd_ind.append(j)
 #             continue
+fig = plt.figure(figsize=(8,8))
+ax = plt.subplot(111)
+plot11, = ax.semilogy(time, N_N, 'g', label='$N$')
+plot21, = ax.semilogy(zdtime, zdN, 'g--', label='$N$')
 
-# print(len(N_Ar[crane_ind]))
-# print(len(zdAr[zd_ind]))
-# print(mean_squared_error(N_Ar[crane_ind], zdAr[zd_ind]))
-# exit()
-# plot00, = plt.semilogx(time, EN*1e21)
-# plot11, = plt.loglog(time, N_Ar, 'b', label='$Ar$, CRANE')
-plot12, = plt.loglog(time, N_Ari, 'g', label='$Ar^+$, CRANE')
-plot13, = plt.loglog(time, N_Ar2i, 'r', label='$Ar^{2+}$, CRANE')
-plot14, = plt.loglog(time, N_ArEx, 'c', label='$Ar^*$, CRANE')
-plot15, = plt.loglog(time, N_e, 'k', label='$e^-$, CRANE')
-# plot21, = plt.loglog(zdtime, zdAr, 'b--', label='$Ar$, ZDPlasKin')
-plot22, = plt.loglog(zdtime, zdAri, 'g--', label='$Ar^+$, ZDPlasKin')
-plot23, = plt.loglog(zdtime, zdAr2i, 'r--', label='$Ar^{2+}$, ZDPlasKin')
-plot24, = plt.loglog(zdtime, zdArEx, 'c--', label='$Ar^*$, ZDPlasKin')
-plot25, = plt.loglog(zdtime, zde, 'k--', label='$e^-$, ZDPlasKin')
-plt.xlabel('Time [s]', fontsize=14)
-plt.ylabel('Density [$cm^{-3}$]', fontsize=14)
+plot12, = ax.semilogy(time, N_N2A, 'b', label='$N2(A)$')
+plot22, = ax.semilogy(zdtime, zdN2A, 'b--', label='$N2(A)$')
+
+plot13, = ax.semilogy(time, N_N2C, 'r', label='$N2(C)$')
+plot23, = ax.semilogy(zdtime, zdN2C, 'r--', label='$N2(C)$')
+
+plot14, = ax.semilogy(time, N_N2i, 'c', label='$N_2^+$')
+plot24, = ax.semilogy(zdtime, zdN2i, 'c--', label='$N_2^+$')
+
+plot15, = ax.semilogy(time, N_N4i, 'k', label='$N_4^+$')
+plot25, = ax.semilogy(zdtime, zdN4i, 'k--', label='$N_4^+$')
+box = ax.get_position()
+ax.set_position([box.x0, box.y0 + box.height * 0.1,
+                 box.width, box.height * 0.9])
+h, l = ax.get_legend_handles_labels()
+ph = [plt.plot([], marker="", ls="")[0]]*2
+handles = ph + h
+labels = ["CRANE:", "ZDPlasKin:"] + l
+plt.legend(handles, labels, ncol=6, bbox_to_anchor=(0.02, -0.05))
+plt.axis([0, 2.5e-3, 10**4, 10**14])
+
+
+
+# plt.xlabel('Time [s]', fontsize=14)
+# plt.ylabel('Density [$cm^{-3}$]', fontsize=14)
 # plt.tick_params(axis='both', which='major', labelsize=12)
 # plt.legend(ncol=2)
-title_proxy = Rectangle((0,0), -1, 0, color='w')
+# title_proxy = Rectangle((0,0), -1, 0, color='w')
 # plt.legend([title_proxy, plot11, plot12, plot13, plot14, plot15, title_proxy, plot21, plot22, plot23, plot24, plot25],
-#            ["$CRANE$", "Ar", "$Ar^+$", "$Ar^{2+}$", "$Ar^*$", "$e^-$", "$ZDPlasKin$", "Ar", "$Ar^+$", "$Ar^{2+}$", "$Ar^*$", "$e^-$"], markerfirst=0, ncol=2, loc=4)
-plt.legend([title_proxy, plot12, plot13, plot14, plot15, title_proxy, plot22, plot23, plot24, plot25],
-           ["$CRANE$", "$Ar^+$", "$Ar^{2+}$", "$Ar^*$", "$e^-$", "$ZDPlasKin$", "$Ar^+$", "$Ar^{2+}$", "$Ar^*$", "$e^-$"], markerfirst=0, ncol=2, loc=4)
+           # ["$CRANE$", "$N$", "$N2(A)$", "$N2(C)$", "$N_2^+$", "$N_4^+$", "$ZDPlasKin$", "$N$", "$N2(A)$", "$N2(C)$", "$N_2^+$", "$N_4^+$"], bbox_to_anchor=(1.4, 0.4), markerfirst=0, ncol=2, loc=4)
+# plt.legend([title_proxy, plot12, plot13, plot14, plot15, title_proxy, plot22, plot23, plot24, plot25],
+           # ["$CRANE$", "$Ar^+$", "$Ar^{2+}$", "$Ar^*$", "$e^-$", "$ZDPlasKin$", "$Ar^+$", "$Ar^{2+}$", "$Ar^*$", "$e^-$"], markerfirst=0, ncol=2, loc=4)
 # plt.semilogx(time, EN*1e21)
 # plt.semilogx(zdtime, zdefield)
 # plt.legend()

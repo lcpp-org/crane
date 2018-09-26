@@ -42,6 +42,8 @@ validParams<AddScalarReactions>()
   InputParameters params = validParams<AddVariableAction>();
   params.addRequiredParam<std::vector<NonlinearVariableName>>(
     "species", "List of (tracked) species included in reactions (both products and reactants)");
+  params.addParam<std::vector<std::string>>(
+    "aux_species", "List of species that are calculated as aux variables (from data files, for example).");
   params.addParam<std::vector<Real>>("reaction_coefficient", "The reaction coefficients.");
   params.addParam<bool>("include_electrons", false, "Whether or not electrons are being considered.");
   params.addParam<bool>("track_energy", false, "Whether or not to track gas energy/temperature.");
@@ -65,7 +67,7 @@ validParams<AddScalarReactions>()
   params.addParam<std::string>("sampling_format", "reduced_field", "Sample rate constants with E/N (reduced_field) or Te (electron_energy).");
   params.addParam<std::vector<std::string>>("equation_constants", "The constants included in the reaction equation(s).");
   params.addParam<std::vector<std::string>>("equation_values", "The values of the constants included in the reaction equation(s).");
-  params.addParam<std::vector<NonlinearVariableName>>("equation_variables", "Any nonlinear variables that appear in the equations.");
+  params.addParam<std::vector<VariableName>>("equation_variables", "Any variables (nonlinear or auxiliary) that appear in the equations.");
   params.addParam<std::vector<VariableName>>("rate_provider_var", "The name of the variable used to sample from BOLOS files.");
   params.addClassDescription("This Action automatically adds the necessary kernels and materials for a reaction network.");
 
@@ -94,6 +96,7 @@ validParams<AddScalarReactions>()
 AddScalarReactions::AddScalarReactions(InputParameters params)
   : Action(params),
     _species(getParam<std::vector<NonlinearVariableName>>("species")),
+    _aux_species(getParam<std::vector<std::string>>("aux_species")),
     _species_energy(getParam<std::vector<NonlinearVariableName>>("species_energy")),
     _input_reactions(getParam<std::string>("reactions")),
     _r_units(getParam<Real>("position_units")),
@@ -608,11 +611,11 @@ AddScalarReactions::act()
         params.set<AuxVariableName>("variable") = {_aux_var_name[i]};
         params.set<std::string>("function") = _rate_equation_string[i];
         params.set<bool>("file_read") = true;
-        params.set<std::vector<std::string>>("file_value") = {"Te"};
+        // params.set<std::vector<std::string>>("file_value") = {"Te"};
         params.set<std::vector<std::string>>("constant_names") = getParam<std::vector<std::string>>("equation_constants");
         params.set<std::vector<std::string>>("constant_expressions") = getParam<std::vector<std::string>>("equation_values");
-        params.set<UserObjectName>("electron_temperature") = "value_provider";
-        params.set<std::vector<VariableName>>("reduced_field") = {"reduced_field"};
+        // params.set<UserObjectName>("electron_temperature") = "value_provider";
+        // params.set<std::vector<VariableName>>("reduced_field") = {"reduced_field"};
         if (getParam<bool>("gas_temperature"))
         {
           params.set<bool>("gas_temperature") = true;
@@ -625,9 +628,11 @@ AddScalarReactions::act()
               break;
           }
           params.set<std::vector<VariableName>>("args") = {temp_var};
+          // params.set<std::vector<VariableName>>("args") = getParam<std::vector<VariableName>>("equation_variables");
 
         }
-        params.set<std::vector<VariableName>>("args") = {"Te"};
+        // params.set<std::vector<VariableName>>("args") = {"Te"};
+        params.set<std::vector<VariableName>>("args") = getParam<std::vector<VariableName>>("equation_variables");
         // params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN NONLINEAR";
         params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
         _problem->addAuxScalarKernel("ParsedScalarRateCoefficient", "aux_rate"+std::to_string(i), params);
@@ -657,6 +662,7 @@ AddScalarReactions::act()
   {
     int index; // stores index of species in the reactant/product arrays
     std::vector<std::string>::iterator iter;
+    std::vector<std::string>::iterator iter_aux;
     std::vector<Real> rxn_coeff = getParam<std::vector<Real>>("reaction_coefficient");
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
@@ -676,11 +682,18 @@ AddScalarReactions::act()
         reactant_kernel_name = "Reactant3BodyScalar";
       }
 
+      // Find any aux variables in the species list.
+      // If found, that index is skipped in the next loop.
       for (int j = 0; j < _species.size(); ++j)
       {
         iter = std::find(_reactants[i].begin(), _reactants[i].end(), _species[j]);
         index = std::distance(_reactants[i].begin(), iter);
 
+        iter_aux = std::find(_aux_species.begin(), _aux_species.end(), _species[j]);
+        if (iter_aux != _aux_species.end())
+        {
+          continue;
+        }
         if (iter != _reactants[i].end())
         {
           reactant_indices.resize(_reactants[i].size());

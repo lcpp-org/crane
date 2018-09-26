@@ -19,6 +19,7 @@ public:
 
 protected:
   const std::vector<NonlinearVariableName> _species;
+  std::vector<std::string> _aux_species;
   const std::vector<NonlinearVariableName> _species_energy;
   std::string _input_reactions;
   Real _r_units;

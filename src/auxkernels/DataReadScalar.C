@@ -22,6 +22,8 @@ validParams<DataReadScalar>()
 {
   InputParameters params = validParams<AuxScalarKernel>();
   params.addCoupledVar("sampler", 0, "The variable with which the data will be sampled.");
+  params.addParam<bool>("use_time", false, "Whether or not to sample with time.");
+  params.addParam<Real>("scale_factor", 1.0, "Multiplies the sampled output by a given factor. Convert from m^3 to cm^3, for example.(Optional)");
   params.addParam<Real>("const_sampler", 0, "The value with which the data will be sampled.");
   params.addParam<FileName>("property_file", "",
       "The file containing interpolation tables for material properties.");
@@ -35,10 +37,12 @@ DataReadScalar::DataReadScalar(const InputParameters & parameters)
   : AuxScalarKernel(parameters),
     _sampler_var(coupledScalarValue("sampler")),
     _sampler_const(getParam<Real>("const_sampler")),
-    _sampling_format(getParam<std::string>("sampling_format"))
+    _sampling_format(getParam<std::string>("sampling_format")),
+    _use_time(getParam<bool>("use_time")),
+    _scale_factor(getParam<Real>("scale_factor"))
 {
-  std::vector<Real> reduced_field;
-  std::vector<Real> sampled_value;
+  std::vector<Real> x_val;
+  std::vector<Real> y_val;
   std::string file_name = getParam<std::string>("file_location") + "/" + getParam<FileName>("property_file");
   MooseUtils::checkFileReadable(file_name);
   const char * charPath = file_name.c_str();
@@ -49,16 +53,17 @@ DataReadScalar::DataReadScalar(const InputParameters & parameters)
   {
     while (myfile >> value)
     {
-      reduced_field.push_back(value);
+      x_val.push_back(value);
       myfile >> value;
-      sampled_value.push_back(value);
+      y_val.push_back(value);
     }
     myfile.close();
   }
   else
     mooseError("Unable to open file");
 
-  _coefficient_interpolation.setData(reduced_field, sampled_value);
+  _coefficient_interpolation.setData(x_val, y_val);
+  // _coefficient_interpolation_linear.setData(x_val, y_val);
 }
 
 Real
@@ -67,6 +72,9 @@ DataReadScalar::computeValue()
   Real val;
   if (isCoupledScalar("sampler"))
     val = _coefficient_interpolation.sample(_sampler_var[_i]);
+  else if (!isCoupledScalar("sampler") && _use_time)
+    // val = _coefficient_interpolation_linear.sample(_t);
+    val = _coefficient_interpolation.sample(_t);
   else
     val = _coefficient_interpolation.sample(_sampler_const);
 
@@ -76,5 +84,5 @@ DataReadScalar::computeValue()
     val = 0.0;
   }
 
-  return val;
+  return val * _scale_factor;
 }

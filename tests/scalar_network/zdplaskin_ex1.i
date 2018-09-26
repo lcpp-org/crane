@@ -1,38 +1,27 @@
-[GlobalParams]
-  #use_log = true
-  # execute_on = linear
-[]
-
 [Mesh]
   type = GeneratedMesh
   dim = 1
   xmin = 0
   xmax = 1
   nx = 1
-  # nx = 20
-  # elem_type = EDGE2
 []
 
 [Variables]
-  # ODE variables
   [./e]
     family = SCALAR
     order = FIRST
     initial_condition = 1
-    # scaling = 1e-6
   [../]
 
   [./Ar+]
     family = SCALAR
     order = FIRST
     initial_condition = 1
-    # scaling = 1e-6
   [../]
 
   [./Ar]
     family = SCALAR
     order = FIRST
-    #initial_condition = 3.219e18
     initial_condition = 2.5e19
     scaling = 2.5e-19
   [../]
@@ -70,7 +59,6 @@
     order = FIRST
     family = SCALAR
     initial_condition = 51e-21
-    # initial_condition = 50
   [../]
 []
 
@@ -84,7 +72,6 @@
   dtmax = 1e-8
   petsc_options_iname = '-snes_linesearch_type'
   petsc_options_value = 'basic'
-  # petsc_options_value = 'l2'
 []
 
 [Preconditioning]
@@ -102,16 +89,8 @@
 []
 
 [Outputs]
-  # exodus = true
   [./out]
     type = Exodus
     execute_on = 'TIMESTEP_END'
   [../]
-  # csv = true
-  # perf_log = true
-  # interval = 100
-  # [./csv_out]
-    # type = CSV
-    # show = 'e Ar Ar+'
-  # [../]
 []
