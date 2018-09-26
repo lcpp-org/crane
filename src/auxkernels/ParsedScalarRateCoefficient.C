@@ -36,9 +36,9 @@ validParams<ParsedScalarRateCoefficient>()
   params.addParam<bool>("file_read", false, "Whether or not to pull a constant value from a file.");
   params.addParam<bool>("gas_temperature", false, "Whether or not gas temperature is a tracked variable.");
   params.addParam<std::string>("gas_temperature_name", "Tgas", "The name of the gas temperature variable (if applicable). Defaults to Tgas.");
-  params.addParam<std::vector<std::string>>("file_value", "The name of the value being taken from a file.");
-  params.addRequiredParam<UserObjectName>("electron_temperature",
-          "The name of the UserObject that can provide the rate coefficient.");
+  // params.addParam<std::vector<std::string>>("file_value", "The name of the value being taken from a file.");
+  // params.addRequiredParam<UserObjectName>("electron_temperature",
+          // "The name of the UserObject that can provide the rate coefficient.");
   return params;
 }
 
@@ -50,8 +50,8 @@ ParsedScalarRateCoefficient::ParsedScalarRateCoefficient(const InputParameters &
     _args(_nargs),
     _reduced_field(coupledScalarValue("reduced_field")),
     _constant_names(getParam<std::vector<std::string>>("constant_names")),
-    _constant_expressions(getParam<std::vector<std::string>>("constant_expressions")),
-    _data(getUserObject<ValueProvider>("electron_temperature"))
+    _constant_expressions(getParam<std::vector<std::string>>("constant_expressions"))
+    // _data(getUserObject<ValueProvider>("electron_temperature"))
 {
   // build variables argument
   // TODO: if electron temperature is a coupled variable, it will appear in args.

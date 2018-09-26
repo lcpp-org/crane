@@ -40,9 +40,7 @@ validParams<AddScalarReactions>()
   MooseEnum orders(AddVariableAction::getNonlinearVariableOrders());
 
   InputParameters params = validParams<ChemicalReactionsBase>();
-  // params.registerBase("Action");
   params.addClassDescription("This Action automatically adds the necessary kernels and materials for a reaction network.");
-
   return params;
 }
 
@@ -135,11 +133,11 @@ AddScalarReactions::act()
         params.set<AuxVariableName>("variable") = {_aux_var_name[i]};
         params.set<std::string>("function") = _rate_equation_string[i];
         params.set<bool>("file_read") = true;
-        params.set<std::vector<std::string>>("file_value") = {"Te"};
+        // params.set<std::vector<std::string>>("file_value") = {"Te"};
         params.set<std::vector<std::string>>("constant_names") = getParam<std::vector<std::string>>("equation_constants");
         params.set<std::vector<std::string>>("constant_expressions") = getParam<std::vector<std::string>>("equation_values");
-        params.set<UserObjectName>("electron_temperature") = "value_provider";
-        params.set<std::vector<VariableName>>("reduced_field") = {"reduced_field"};
+        // params.set<UserObjectName>("electron_temperature") = "value_provider";
+        // params.set<std::vector<VariableName>>("reduced_field") = {"reduced_field"};
         if (getParam<bool>("gas_temperature"))
         {
           params.set<bool>("gas_temperature") = true;
@@ -152,9 +150,11 @@ AddScalarReactions::act()
               break;
           }
           params.set<std::vector<VariableName>>("args") = {temp_var};
+          // params.set<std::vector<VariableName>>("args") = getParam<std::vector<VariableName>>("equation_variables");
 
         }
-        params.set<std::vector<VariableName>>("args") = {"Te"};
+        // params.set<std::vector<VariableName>>("args") = {"Te"};
+        params.set<std::vector<VariableName>>("args") = getParam<std::vector<VariableName>>("equation_variables");
         // params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN NONLINEAR";
         params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
         _problem->addAuxScalarKernel("ParsedScalarRateCoefficient", "aux_rate"+std::to_string(i), params);
@@ -184,6 +184,7 @@ AddScalarReactions::act()
   {
     int index; // stores index of species in the reactant/product arrays
     std::vector<std::string>::iterator iter;
+    std::vector<std::string>::iterator iter_aux;
     std::vector<Real> rxn_coeff = getParam<std::vector<Real>>("reaction_coefficient");
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
@@ -203,11 +204,18 @@ AddScalarReactions::act()
         reactant_kernel_name = "Reactant3BodyScalar";
       }
 
+      // Find any aux variables in the species list.
+      // If found, that index is skipped in the next loop.
       for (int j = 0; j < _species.size(); ++j)
       {
         iter = std::find(_reactants[i].begin(), _reactants[i].end(), _species[j]);
         index = std::distance(_reactants[i].begin(), iter);
 
+        iter_aux = std::find(_aux_species.begin(), _aux_species.end(), _species[j]);
+        if (iter_aux != _aux_species.end())
+        {
+          continue;
+        }
         if (iter != _reactants[i].end())
         {
           reactant_indices.resize(_reactants[i].size());

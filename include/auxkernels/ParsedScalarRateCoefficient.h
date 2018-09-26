@@ -17,7 +17,7 @@
 
 #include "AuxScalarKernel.h"
 #include "FunctionParserUtils.h"
-#include "ValueProvider.h"
+// #include "ValueProvider.h"
 
 // Forward Declarations
 class ParsedScalarRateCoefficient;
@@ -50,7 +50,7 @@ protected:
   const VariableValue & _reduced_field;
   std::vector<std::string> _constant_names;
   std::vector<std::string> _constant_expressions;
-  const ValueProvider & _data;
+  // const ValueProvider & _data;
 
   ADFunctionPtr _func_F;
 

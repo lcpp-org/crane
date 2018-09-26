@@ -17,6 +17,7 @@
 
 #include "AuxScalarKernel.h"
 #include "SplineInterpolation.h"
+// #include "LinearInterpolation.h"
 
 class DataReadScalar;
 
@@ -31,9 +32,12 @@ public:
 protected:
   virtual Real computeValue();
   SplineInterpolation _coefficient_interpolation;
+  // LinearInterpolation _coefficient_interpolation_linear;
   const VariableValue & _sampler_var;
   Real _sampler_const;
   std::string _sampling_format;
+  bool _use_time;
+  Real _scale_factor;
 };
 
 #endif // DATAREADSCALAR_H
