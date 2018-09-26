@@ -1,4 +1,4 @@
-#include "AddReactions.h"
+#include "AddZapdosReactions.h"
 #include "Parser.h"
 #include "FEProblem.h"
 #include "Factory.h"
@@ -26,16 +26,16 @@
 #include "libmesh/string_to_enum.h"
 #include "libmesh/fe.h"
 
-registerMooseAction("CraneApp", AddReactions, "add_aux_variable");
-registerMooseAction("CraneApp", AddReactions, "add_aux_scalar_kernel");
-registerMooseAction("CraneApp", AddReactions, "add_material");
-registerMooseAction("CraneApp", AddReactions, "add_kernel");
-registerMooseAction("CraneApp", AddReactions, "add_scalar_kernel");
-registerMooseAction("CraneApp", AddReactions, "add_function");
+registerMooseAction("CraneApp", AddZapdosReactions, "add_aux_variable");
+registerMooseAction("CraneApp", AddZapdosReactions, "add_aux_scalar_kernel");
+registerMooseAction("CraneApp", AddZapdosReactions, "add_material");
+registerMooseAction("CraneApp", AddZapdosReactions, "add_kernel");
+registerMooseAction("CraneApp", AddZapdosReactions, "add_scalar_kernel");
+registerMooseAction("CraneApp", AddZapdosReactions, "add_function");
 
 template <>
 InputParameters
-validParams<AddReactions>()
+validParams<AddZapdosReactions>()
 {
   MooseEnum families(AddVariableAction::getNonlinearVariableFamilies());
   MooseEnum orders(AddVariableAction::getNonlinearVariableOrders());
@@ -48,31 +48,14 @@ validParams<AddReactions>()
   return params;
 }
 
-static inline string &ltrim(string &s)
-{
-  s.erase(s.begin(),find_if_not(s.begin(),s.end(),[](int c){return isspace(c);}));
-  return s;
-}
-
-static inline string &rtrim(string &s)
-{
-  s.erase(find_if_not(s.rbegin(),s.rend(),[](int c){return isspace(c);}).base(), s.end());
-  return s;
-}
-
-static inline string trim(string &s)
-{
-  return ltrim(rtrim(s));
-}
-
-AddReactions::AddReactions(InputParameters params)
+AddZapdosReactions::AddZapdosReactions(InputParameters params)
   : ChemicalReactionsBase(params),
     _coefficient_format(getParam<std::string>("reaction_coefficient_format"))
 {
 }
 
 void
-AddReactions::act()
+AddZapdosReactions::act()
 {
   int v_index;
   std::vector<int> other_index;

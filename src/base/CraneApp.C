@@ -45,11 +45,24 @@ void
 CraneApp::associateSyntax(Syntax & syntax, ActionFactory & action_factory)
 {
   Registry::registerActionsTo(action_factory, {"CraneApp"});
-  syntax.registerActionSyntax("AddLotsOfTwoBodyReactions", "LotsOfTwoBodyReactions");
   syntax.registerActionSyntax("ChemicalReactions", "ChemicalReactionsSolo");
+  // Scalar network actions
   syntax.registerActionSyntax("AddScalarReactions", "ChemicalReactions/ScalarNetwork");
+  syntax.registerActionSyntax("ChemicalReactionsBase", "ChemicalReactions/ScalarNetwork");
+
+  // Spatial network actions
+  syntax.registerActionSyntax("AddReactions", "ChemicalReactions/Network");
+  syntax.registerActionSyntax("ChemicalReactionsBase", "ChemicalReactions/Network");
+
+  // Zapdos network actions
+  syntax.registerActionSyntax("AddZapdosReactions", "ChemicalReactions/ZapdosNetwork");
+  syntax.registerActionSyntax("ChemicalReactionsBase", "ChemicalReactions/ZapdosNetwork");
+
+  // Deprecated actions - to be removed
   // syntax.registerActionSyntax("ScalarTest", "ChemicalReactions/ScalarTest");
   // syntax.registerActionSyntax("AddReactions", "ChemicalReactions/Network");
+  // syntax.registerActionSyntax("ChemicalReactionsBase", "ChemicalReactions/Reactions");
+  // syntax.registerActionSyntax("AddScalarBase", "ChemicalReactions/Reactions");
 }
 
 void

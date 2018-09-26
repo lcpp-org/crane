@@ -56,7 +56,7 @@
 []
 
 [ChemicalReactions]
-  [./ScalarNetwork]
+  [./Reactions]
     species = 'e Ar+ Ar'
     file_location = 'Example1'
     reactions = 'e + Ar -> e + e + Ar+          : BOLOS
@@ -102,16 +102,12 @@
 []
 
 [Outputs]
-  # exodus = true
-  [./out]
-    type = Exodus
-    execute_on = 'TIMESTEP_END'
-  [../]
-  # csv = true
+  #exodus = true
+  csv = true
   # perf_log = true
-  # interval = 100
-  # [./csv_out]
-    # type = CSV
-    # show = 'e Ar Ar+'
-  # [../]
+  interval = 100
+  [./csv_out]
+    type = CSV
+    show = 'e Ar Ar+'
+  [../]
 []
