@@ -24,3 +24,10 @@ After installing MOOSE, make sure you have the following folder on your local ma
 `make -jn` 
 
 where `n` is the number of logical processors on your computer. 
+
+**Step 3.**
+Run tests to make sure CRANE is installed properly. 
+
+`./run_tests`
+
+If all the tests pass, CRANE has been successfully installed. 
