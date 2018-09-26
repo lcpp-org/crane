@@ -69,7 +69,7 @@ validParams<ChemicalReactions>()
   params.addParam<bool>("scalar_problem", false, "The problem is scalar if it is a pure ODE problem (Global/0D).");
   params.addParam<std::vector<std::string>>("equation_constants", "The constants included in the reaction equation(s).");
   params.addParam<std::vector<std::string>>("equation_values", "The values of the constants included in the reaction equation(s).");
-  params.addParam<std::vector<NonlinearVariableName>>("equation_variables", "Any nonlinear variables that appear in the equations.");
+  params.addParam<std::vector<VariableName>>("equation_variables", "Any nonlinear variables that appear in the equations.");
   params.addParam<std::vector<VariableName>>("rate_provider_var", "The name of the variable used to sample from BOLOS files.");
   params.addClassDescription("This Action automatically adds the necessary kernels and materials for a reaction network.");
 

@@ -40,12 +40,14 @@ validParams<AddScalarReactions>()
   MooseEnum orders(AddVariableAction::getNonlinearVariableOrders());
 
   InputParameters params = validParams<ChemicalReactionsBase>();
+  params.addParam<std::vector<std::string>>("aux_species", "Auxiliary species that are not included in nonlinear solve.");
   params.addClassDescription("This Action automatically adds the necessary kernels and materials for a reaction network.");
   return params;
 }
 
 AddScalarReactions::AddScalarReactions(InputParameters params)
-  : ChemicalReactionsBase(params)
+  : ChemicalReactionsBase(params),
+    _aux_species(getParam<std::vector<std::string>>("aux_species"))
 {
 }
 
