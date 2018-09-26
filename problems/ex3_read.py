@@ -68,9 +68,10 @@ EN = data[:,11]
 # zdplaskin_data = np.genfromtxt(zdplaskin_file, delimiter='  ', skip_header=1)
 zdplaskin_data = pd.read_csv(zdplaskin_file, sep="  ", header=0)
 test = zdplaskin_data.values
-zdstarttime = 1
+zdstarttime = 0
 
 zdtime = test[zdstarttime:,0]
+zdne = test[zdstarttime:,2]
 zdN = test[zdstarttime:,3]
 zdNi = test[zdstarttime:,9]
 zdN2 = test[zdstarttime:,4]
@@ -80,6 +81,11 @@ zdN2B = test[zdstarttime:,6]
 zdN2C = test[zdstarttime:,8]
 zdN3i = test[zdstarttime:,11]
 zdN4i = test[zdstarttime:,12]
+
+# plt.plot(time, N_e)
+# plt.plot(zdtime, zdne)
+# plt.show()
+# exit()
 #
 # n = min(len(time), len(zdtime))
 # out_idx = np.flatnonzero(time[:n] == zdtime[:n])
@@ -100,19 +106,19 @@ zdN4i = test[zdstarttime:,12]
 #             continue
 fig = plt.figure(figsize=(8,8))
 ax = plt.subplot(111)
-plot11, = ax.semilogy(time, N_N, 'g', label='$N$')
+plot11, = ax.semilogy(time, N_N, 'g', label='$N$', alpha=0.7)
 plot21, = ax.semilogy(zdtime, zdN, 'g--', label='$N$')
 
-plot12, = ax.semilogy(time, N_N2A, 'b', label='$N2(A)$')
+plot12, = ax.semilogy(time, N_N2A, 'b', label='$N2(A)$', alpha=0.7)
 plot22, = ax.semilogy(zdtime, zdN2A, 'b--', label='$N2(A)$')
 
-plot13, = ax.semilogy(time, N_N2C, 'r', label='$N2(C)$')
+plot13, = ax.semilogy(time, N_N2C, 'r', label='$N2(C)$', alpha=0.7)
 plot23, = ax.semilogy(zdtime, zdN2C, 'r--', label='$N2(C)$')
 
-plot14, = ax.semilogy(time, N_N2i, 'c', label='$N_2^+$')
+plot14, = ax.semilogy(time, N_N2i, 'c', label='$N_2^+$', alpha=0.7)
 plot24, = ax.semilogy(zdtime, zdN2i, 'c--', label='$N_2^+$')
 
-plot15, = ax.semilogy(time, N_N4i, 'k', label='$N_4^+$')
+plot15, = ax.semilogy(time, N_N4i, 'k', label='$N_4^+$', alpha=0.7)
 plot25, = ax.semilogy(zdtime, zdN4i, 'k--', label='$N_4^+$')
 box = ax.get_position()
 ax.set_position([box.x0, box.y0 + box.height * 0.1,
@@ -121,10 +127,14 @@ h, l = ax.get_legend_handles_labels()
 ph = [plt.plot([], marker="", ls="")[0]]*2
 handles = ph + h
 labels = ["CRANE:", "ZDPlasKin:"] + l
-plt.legend(handles, labels, ncol=6, bbox_to_anchor=(0.02, -0.05))
+# plt.legend(handles, labels, ncol=6, bbox_to_anchor=(0.015, -0.08))
+plt.legend(handles, labels, ncol=6, bbox_to_anchor=(1.0, 1.12))
 plt.axis([0, 2.5e-3, 10**4, 10**14])
-
-
+plt.xlabel('Time [s]', fontsize=14)
+plt.ylabel('Density [$cm^{-3}$]', fontsize=14)
+# plt.savefig('ex3_comparison.png', bbox_inches='tight')
+# plt.close()
+# exit()
 
 # plt.xlabel('Time [s]', fontsize=14)
 # plt.ylabel('Density [$cm^{-3}$]', fontsize=14)

@@ -17,7 +17,7 @@
 
 #include "AuxScalarKernel.h"
 #include "SplineInterpolation.h"
-// #include "LinearInterpolation.h"
+#include "LinearInterpolation.h"
 
 class DataReadScalar;
 

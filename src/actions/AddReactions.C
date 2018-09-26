@@ -27,10 +27,9 @@
 #include "libmesh/fe.h"
 
 registerMooseAction("CraneApp", AddReactions, "add_aux_variable");
-registerMooseAction("CraneApp", AddReactions, "add_aux_scalar_kernel");
+registerMooseAction("CraneApp", AddReactions, "add_aux_kernel");
 registerMooseAction("CraneApp", AddReactions, "add_material");
 registerMooseAction("CraneApp", AddReactions, "add_kernel");
-registerMooseAction("CraneApp", AddReactions, "add_scalar_kernel");
 registerMooseAction("CraneApp", AddReactions, "add_function");
 
 template <>
@@ -40,7 +39,7 @@ validParams<AddReactions>()
   MooseEnum families(AddVariableAction::getNonlinearVariableFamilies());
   MooseEnum orders(AddVariableAction::getNonlinearVariableOrders());
 
-  InputParameters params = validParams<AddVariableAction>();
+  InputParameters params = validParams<ChemicalReactionsBase>();
   params.addRequiredParam<std::string>("reaction_coefficient_format",
     "The format of the reaction coefficient. Options: rate or townsend.");
   params.addClassDescription("This Action automatically adds the necessary kernels and materials for a reaction network.");
@@ -88,8 +87,8 @@ AddReactions::act()
   std::string product_kernel_name;
   std::string reactant_kernel_name;
   std::string energy_kernel_name;
-  std::vector<NonlinearVariableName> variables =
-      getParam<std::vector<NonlinearVariableName>>("species");
+  // std::vector<NonlinearVariableName> variables =
+  //     getParam<std::vector<NonlinearVariableName>>("species");
   // std::vector<VariableName> electron_energy =
       // getParam<std::vector<VariableName>>("electron_energy");
   // std::string electron_density = getParam<std::string>("electron_density");

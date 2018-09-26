@@ -12,62 +12,71 @@
   [./N]
     family = SCALAR
     order = FIRST
-    initial_condition = 1
+    # initial_condition = 1e-20
+    initial_condition = 0.0
   [../]
 
   [./N2]
     family = SCALAR
     order = FIRST
-    initial_condition = 2.447463768e19
+    initial_condition = 2.4474637681159418e+19
     scaling = 2.447e-19
   [../]
 
   [./N2A]
     family = SCALAR
     order = FIRST
-    initial_condition = 1
+    # initial_condition = 1e-20
+    initial_condition = 0.0
   [../]
 
   [./N2B]
     family = SCALAR
     order = FIRST
-    initial_condition = 1
+    # initial_condition = 1e-20
+    initial_condition = 0.0
   [../]
 
   [./N2a1]
     family = SCALAR
     order = FIRST
-    initial_condition = 1
+    # initial_condition = 1e-20
+    initial_condition = 0.0
   [../]
 
   [./N2C]
     family = SCALAR
     order = FIRST
-    initial_condition = 1
+    # initial_condition = 1e-20
+    initial_condition = 0.0
   [../]
 
   [./N+]
     family = SCALAR
     order = FIRST
-    initial_condition = 1
+    # initial_condition = 1e-20
+    initial_condition = 0.0
   [../]
 
   [./N2+]
     family = SCALAR
     order = FIRST
-    initial_condition = 1
+    # initial_condition = 1e-20
+    initial_condition = 0.0
   [../]
 
   [./N3+]
     family = SCALAR
     order = FIRST
-    initial_condition = 1
+    # initial_condition = 1e-20
+    initial_condition = 0.0
   [../]
 
   [./N4+]
     family = SCALAR
     order = FIRST
-    initial_condition = 1
+    # initial_condition = 1e-20
+    initial_condition = 0.0
   [../]
 []
 
@@ -148,7 +157,7 @@
                  N4+ + e -> N2 + N2         : {2.3e-6*(300/(Te*11600))^0.53}
                  N+ + N + N2 -> N2+ + N2    : 1.0e-29
                  N+ + N2 + N2 -> N3+ + N2   : {1.7e-29*(300.0/Teff)^2.1}
-                 N2+ + N -> N+ + N2         : 7.2e-13*(Teff/300.0)
+                 N2+ + N -> N+ + N2         : {7.2e-13*(Teff/300.0)}
                  N2+ + N2A -> N3+ + N       : 3.0e-10
                  N2+ + N2 + N -> N3+ + N2   : {9.0e-30*exp(400.0/Teff)}
                  N2+ + N2 + N2 -> N4+ + N2  : {5.2e-29*(300.0/Teff)^2.2}
@@ -202,6 +211,7 @@
     # scale_factor = 1e-21
     use_time = true
     property_file = 'BOLSIG_rates_ex3/reduced_field.txt'
+    # execute_on = 'INITIAL TIMESTEP_END'
     execute_on = 'TIMESTEP_BEGIN'
   [../]
 
@@ -219,6 +229,7 @@
     variable = e
     use_time = true
     property_file = 'BOLSIG_rates_ex3/electron_density.txt'
+    # execute_on = 'INITIAL TIMESTEP_END'
     execute_on = 'TIMESTEP_BEGIN'
   [../]
 
@@ -229,7 +240,8 @@
     constant_expressions = '300'
     args = 'reduced_field'
     function = 'Tgas+(0.12*(reduced_field*1e21)^2)'
-    execute_on = 'INITIAL TIMESTEP_BEGIN'
+    execute_on = 'INITIAL TIMESTEP_END'
+    # execute_on = 'TIMESTEP_BEGIN'
   [../]
 []
 
@@ -253,10 +265,10 @@
   # dt = 1.0e-18
   # dt = 1e-10
   # num_steps  = 10
-  solve_type = 'newton'
+  solve_type = 'linear'
   # scheme = crank-nicolson
   # dt = 1e-10
-  dt = 1e-6
+  # dt = 5e-5
   dtmin = 1e-20
   dtmax = 1e-5
   petsc_options_iname = '-snes_linesearch_type'
@@ -271,6 +283,13 @@
   #   growth_factor = 1.01
   #   # optimal_iterations = 20
   # [../]
+  [./TimeStepper]
+    type = CSVTimeSequenceStepper
+    # header = true
+    file_name = 'BOLSIG_rates_ex3/reduced_field.txt'
+    delimiter = ' '
+    column_index = 0
+  [../]
 []
 
 [Preconditioning]

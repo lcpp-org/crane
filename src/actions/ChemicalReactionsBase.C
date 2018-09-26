@@ -26,12 +26,13 @@
 #include "libmesh/string_to_enum.h"
 #include "libmesh/fe.h"
 
-registerMooseAction("CraneApp", ChemicalReactionsBase, "add_aux_variable");
-registerMooseAction("CraneApp", ChemicalReactionsBase, "add_aux_scalar_kernel");
-registerMooseAction("CraneApp", ChemicalReactionsBase, "add_material");
-registerMooseAction("CraneApp", ChemicalReactionsBase, "add_kernel");
-registerMooseAction("CraneApp", ChemicalReactionsBase, "add_scalar_kernel");
-registerMooseAction("CraneApp", ChemicalReactionsBase, "add_function");
+registerMooseAction("CraneApp", ChemicalReactionsBase, "add_variable");
+// registerMooseAction("CraneApp", ChemicalReactionsBase, "add_aux_variable");
+// registerMooseAction("CraneApp", ChemicalReactionsBase, "add_aux_scalar_kernel");
+// registerMooseAction("CraneApp", ChemicalReactionsBase, "add_material");
+// registerMooseAction("CraneApp", ChemicalReactionsBase, "add_kernel");
+// registerMooseAction("CraneApp", ChemicalReactionsBase, "add_scalar_kernel");
+// registerMooseAction("CraneApp", ChemicalReactionsBase, "add_function");
 
 template <>
 InputParameters

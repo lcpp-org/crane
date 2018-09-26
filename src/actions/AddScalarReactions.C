@@ -72,8 +72,8 @@ AddScalarReactions::act()
   std::string product_kernel_name;
   std::string reactant_kernel_name;
   std::string energy_kernel_name;
-  std::vector<NonlinearVariableName> variables =
-      getParam<std::vector<NonlinearVariableName>>("species");
+  // std::vector<NonlinearVariableName> variables =
+  //     getParam<std::vector<NonlinearVariableName>>("species");
 
   bool gas_tracking = getParam<bool>("gas_tracking");
   std::vector<std::string> gas_species = getParam<std::vector<std::string>>("gas_species");
