@@ -137,7 +137,7 @@
   [./ScalarNetwork]
     species = 'e N N2 N2A N2B N2a1 N2C N+ N2+ N3+ N4+'
     aux_species = 'e'
-    file_location = 'BOLSIG_rates_ex3'
+    file_location = 'Example3'
 
     # These are parameters required equation-based rate coefficients
     equation_variables = 'Te Teff'
@@ -210,7 +210,7 @@
     variable = reduced_field
     # scale_factor = 1e-21
     use_time = true
-    property_file = 'BOLSIG_rates_ex3/reduced_field.txt'
+    property_file = 'Example3/reduced_field.txt'
     # execute_on = 'INITIAL TIMESTEP_END'
     execute_on = 'TIMESTEP_BEGIN'
   [../]
@@ -220,7 +220,7 @@
     variable = Te
     scale_factor = 1.5e-1
     sampler = reduced_field
-    property_file = 'BOLSIG_rates_ex3/electron_temperature.txt'
+    property_file = 'Example3/electron_temperature.txt'
     execute_on = 'TIMESTEP_BEGIN'
   [../]
 
@@ -228,7 +228,7 @@
     type = DataReadScalar
     variable = e
     use_time = true
-    property_file = 'BOLSIG_rates_ex3/electron_density.txt'
+    property_file = 'Example3/electron_density.txt'
     # execute_on = 'INITIAL TIMESTEP_END'
     execute_on = 'TIMESTEP_BEGIN'
   [../]
@@ -286,7 +286,7 @@
   [./TimeStepper]
     type = CSVTimeSequenceStepper
     # header = true
-    file_name = 'BOLSIG_rates_ex3/reduced_field.txt'
+    file_name = 'Example3/reduced_field.txt'
     delimiter = ' '
     column_index = 0
   [../]
