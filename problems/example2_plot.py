@@ -2,7 +2,7 @@ import matplotlib.pylab as plt
 import numpy as np
 import csv
 
-file = 'zdplaskin_ex2_csv_out.csv'
+file = 'zdplaskin_ex2_out.csv'
 
 
 data = np.genfromtxt(file, dtype=float, delimiter=',', skip_header=1)
@@ -12,7 +12,7 @@ N_Ar = data[:,1]
 N_Ari = data[:,3]
 N_Ar2i = data[:,4]
 N_ArEx = data[:,2]
-N_e = data[:,5]
+N_e = data[:,7]
 EN = data[:,7]
 mu = data[:,6]
 
