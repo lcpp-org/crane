@@ -82,7 +82,7 @@
     reaction_coefficient_format = 'rate'
     # include_electrons = true
     # electron_density = e
-    file_location = 'BOLSIG_rates'
+    file_location = 'Example2'
 
     # These are parameters required equation-based rate coefficients
     equation_constants = 'Tgas J pi'
@@ -189,8 +189,8 @@
     type = DataReadScalar
     variable = mobility
     sampler = reduced_field
-    # property_file = 'BOLSIG_rates/electron_mobility.txt'
-    property_file = 'BOLSIG_rates/electron_mobility.txt'
+    # property_file = 'Example2/electron_mobility.txt'
+    property_file = 'Example2/electron_mobility.txt'
     execute_on = 'INITIAL TIMESTEP_BEGIN'
   [../]
 
@@ -198,8 +198,8 @@
     type = DataReadScalar
     variable = Te
     sampler = reduced_field
-    # property_file = 'BOLSIG_rates/electron_temperature.txt'
-    property_file = 'BOLSIG_rates/electron_temperature.txt'
+    # property_file = 'Example2/electron_temperature.txt'
+    property_file = 'Example2/electron_temperature.txt'
     execute_on = 'INITIAL TIMESTEP_BEGIN'
   [../]
 []
@@ -209,8 +209,8 @@
 
   [./value_provider]
     type = ValueProvider
-    # property_file = 'BOLSIG_rates/electron_temperature.txt'
-    property_file = 'BOLSIG_rates/electron_temperature.txt'
+    # property_file = 'Example2/electron_temperature.txt'
+    property_file = 'Example2/electron_temperature.txt'
   [../]
 []
 
