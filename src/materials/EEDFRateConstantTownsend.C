@@ -37,8 +37,8 @@ EEDFRateConstantTownsend::EEDFRateConstantTownsend(const InputParameters & param
     _d_k_d_en(declareProperty<Real>("d_k_d_en_"+getParam<std::string>("reaction"))),
     _d_alpha_d_en(declareProperty<Real>("d_alpha_d_en_"+getParam<std::string>("reaction"))),
     _n_gas(getMaterialProperty<Real>("n_gas")),
-    _massIncident(getMaterialProperty<Real>("massIncident")),
-    _massTarget(getMaterialProperty<Real>("massTarget")),
+    _massIncident(getMaterialProperty<Real>("massAr+")),
+    _massTarget(getMaterialProperty<Real>("massem")),
 
     // Electron information
     _target_species(isCoupled("target_species") ? coupledValue("target_species") : _zero),
@@ -79,25 +79,25 @@ void
 EEDFRateConstantTownsend::computeQpProperties()
 {
   Real actual_mean_energy = std::exp(_mean_en[_qp] - _em[_qp]);
-  if (_coefficient_format == "townsend")
+  // if (_coefficient_format == "townsend")
+  // {
+  _townsend_coefficient[_qp] = _coefficient_interpolation.sample(actual_mean_energy);
+  _d_alpha_d_en[_qp] = _coefficient_interpolation.sampleDerivative(actual_mean_energy);
+
+
+  if (isCoupled("target_species"))
   {
-    _townsend_coefficient[_qp] = _coefficient_interpolation.sample(actual_mean_energy);
-    _d_alpha_d_en[_qp] = _coefficient_interpolation.sampleDerivative(actual_mean_energy);
-
-
-    if (isCoupled("target_species"))
-    {
-      _townsend_coefficient[_qp] = _townsend_coefficient[_qp] * std::exp(_target_species[_qp]) / _n_gas[_qp];
-    }
-
-    if (_elastic_collision == true)
-    {
-      _energy_elastic[_qp] = -3.0 * _massIncident[_qp] / _massTarget[_qp] * 2.0 / 3.0 * std::exp(_mean_en[_qp] - _em[_qp]);
-    }
+    _townsend_coefficient[_qp] = _townsend_coefficient[_qp] * std::exp(_target_species[_qp]) / _n_gas[_qp];
   }
-  else
+
+  if (_elastic_collision == true)
   {
-    _reaction_rate[_qp] = _coefficient_interpolation.sample(actual_mean_energy);
-    _d_k_d_en[_qp] = _coefficient_interpolation.sampleDerivative(actual_mean_energy);
+    _energy_elastic[_qp] = -3.0 * _massIncident[_qp] / _massTarget[_qp] * 2.0 / 3.0 * std::exp(_mean_en[_qp] - _em[_qp]);
   }
+  // }
+  // else
+  // {
+  //   _reaction_rate[_qp] = _coefficient_interpolation.sample(actual_mean_energy);
+  //   _d_k_d_en[_qp] = _coefficient_interpolation.sampleDerivative(actual_mean_energy);
+  // }
 }

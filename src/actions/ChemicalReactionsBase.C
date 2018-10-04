@@ -49,6 +49,7 @@ validParams<ChemicalReactionsBase>()
   params.addParam<bool>("track_energy", false, "Whether or not to track gas energy/temperature.");
   params.addParam<bool>("track_electron_energy", false, "Whether or not to track electron energy.");
   params.addParam<bool>("use_log", false, "Whether or not to use logarithmic densities. (N = exp(n))");
+  params.addParam<bool>("use_moles", false, "Whether or not to use log molar densities.");
   params.addParam<std::vector<NonlinearVariableName>>(
     "species_energy", "List of (tracked) energy values. (Optional; requires 'track_energy' to be True.)");
   params.addParam<std::string>("electron_density", "The variable used for density of electrons.");
@@ -59,7 +60,7 @@ validParams<ChemicalReactionsBase>()
   params.addParam<bool>("gas_tracking", false, "If false, neutral gas is treated as uniform background (_n_gas).");
   params.addParam<bool>("gas_temperature", false, "If false, neutral gas temperature is not a solution variable.");
   params.addParam<std::vector<VariableName>>("gas_temperature_variable", "The gas temperature variable (if applicable).");
-  params.addParam<std::vector<VariableName>>("potential", "The electric potential, used for energy-dependent reaction rates.");
+  // params.addParam<std::vector<VariableName>>("potential", "The electric potential, used for energy-dependent reaction rates.");
   params.addRequiredParam<std::string>("reactions", "The list of reactions to be added");
   params.addParam<Real>("position_units", 1.0, "The units of position.");
   params.addParam<std::string>("file_location", "", "The location of the reaction rate files. Default: empty string (current directory).");
@@ -100,7 +101,8 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     _input_reactions(getParam<std::string>("reactions")),
     _r_units(getParam<Real>("position_units")),
     _sampling_format(getParam<std::string>("sampling_format")),
-    _use_log(getParam<bool>("use_log"))
+    _use_log(getParam<bool>("use_log")),
+    _use_moles(getParam<bool>("use_moles"))
 {
   std::istringstream iss(_input_reactions);
   std::string token;
@@ -119,7 +121,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   while (std::getline(iss >> std::ws, token)) // splits by \n character (default) and ignores leading whitespace
   {
     // Define check for change of energy
-    bool _energy_change = false;
+    // bool _energy_change = false;
     pos = token.find(':'); // Looks for colon, which separates reaction and rate coefficients
 
     // Brackets enclose the energy gain/loss (if applicable)
@@ -139,11 +141,12 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     if (pos_start != std::string::npos)
     {
       threshold_energy_string.push_back(token.substr(pos_start + 1, pos_end-pos_start-1));
-      _energy_change = true;
+      _energy_change.push_back(true);
     }
     else
     {
       threshold_energy_string.push_back("\0");
+      _energy_change.push_back(false);
     }
 
     if (eq_start != std::string::npos)
@@ -166,6 +169,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   _elastic_collision.resize(_num_reactions, false);
   _rate_type.resize(_num_reactions);
   _aux_var_name.resize(_num_reactions);
+  _reaction_coefficient_name.resize(_num_reactions);
   for (unsigned int i = 0; i < _num_reactions; ++i)
   {
     if (threshold_energy_string[i] == "\0")
@@ -182,6 +186,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
       _threshold_energy[i] = std::stod(threshold_energy_string[i]);
     }
     _aux_var_name[i] = "rate_constant"+std::to_string(i);  // Stores name of rate coefficients
+    _reaction_coefficient_name[i] = "rate_constant"+std::to_string(i);
     if (rate_coefficient_string[i] == std::string("BOLOS"))
     {
       _rate_coefficient[i] = NAN;
@@ -318,6 +323,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   _reactants.resize(_reactants.size() + superelastic_reactions);
   _products.resize(_products.size() + superelastic_reactions);
   _aux_var_name.resize(_num_reactions + superelastic_reactions);
+  _reaction_coefficient_name.resize(_num_reactions + superelastic_reactions);
   if (superelastic_reactions > 0)
   {
     for (unsigned int i = 0; i < _num_reactions; ++i)
@@ -338,6 +344,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
         _rate_coefficient[new_index] = NAN;
         _threshold_energy[new_index] = -_threshold_energy[i];
         _aux_var_name[new_index] = "rate_constant"+std::to_string(new_index);
+        _reaction_coefficient_name[new_index] = "rate_constant"+std::to_string(new_index);
         if (_rate_equation[i] == true)
         {
           _rate_equation[new_index] = true;

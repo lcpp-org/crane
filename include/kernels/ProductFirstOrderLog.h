@@ -12,33 +12,34 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef REACTANTFIRSTORDERLOG_H
-#define REACTANTFIRSTORDERLOG_H
+#ifndef PRODUCTFIRSTORDERLOG_H
+#define PRODUCTFIRSTORDERLOG_H
 
 #include "Kernel.h"
 
 // Forward Declaration
-class ReactantFirstOrderLog;
+class ProductFirstOrderLog;
 
 template <>
-InputParameters validParams<ReactantFirstOrderLog>();
+InputParameters validParams<ProductFirstOrderLog>();
 
-class ReactantFirstOrderLog : public Kernel
+class ProductFirstOrderLog : public Kernel
 {
 public:
-  ReactantFirstOrderLog(const InputParameters & parameters);
+  ProductFirstOrderLog(const InputParameters & parameters);
 
 protected:
   virtual Real computeQpResidual();
   virtual Real computeQpJacobian();
   virtual Real computeQpOffDiagJacobian(unsigned int jvar);
 
-  // The reaction coefficient
-  // MooseVariable & _coupled_var_A;
-  const MaterialProperty<Real> & _reaction_coeff;
-  // const MaterialProperty<Real> & _diff_rate;
-  // const MaterialProperty<Real> & _n_gas;
-  Real _stoichiometric_coeff;
+  const VariableValue & _v;
+  unsigned int _v_id;
+  const MaterialProperty<Real> & _n_gas;
 
+  // The reaction coefficient
+  const MaterialProperty<Real> & _reaction_coeff;
+  Real _stoichiometric_coeff;
+  bool _v_eq_u;
 };
-#endif // REACTANTFIRSTORDERLOG_H
+#endif // PRODUCTFIRSTORDERLOG_H

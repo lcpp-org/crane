@@ -38,6 +38,8 @@ protected:
   MaterialProperty<Real> & _d_k_d_en;
   std::string _sampling_format;
   const MaterialProperty<Real> & _reduced_field;
+  const VariableValue & _em;
+  const VariableValue & _mean_en;
 };
 
 #endif // EEDFRATECONSTANT_H_

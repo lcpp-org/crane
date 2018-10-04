@@ -37,7 +37,6 @@ Real
 ProductSecondOrderLog::computeQpResidual()
 {
   Real mult1, mult2;
-
   if (isCoupled("v"))
     mult1 = std::exp(_v[_qp]);
   else
@@ -58,6 +57,7 @@ ProductSecondOrderLog::computeQpResidual()
 Real
 ProductSecondOrderLog::computeQpJacobian()
 {
+  // return 0.0;
   Real mult1, mult2, power, eq_u_mult, gas_mult;
   power = 0.0;
   eq_u_mult = 1.0;
@@ -135,7 +135,7 @@ ProductSecondOrderLog::computeQpOffDiagJacobian(unsigned int jvar)
   {
     if (jvar == _v_id)
       return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] *
-              std::exp(_n_gas[_qp]) * std::exp(_v[_qp]) * _phi[_j][_qp];
+              _n_gas[_qp] * std::exp(_v[_qp]) * _phi[_j][_qp];
     else
       return 0.0;
   }
@@ -143,7 +143,7 @@ ProductSecondOrderLog::computeQpOffDiagJacobian(unsigned int jvar)
   {
     if (jvar == _w_id)
       return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] *
-            std::exp(_n_gas[_qp]) * std::exp(_w[_qp]) * _phi[_j][_qp];
+            _n_gas[_qp] * std::exp(_w[_qp]) * _phi[_j][_qp];
     else
       return 0.0;
   }

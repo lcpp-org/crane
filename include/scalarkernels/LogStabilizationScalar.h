@@ -12,33 +12,27 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef REACTANTFIRSTORDERLOG_H
-#define REACTANTFIRSTORDERLOG_H
+#ifndef LOGSTABILIZATIONSCALAR_H
+#define LOGSTABILIZATIONSCALAR_H
 
-#include "Kernel.h"
+#include "ODEKernel.h"
 
-// Forward Declaration
-class ReactantFirstOrderLog;
+class LogStabilizationScalar;
 
 template <>
-InputParameters validParams<ReactantFirstOrderLog>();
+InputParameters validParams<LogStabilizationScalar>();
 
-class ReactantFirstOrderLog : public Kernel
+class LogStabilizationScalar : public ODEKernel
 {
 public:
-  ReactantFirstOrderLog(const InputParameters & parameters);
+  LogStabilizationScalar(const InputParameters & parameters);
+  virtual ~LogStabilizationScalar();
 
 protected:
   virtual Real computeQpResidual();
   virtual Real computeQpJacobian();
-  virtual Real computeQpOffDiagJacobian(unsigned int jvar);
 
-  // The reaction coefficient
-  // MooseVariable & _coupled_var_A;
-  const MaterialProperty<Real> & _reaction_coeff;
-  // const MaterialProperty<Real> & _diff_rate;
-  // const MaterialProperty<Real> & _n_gas;
-  Real _stoichiometric_coeff;
-
+  Real _offset;
 };
-#endif // REACTANTFIRSTORDERLOG_H
+
+#endif /* LOGSTABILIZATIONSCALAR_H */

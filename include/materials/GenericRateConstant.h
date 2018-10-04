@@ -30,6 +30,7 @@ protected:
   virtual void computeQpProperties();
 
   MaterialProperty<Real> & _reaction_rate;
+  MaterialProperty<Real> & _d_k_d_en;
 
   Real _rate_value;
 

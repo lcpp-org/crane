@@ -12,33 +12,30 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef REACTANTFIRSTORDERLOG_H
-#define REACTANTFIRSTORDERLOG_H
+#ifndef ODETIMEDERIVATIVELOG_H
+#define ODETIMEDERIVATIVELOG_H
 
-#include "Kernel.h"
+#include "ODETimeKernel.h"
 
 // Forward Declaration
-class ReactantFirstOrderLog;
+class ODETimeDerivativeLog;
 
 template <>
-InputParameters validParams<ReactantFirstOrderLog>();
+InputParameters validParams<ODETimeDerivativeLog>();
 
-class ReactantFirstOrderLog : public Kernel
+class ODETimeDerivativeLog : public ODETimeKernel
 {
 public:
-  ReactantFirstOrderLog(const InputParameters & parameters);
+  ODETimeDerivativeLog(const InputParameters & parameters);
+
+  /* virtual void computeJacobian(); */
 
 protected:
   virtual Real computeQpResidual();
   virtual Real computeQpJacobian();
-  virtual Real computeQpOffDiagJacobian(unsigned int jvar);
+  /* virtual Real computeQpOffDiagJacobian(unsigned int jvar); */
 
-  // The reaction coefficient
-  // MooseVariable & _coupled_var_A;
-  const MaterialProperty<Real> & _reaction_coeff;
-  // const MaterialProperty<Real> & _diff_rate;
-  // const MaterialProperty<Real> & _n_gas;
-  Real _stoichiometric_coeff;
-
+  bool _lumping;
 };
-#endif // REACTANTFIRSTORDERLOG_H
+
+#endif // ODETIMEDERIVATIVELOG_H

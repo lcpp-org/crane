@@ -37,6 +37,7 @@ protected:
   Real _sampler_const;
   std::string _sampling_format;
   bool _use_time;
+  bool _use_log;
   Real _scale_factor;
 };
 

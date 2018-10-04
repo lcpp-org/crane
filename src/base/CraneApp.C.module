@@ -1,4 +1,4 @@
-CraneApp#include "CraneApp.h"
+#include "CraneApp.h"
 #include "Moose.h"
 #include "AppFactory.h"
 #include "MooseSyntax.h"
