@@ -11,62 +11,70 @@
   [./e]
     family = SCALAR
     order = FIRST
-    initial_condition = 1e6
-    scaling = 1e-6
+    initial_condition = 13.815510557964274
+    # scaling = 1e-6
   [../]
 
   [./Ar+]
     family = SCALAR
     order = FIRST
-    initial_condition = 1e6
-    scaling = 1e-6
+    initial_condition = 13.815510557964274
+    # scaling = 1e-6
   [../]
 
   [./Ar]
     family = SCALAR
     order = FIRST
-    initial_condition = 3.21883e18
-    scaling = 3.2e-18
+    initial_condition = 42.61555555
+    scaling = 42.61555555e-1
+    # scaling = 3.2e-18
   [../]
 
   [./Ar*]
     family = SCALAR
     order = FIRST
-    initial_condition = 1e6
-    scaling = 1e-6
+    initial_condition = 13.815510557964274
+    # scaling = 1e-6
   [../]
 
   [./Ar2+]
     family = SCALAR
     order = FIRST
-    initial_condition = 1
+    initial_condition = 0
   [../]
 []
 
 [ScalarKernels]
   [./de_dt]
-    type = ODETimeDerivative
+    type = ODETimeDerivativeLog
     variable = e
   [../]
 
   [./dAr+_dt]
-    type = ODETimeDerivative
+    type = ODETimeDerivativeLog
     variable = Ar+
   [../]
 
   [./dAr_dt]
-    type = ODETimeDerivative
+    type = ODETimeDerivativeLog
     variable = Ar
   [../]
 
   [./dAr*_dt]
-    type = ODETimeDerivative
+    type = ODETimeDerivativeLog
     variable = Ar*
   [../]
 
   [./dAr2_dt]
-    type = ODETimeDerivative
+    type = ODETimeDerivativeLog
     variable = Ar2+
+  [../]
+
+  # Why is this necessary?!
+  [./Ar2_stabilization]
+    type = LogStabilizationScalar
+    variable = Ar2+
+    offset = -35
   [../]
 []
 
@@ -82,6 +90,7 @@
     equation_values = '300 2.405 3.141'
     equation_variables = 'Te'
     rate_provider_var = 'reduced_field'
+    use_log = true
 
 
     reactions = 'e + Ar -> e + e + Ar+          : BOLOS
@@ -131,7 +140,7 @@
     constant_names = 'V d qe R'
     constant_expressions = '1000 0.004 1.602e-19 1e5'
     args = 'reduced_field Ar current'
-    function = 'V/(d+R*current/(reduced_field*Ar*1e6))/(Ar*1e6)'
+    function = 'V/(d+R*current/(reduced_field*exp(Ar)*1e6))/(exp(Ar)*1e6)'
     execute_on = 'TIMESTEP_END'
   [../]
 
@@ -142,7 +151,7 @@
     constant_names = 'r pi'
     constant_expressions = '0.004 3.1415926'
     args = 'reduced_field mobility Ar e'
-    function = '(reduced_field * mobility * Ar*1e6) * 1.6e-19 * pi*(r^2.0) * (e*1e6)'
+    function = '(reduced_field * mobility * exp(Ar)*1e6) * 1.6e-19 * pi*(r^2.0) * (exp(e)*1e6)'
     execute_on = 'TIMESTEP_BEGIN'
   [../]
 
@@ -183,7 +192,6 @@
   [./TimeStepper]
     type = IterationAdaptiveDT
     cutback_factor = 0.9
-    # dt = 1e-10
     dt = 1e-11
     growth_factor = 1.01
   [../]

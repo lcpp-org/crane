@@ -92,5 +92,5 @@ DataReadScalar::computeValue()
   else if (_use_log && val<=0)
     return 1e-4;
   else
-    return val * _scale_factor;
+    return val;
 }

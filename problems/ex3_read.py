@@ -9,7 +9,7 @@ from sklearn.metrics import mean_squared_error
 zdplaskin_file = '/Users/keniley/Documents/LCPP_Atmos/example3/out.dat'
 # zdplaskin_rate_file = '/Users/keniley/Documents/LCPP_Atmos/example2/file_test.dat'
 
-file = 'zdplaskin_ex3_csv_out.csv'
+file = 'zdplaskin_ex3_out.csv'
 # rate_file = 'zdplaskin_ex2_csv_out_2.csv'
 
 ### READ REACTION RATES FROM ZDPLASKIN
@@ -57,7 +57,7 @@ N_N2A = data[:,5]
 N_N2B = data[:,6]
 N_N2C = data[:,7]
 N_N3i = data[:,8]
-N_N4i = data[:,9]
+N_N4i = data[:,10]
 N_e = data[:,10]
 EN = data[:,11]
 

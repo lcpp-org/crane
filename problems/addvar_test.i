@@ -6,42 +6,48 @@
   nx = 1
 []
 
-[Variables]
-  # ODE variables
-  [./e]
-    family = SCALAR
-    order = FIRST
-    initial_condition = 1e6
-    scaling = 1e-6
-  [../]
-
-  [./Ar+]
-    family = SCALAR
-    order = FIRST
-    initial_condition = 1e6
-    scaling = 1e-6
-  [../]
-
-  [./Ar]
-    family = SCALAR
-    order = FIRST
-    initial_condition = 3.21883e18
-    scaling = 3.2e-18
-  [../]
-
-  [./Ar*]
-    family = SCALAR
-    order = FIRST
-    initial_condition = 1e6
-    scaling = 1e-6
-  [../]
-
-  [./Ar2+]
-    family = SCALAR
-    order = FIRST
-    initial_condition = 1
-  [../]
+[Species]
+  species = 'e Ar+ Ar Ar* Ar2+'
+  initial_conditions = '1e6 1e6 3.21883e18 1e6 1'
+  scale_factors = '1e-6 1e-6 3.2e-18 1e-6 1'
+  use_scalar = true
 []
+# [Variables]
+#   # ODE variables
+#   [./e]
+#     family = SCALAR
+#     order = FIRST
+#     initial_condition = 1e6
+#     scaling = 1e-6
+#   [../]
+#
+#   [./Ar+]
+#     family = SCALAR
+#     order = FIRST
+#     initial_condition = 1e6
+#     scaling = 1e-6
+#   [../]
+#
+#   [./Ar]
+#     family = SCALAR
+#     order = FIRST
+#     initial_condition = 3.21883e18
+#     scaling = 3.2e-18
+#   [../]
+#
+#   [./Ar*]
+#     family = SCALAR
+#     order = FIRST
+#     initial_condition = 1e6
+#     scaling = 1e-6
+#   [../]
+#
+#   [./Ar2+]
+#     family = SCALAR
+#     order = FIRST
+#     initial_condition = 1
+#   [../]
+# []
 
 [ScalarKernels]
   [./de_dt]

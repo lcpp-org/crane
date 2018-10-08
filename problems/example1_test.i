@@ -11,14 +11,14 @@
   [./e]
     family = SCALAR
     order = FIRST
-    initial_condition = 1
+    initial_condition = 1e13
     # scaling = 1e-6
   [../]
 
   [./Ar+]
     family = SCALAR
     order = FIRST
-    initial_condition = 1
+    initial_condition = 1e13
     # scaling = 1e-6
   [../]
 
@@ -30,23 +30,23 @@
     # scaling = 2.5e-19
   [../]
 []
-
-[ScalarKernels]
-  [./de_dt]
-    type = ODETimeDerivative
-    variable = e
-  [../]
-
-  [./dAr+_dt]
-    type = ODETimeDerivative
-    variable = Ar+
-  [../]
-
-  [./dAr_dt]
-    type = ODETimeDerivative
-    variable = Ar
-  [../]
-[]
+#
+# [ScalarKernels]
+#   [./de_dt]
+#     type = ODETimeDerivative
+#     variable = e
+#   [../]
+#
+#   [./dAr+_dt]
+#     type = ODETimeDerivative
+#     variable = Ar+
+#   [../]
+#
+#   [./dAr_dt]
+#     type = ODETimeDerivative
+#     variable = Ar
+#   [../]
+# []
 
 [ChemicalReactions]
   [./ScalarNetwork]
@@ -71,12 +71,8 @@
 
 
 [Executioner]
-  type = Transient
-  end_time = 0.25e-6
-  dt = 1e-9
+  type = Steady
   solve_type = 'linear'
-  dtmin = 1e-20
-  dtmax = 1e-8
   # petsc_options_iname = '-snes_linesearch_type'
   # petsc_options_value = 'basic'
   # petsc_options_value = 'l2'

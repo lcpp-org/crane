@@ -40,6 +40,10 @@ protected:
   const VariableValue & _w;
   unsigned int _v_id;
   unsigned int _w_id;
+  bool _v_eq_u;
+  bool _w_eq_u;
+  bool _v_coupled;
+  bool _w_coupled;
   const MaterialProperty<Real> & _n_gas;
   Real _stoichiometric_coeff;
 

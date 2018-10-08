@@ -30,7 +30,6 @@ registerMooseAction("CraneApp", AddZapdosReactions, "add_aux_variable");
 registerMooseAction("CraneApp", AddZapdosReactions, "add_aux_kernel");
 registerMooseAction("CraneApp", AddZapdosReactions, "add_material");
 registerMooseAction("CraneApp", AddZapdosReactions, "add_kernel");
-registerMooseAction("CraneApp", AddZapdosReactions, "add_kernel");
 registerMooseAction("CraneApp", AddZapdosReactions, "add_function");
 
 template <>
@@ -44,6 +43,7 @@ validParams<AddZapdosReactions>()
   params.addRequiredParam<std::string>("reaction_coefficient_format",
     "The format of the reaction coefficient. Options: rate or townsend.");
   params.addParam<std::vector<VariableName>>("potential", "The electric potential, used for energy-dependent reaction rates.");
+  params.addParam<std::vector<std::string>>("aux_species", "Auxiliary species that are not included in nonlinear solve.");
   params.addClassDescription("This Action automatically adds the necessary kernels and materials for a reaction network.");
 
   return params;
@@ -51,7 +51,9 @@ validParams<AddZapdosReactions>()
 
 AddZapdosReactions::AddZapdosReactions(InputParameters params)
   : ChemicalReactionsBase(params),
-    _coefficient_format(getParam<std::string>("reaction_coefficient_format"))
+    _coefficient_format(getParam<std::string>("reaction_coefficient_format")),
+    _aux_species(getParam<std::vector<std::string>>("aux_species"))
+
 {
 }
 
@@ -67,6 +69,7 @@ AddZapdosReactions::act()
   other_variables[1] = "w";
   other_variables[2] = "x";
   bool find_other;
+  bool find_aux;
   std::vector<bool> include_species;
   unsigned int target; // stores index of target species for electron-impact reactions
   std::string product_kernel_name;
@@ -242,6 +245,7 @@ AddZapdosReactions::act()
   {
     int index; // stores index of species in the reactant/product arrays
     std::vector<std::string>::iterator iter;
+    std::vector<std::string>::iterator iter_aux;
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
       energy_kernel_name = "ElectronEnergyTerm";
@@ -297,7 +301,7 @@ AddZapdosReactions::act()
         }
       }
 
-      if (_energy_change[i])
+      if (_energy_change[i] && _rate_type[i] == "EEDF")
       {
         InputParameters params = _factory.getValidParams(energy_kernel_name);
         params.set<NonlinearVariableName>("variable") = _species_energy[0];
@@ -309,11 +313,45 @@ AddZapdosReactions::act()
         params.set<Real>("position_units") = _r_units;
         _problem->addKernel(energy_kernel_name, "energy_kernel"+std::to_string(i)+"_"+_reaction[i], params);
       }
+      else if (_energy_change[i] && _rate_type[i] != "EEDF")
+      {
+        int non_electron_index;
+        // find_other = std::find(_species.begin(), _species.end(), _reactants[i][v_index]) != _species.end();
+        // Coupled variable must be generalized to allow for 3 reactants
+        InputParameters params = _factory.getValidParams(energy_kernel_name);
+        params.set<NonlinearVariableName>("variable") = _species_energy[0];
+        params.set<std::vector<VariableName>>("em") = {"em"};
+        // Find the non-electron reactant
+        for (unsigned int k=0; k<_reactants[i].size(); ++k)
+        {
+          if (_reactants[i][k] == "em")
+            continue;
+          else
+            non_electron_index = k;
+        }
+        // Check if value is tracked, and if so, add as coupled variable.
+        find_other = std::find(_species.begin(), _species.end(), _reactants[i][non_electron_index]) != _species.end();
+        find_aux = std::find(_aux_species.begin(), _aux_species.end(), _reactants[i][non_electron_index]) != _aux_species.end();
+        if (find_other || find_aux)
+          params.set<std::vector<VariableName>>("v") = {_reactants[i][non_electron_index]};
+
+        // params.set<std::vector<VariableName>>("v") = {"Ar*"};
+        params.set<std::string>("reaction") = _reaction[i];
+        params.set<Real>("threshold_energy") = _threshold_energy[i];
+        params.set<Real>("position_units") = _r_units;
+        _problem->addKernel(energy_kernel_name, "energy_kernel"+std::to_string(i)+"_"+_reaction[i], params);
+      }
 
       for (int j = 0; j < _species.size(); ++j)
       {
         iter = std::find(_reactants[i].begin(), _reactants[i].end(), _species[j]);
         index = std::distance(_reactants[i].begin(), iter);
+
+        // Here we check to see if the current species is an auxiliary variable.
+        // If it is, no kernels are added and we skip to the next species.
+        iter_aux = std::find(_aux_species.begin(), _aux_species.end(), _species[j]);
+        if (iter_aux != _aux_species.end())
+          continue;
 
         if (iter != _reactants[i].end())
         {
@@ -353,6 +391,8 @@ AddZapdosReactions::act()
             // else if (_coefficient_format == "rate" || _rate_type[i] != "EEDF")
             else
             {
+              if (_reactants[i].size() == 3)
+                std::cout << _reaction[i] << std::endl;
               InputParameters params = _factory.getValidParams(reactant_kernel_name);
               params.set<NonlinearVariableName>("variable") = _species[j];
               params.set<Real>("coefficient") = _species_count[i][j];
@@ -361,7 +401,13 @@ AddZapdosReactions::act()
               if (find_other)
               {
                 for (unsigned int k=0; k<reactant_indices.size(); ++k)
+                {
+                  if (_reactants[i].size() == 3)
+                    std::cout << "   " << _reactants[i][reactant_indices[k]] << std::endl;
                   params.set<std::vector<VariableName>>(other_variables[k]) = {_reactants[i][reactant_indices[k]]};
+                  if (_species[j] == _reactants[i][reactant_indices[k]])
+                    params.set<bool>("_"+other_variables[k]+"_eq_u") = true;
+                }
                 // params.set<std::vector<VariableName>>("v") = {_reactants[i][v_index]};
               }
               _problem->addKernel(reactant_kernel_name, "kernel"+std::to_string(j)+"_"+_reaction[i], params);

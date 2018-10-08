@@ -46,5 +46,7 @@ protected:
   Real _stoichiometric_coeff;
   bool _v_eq_u;
   bool _w_eq_u;
+  bool _v_coupled;
+  bool _w_coupled;
 };
 #endif // PRODUCTSECONDORDERLOG_H
