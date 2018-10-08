@@ -41,7 +41,13 @@ protected:
   unsigned int _v_id;
   unsigned int _w_id;
   unsigned int _x_id;
-  // const MaterialProperty<Real> & _n_gas;
+  bool _v_eq_u;
+  bool _w_eq_u;
+  bool _x_eq_u;
+  bool _v_coupled;
+  bool _w_coupled;
+  bool _x_coupled;
+  const MaterialProperty<Real> & _n_gas;
 
   // The reaction coefficient
   const MaterialProperty<Real> & _reaction_coeff;

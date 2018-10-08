@@ -40,11 +40,15 @@ protected:
   MaterialProperty<Real> & _energy_elastic;
   MaterialProperty<Real> & _d_k_d_en;
   MaterialProperty<Real> & _d_alpha_d_en;
+  MaterialProperty<unsigned int> & _d_alpha_d_var_id;
+  MaterialProperty<bool> & _target_coupled;
+  bool _is_target_aux;
   const MaterialProperty<Real> & _n_gas;
   const MaterialProperty<Real> & _massIncident;
   const MaterialProperty<Real> & _massTarget;
 
   const VariableValue & _target_species;
+  unsigned int _target_id;
   const VariableValue & _em;
   const VariableValue & _mean_en;
 

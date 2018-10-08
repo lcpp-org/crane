@@ -205,6 +205,11 @@ AddScalarReactions::act()
         product_kernel_name = "Product3BodyScalar";
         reactant_kernel_name = "Reactant3BodyScalar";
       }
+      if (_use_log)
+      {
+        product_kernel_name += "Log";
+        reactant_kernel_name += "Log";
+      }
 
       // Find any aux variables in the species list.
       // If found, that index is skipped in the next loop.

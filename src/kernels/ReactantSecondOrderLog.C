@@ -22,7 +22,7 @@ ReactantSecondOrderLog::ReactantSecondOrderLog(const InputParameters & parameter
     _reaction_coeff(getMaterialProperty<Real>("k_"+getParam<std::string>("reaction"))),
     _v(isCoupled("v") ? coupledValue("v") : _zero),
     _v_id(isCoupled("v") ? coupled("v") : 0),
-    // _n_gas(getMaterialProperty<Real>("n_gas")),
+    _n_gas(getMaterialProperty<Real>("n_gas")),
     _stoichiometric_coeff(getParam<Real>("coefficient")),
     _v_eq_u(getParam<bool>("_v_eq_u"))
 {
@@ -33,10 +33,10 @@ ReactantSecondOrderLog::computeQpResidual()
 {
   if (isCoupled("v"))
   {
-    return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 6.022e23 * std::exp(_v[_qp]) * std::exp(_u[_qp]);
+    return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * std::exp(_v[_qp]) * std::exp(_u[_qp]);
   }
   else
-    return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 6.022e23 * getMaterialProperty<Real>("n_gas")[_qp] * std::exp(_u[_qp]);
+    return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * _n_gas[_qp] * std::exp(_u[_qp]);
 }
 
 Real
@@ -46,7 +46,7 @@ ReactantSecondOrderLog::computeQpJacobian()
     return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 1.0 * std::exp(_v[_qp]) *
            std::exp(_u[_qp]) * _phi[_j][_qp];
   else
-    return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 1.0 * getMaterialProperty<Real>("n_gas")[_qp] *
+    return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 1.0 * _n_gas[_qp] *
            std::exp(_u[_qp]) * _phi[_j][_qp];
 }
 

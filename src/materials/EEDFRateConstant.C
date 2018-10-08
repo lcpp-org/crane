@@ -18,6 +18,8 @@ validParams<EEDFRateConstant>()
   params.addRequiredParam<std::string>("file_location", "The name of the file that stores the reaction rate tables.");
   params.addRequiredParam<std::string>("sampling_format",
     "The format that the rate constant files are in. Options: reduced_field and electron_energy.");
+  params.addCoupledVar("mean_en", "The electron mean energy in log form.");
+  params.addCoupledVar("em", "The electron density.");
   return params;
 }
 
@@ -27,9 +29,11 @@ EEDFRateConstant::EEDFRateConstant(const InputParameters & parameters)
     _reaction_rate(declareProperty<Real>("k_"+getParam<std::string>("reaction"))),
     _d_k_d_en(declareProperty<Real>("d_k_d_en_"+getParam<std::string>("reaction"))),
     _sampling_format(getParam<std::string>("sampling_format")),
-    _reduced_field(getMaterialProperty<Real>("reduced_field"))
+    _reduced_field(getMaterialProperty<Real>("reduced_field")),
+    _em(isCoupled("em") ? coupledValue("em") : _zero),
+    _mean_en(isCoupled("mean_en") ? coupledValue("mean_en") : _zero)
 {
-  std::vector<Real> reduced_field;
+  std::vector<Real> val_x;
   std::vector<Real> rate_coefficient;
   std::string file_name = getParam<std::string>("file_location") + "/" + getParam<FileName>("property_file");
   MooseUtils::checkFileReadable(file_name);
@@ -41,7 +45,7 @@ EEDFRateConstant::EEDFRateConstant(const InputParameters & parameters)
   {
     while (myfile >> value)
     {
-      reduced_field.push_back(value);
+      val_x.push_back(value);
       myfile >> value;
       rate_coefficient.push_back(value);
     }
@@ -50,22 +54,26 @@ EEDFRateConstant::EEDFRateConstant(const InputParameters & parameters)
   else
     mooseError("Unable to open file");
 
-  _coefficient_interpolation.setData(reduced_field, rate_coefficient);
+  _coefficient_interpolation.setData(val_x, rate_coefficient);
 }
 
 void
 EEDFRateConstant::computeQpProperties()
 {
-  if (_sampling_format == "electron_energy")
-  {
-    mooseError("Cannot sample with energy currently. Sample with reduced electric field.");
-  }
-  else if (_sampling_format == "reduced_field")
-  {
-    _reaction_rate[_qp] = _coefficient_interpolation.sample(_reduced_field[_qp]);
-    // _reaction_rate[_qp] = _reaction_rate[_qp] * 6.022e23; // convert from [dens]/s to [dens]/mol/s
-    _d_k_d_en[_qp] = _coefficient_interpolation.sampleDerivative(_reduced_field[_qp]);
-  }
+  Real actual_mean_energy = std::exp(_mean_en[_qp] - _em[_qp]);
+
+  _reaction_rate[_qp] = _coefficient_interpolation.sample(actual_mean_energy);
+  _d_k_d_en[_qp] = _coefficient_interpolation.sampleDerivative(actual_mean_energy);
+  // if (_sampling_format == "electron_energy")
+  // {
+  //   mooseError("Cannot sample with energy currently. Sample with reduced electric field.");
+  // }
+  // else if (_sampling_format == "reduced_field")
+  // {
+  //   _reaction_rate[_qp] = _coefficient_interpolation.sample(_reduced_field[_qp]);
+  //   // _reaction_rate[_qp] = _reaction_rate[_qp] * 6.022e23; // convert from [dens]/s to [dens]/mol/s
+  //   _d_k_d_en[_qp] = _coefficient_interpolation.sampleDerivative(_reduced_field[_qp]);
+  // }
 
 
 }

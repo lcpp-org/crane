@@ -24,8 +24,9 @@ protected:
   Real _r_units;
   std::string _sampling_format;
   bool _use_log;
+  bool _use_moles;
 
-  bool _energy_change;
+  std::vector<bool> _energy_change;
   // std::vector<VariableName> _potential;
   std::vector<std::vector<Real>> _species_count;
   std::vector<unsigned int> _electron_index;

@@ -23,6 +23,7 @@ validParams<DataReadScalar>()
   InputParameters params = validParams<AuxScalarKernel>();
   params.addCoupledVar("sampler", 0, "The variable with which the data will be sampled.");
   params.addParam<bool>("use_time", false, "Whether or not to sample with time.");
+  params.addParam<bool>("use_log", false, "Whether or not to return the natural logarithm of the sampled data.");
   params.addParam<Real>("scale_factor", 1.0, "Multiplies the sampled output by a given factor. Convert from m^3 to cm^3, for example.(Optional)");
   params.addParam<Real>("const_sampler", 0, "The value with which the data will be sampled.");
   params.addParam<FileName>("property_file", "",
@@ -39,6 +40,7 @@ DataReadScalar::DataReadScalar(const InputParameters & parameters)
     _sampler_const(getParam<Real>("const_sampler")),
     _sampling_format(getParam<std::string>("sampling_format")),
     _use_time(getParam<bool>("use_time")),
+    _use_log(getParam<bool>("use_log")),
     _scale_factor(getParam<Real>("scale_factor"))
 {
   std::vector<Real> x_val;
@@ -83,6 +85,12 @@ DataReadScalar::computeValue()
   {
     val = 0.0;
   }
+  val = val * _scale_factor;
 
-  return val * _scale_factor;
+  if (_use_log && val>0)
+    return log(val);
+  else if (_use_log && val<=0)
+    return 1e-4;
+  else
+    return val;
 }

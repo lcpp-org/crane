@@ -313,14 +313,14 @@
   #   execute_on = 'TIMESTEP_END'
   # [../]
   #exodus = true
-  # csv = true
+  csv = true
   # perf_log = true
-  # interval = 5
-  [./csv_out]
-    type = CSV
-    #execute_on = 'final'
-    show = 'reduced_field e N N2 N2A N2B N2C N+ N2+ N3+ N4+'
-  [../]
+  # interval = 1
+  # [./csv_out]
+  #   type = CSV
+  #   #execute_on = 'final'
+  #   show = 'reduced_field e N N2 N2A N2B N2C N+ N2+ N3+ N4+'
+  # [../]
 
   # This outputs all of the rate constants.
   # [./csv_out_2]

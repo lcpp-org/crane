@@ -38,6 +38,7 @@
 []
 
 [ChemicalReactions]
+  [./ZapdosNetwork]
   species = 'x y'
   reaction_coefficient_format = 'rate'
   scalar_problem = false
@@ -45,6 +46,7 @@
                x + y -> y             : 1.333333
                y + x -> x + y + y     : 1
                y -> z                 : 1'
+  [../]
 []
 
 [Executioner]

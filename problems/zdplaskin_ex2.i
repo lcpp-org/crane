@@ -183,7 +183,8 @@
   [./TimeStepper]
     type = IterationAdaptiveDT
     cutback_factor = 0.9
-    dt = 1e-10
+    # dt = 1e-10
+    dt = 1e-11
     growth_factor = 1.01
   [../]
 []
@@ -197,4 +198,5 @@
 
 [Outputs]
   csv = true
+  interval = 10
 []

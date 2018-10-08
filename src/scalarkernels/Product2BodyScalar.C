@@ -101,7 +101,7 @@ Product2BodyScalar::computeQpJacobian()
   rate_constant = _rate_coefficient[_i];
   // else
   //   rate_constant = _data.reaction_coefficient();
-
+  // std::cout << -_stoichiometric_coeff * rate_constant * gas_mult * power * std::pow(eq_u_mult, power-1) << std::endl;
   return -_stoichiometric_coeff * rate_constant * gas_mult * power * std::pow(eq_u_mult, power-1);
   // return -_stoichiometric_coeff * _data.reaction_coefficient() * gas_mult * power * eq_u_mult;
   // return 0.0;
@@ -163,6 +163,7 @@ Product2BodyScalar::computeQpOffDiagJacobian(unsigned int jvar)
 
   // if (_rate_constant_equation)
   rate_constant = _rate_coefficient[_i];
+  // std::cout << -_stoichiometric_coeff * rate_constant * other_factor * power * std::pow(deriv_factor, power-1) << std::endl;
   // else
   //   rate_constant = _data.reaction_coefficient();
   // return -_stoichiometric_coeff * _data.reaction_coefficient() * other_factor * power * deriv_factor;

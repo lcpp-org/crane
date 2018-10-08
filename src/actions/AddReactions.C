@@ -231,7 +231,7 @@ AddReactions::act()
 
       // Now we check for reactions that include a change of energy.
       // Will this require  its own material?
-      if (_energy_change == true)
+      if (_energy_change[i] == true)
       {
         // Gas temperature is almost in place, but not finished yet.
         std::cout << "WARNING: energy dependence is not yet implemented." << std::endl;

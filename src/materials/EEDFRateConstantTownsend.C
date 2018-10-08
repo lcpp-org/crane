@@ -20,6 +20,7 @@ validParams<EEDFRateConstantTownsend>()
                         "Determining whether or not a collision is elastic. Energy change for elastic collisions is calculated on the fly, not pre-assigned.");
   params.addParam<std::string>("reaction_coefficient_format", "townsend",
     "The format of the reaction coefficient. Options: rate or townsend.");
+  params.addParam<bool>("is_target_aux", false, "Whether the coupled target species is an aux variable or not. (If it is, it does not contribute to jacobian terms.)");
   params.addCoupledVar("target_species", "The heavy (target) species. Optional (default: _n_gas).");
   params.addCoupledVar("mean_en", "The electron mean energy in log form.");
   params.addCoupledVar("em", "The electron density.");
@@ -36,18 +37,24 @@ EEDFRateConstantTownsend::EEDFRateConstantTownsend(const InputParameters & param
     _energy_elastic(declareProperty<Real>("energy_elastic_"+getParam<std::string>("reaction"))),
     _d_k_d_en(declareProperty<Real>("d_k_d_en_"+getParam<std::string>("reaction"))),
     _d_alpha_d_en(declareProperty<Real>("d_alpha_d_en_"+getParam<std::string>("reaction"))),
+    _d_alpha_d_var_id(declareProperty<unsigned int>("d_alpha_d_var_id_"+getParam<std::string>("reaction"))),
+    _target_coupled(declareProperty<bool>("target_coupled_"+getParam<std::string>("reaction"))),
+    _is_target_aux(getParam<bool>("is_target_aux")),
     _n_gas(getMaterialProperty<Real>("n_gas")),
-    _massIncident(getMaterialProperty<Real>("massIncident")),
-    _massTarget(getMaterialProperty<Real>("massTarget")),
+    _massIncident(getMaterialProperty<Real>("massAr+")),
+    _massTarget(getMaterialProperty<Real>("massem")),
 
     // Electron information
     _target_species(isCoupled("target_species") ? coupledValue("target_species") : _zero),
+    // _target_id(coupled("target_species") ? coupled("target_species") : 0),
     _em(isCoupled("em") ? coupledValue("em") : _zero),
     _mean_en(isCoupled("mean_en") ? coupledValue("mean_en") : _zero),
 
     // Elastic collision check
     _elastic_collision(getParam<bool>("elastic_collision"))
 {
+  if (isCoupled("target_species") && !_is_target_aux)
+    _target_id = coupled("target_speices");
   std::vector<Real> actual_mean_energy;
   std::vector<Real> rate_coefficient;
   std::string file_name = getParam<std::string>("file_location") + "/" + getParam<FileName>("property_file");
@@ -79,25 +86,29 @@ void
 EEDFRateConstantTownsend::computeQpProperties()
 {
   Real actual_mean_energy = std::exp(_mean_en[_qp] - _em[_qp]);
-  if (_coefficient_format == "townsend")
+  // if (_coefficient_format == "townsend")
+  // {
+  _townsend_coefficient[_qp] = _coefficient_interpolation.sample(actual_mean_energy);
+  _d_alpha_d_en[_qp] = _coefficient_interpolation.sampleDerivative(actual_mean_energy);
+
+  if (isCoupled("target_species"))
   {
-    _townsend_coefficient[_qp] = _coefficient_interpolation.sample(actual_mean_energy);
-    _d_alpha_d_en[_qp] = _coefficient_interpolation.sampleDerivative(actual_mean_energy);
-
-
-    if (isCoupled("target_species"))
+    _townsend_coefficient[_qp] = _townsend_coefficient[_qp] * std::exp(_target_species[_qp]) / _n_gas[_qp];
+    if (!_is_target_aux)
     {
-      _townsend_coefficient[_qp] = _townsend_coefficient[_qp] * std::exp(_target_species[_qp]) / _n_gas[_qp];
-    }
-
-    if (_elastic_collision == true)
-    {
-      _energy_elastic[_qp] = -3.0 * _massIncident[_qp] / _massTarget[_qp] * 2.0 / 3.0 * std::exp(_mean_en[_qp] - _em[_qp]);
+      _d_alpha_d_en[_qp] = _d_alpha_d_en[_qp] * std::exp(_target_species[_qp]) / _n_gas[_qp];
+      _d_alpha_d_var_id[_qp] = _target_id;
     }
   }
-  else
+
+  if (_elastic_collision == true)
   {
-    _reaction_rate[_qp] = _coefficient_interpolation.sample(actual_mean_energy);
-    _d_k_d_en[_qp] = _coefficient_interpolation.sampleDerivative(actual_mean_energy);
+    _energy_elastic[_qp] = -3.0 * _massIncident[_qp] / _massTarget[_qp] * 2.0 / 3.0 * std::exp(_mean_en[_qp] - _em[_qp]);
   }
+  // }
+  // else
+  // {
+  //   _reaction_rate[_qp] = _coefficient_interpolation.sample(actual_mean_energy);
+  //   _d_k_d_en[_qp] = _coefficient_interpolation.sampleDerivative(actual_mean_energy);
+  // }
 }
