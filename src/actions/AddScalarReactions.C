@@ -67,6 +67,7 @@ AddScalarReactions::act()
   other_variables[1] = "w";
   other_variables[2] = "x";
   bool find_other;
+  bool find_aux;
 
   std::vector<bool> include_species;
   std::string product_kernel_name;
@@ -209,6 +210,35 @@ AddScalarReactions::act()
       {
         product_kernel_name += "Log";
         reactant_kernel_name += "Log";
+      }
+
+      if (_energy_change[i] && _rate_type[i] != "EEDF")
+      {
+        int non_electron_index;
+        // find_other = std::find(_species.begin(), _species.end(), _reactants[i][v_index]) != _species.end();
+        // Coupled variable must be generalized to allow for 3 reactants
+        InputParameters params = _factory.getValidParams(energy_kernel_name);
+        params.set<NonlinearVariableName>("variable") = _species_energy[0];
+        params.set<std::vector<VariableName>>("em") = {"em"};
+        // Find the non-electron reactant
+        for (unsigned int k=0; k<_reactants[i].size(); ++k)
+        {
+          if (_reactants[i][k] == "em")
+            continue;
+          else
+            non_electron_index = k;
+        }
+        // Check if value is tracked, and if so, add as coupled variable.
+        find_other = std::find(_species.begin(), _species.end(), _reactants[i][non_electron_index]) != _species.end();
+        find_aux = std::find(_aux_species.begin(), _aux_species.end(), _reactants[i][non_electron_index]) != _aux_species.end();
+        if (find_other || find_aux)
+          params.set<std::vector<VariableName>>("v") = {_reactants[i][non_electron_index]};
+
+        // params.set<std::vector<VariableName>>("v") = {"Ar*"};
+        params.set<std::string>("reaction") = _reaction[i];
+        params.set<Real>("threshold_energy") = _threshold_energy[i];
+        params.set<Real>("position_units") = _r_units;
+        _problem->addKernel(energy_kernel_name, "energy_kernel"+std::to_string(i)+"_"+_reaction[i], params);
       }
 
       // Find any aux variables in the species list.

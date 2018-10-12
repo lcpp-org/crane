@@ -41,8 +41,9 @@ EEDFRateConstantTownsend::EEDFRateConstantTownsend(const InputParameters & param
     _target_coupled(declareProperty<bool>("target_coupled_"+getParam<std::string>("reaction"))),
     _is_target_aux(getParam<bool>("is_target_aux")),
     _n_gas(getMaterialProperty<Real>("n_gas")),
-    _massIncident(getMaterialProperty<Real>("massAr+")),
-    _massTarget(getMaterialProperty<Real>("massem")),
+    // _massIncident(getMaterialProperty<Real>("massHe+")),
+    _massIncident(getMaterialProperty<Real>("mass"+(*getVar("em",0)).name())),
+    _massTarget(isCoupled("target_species") ? getMaterialProperty<Real>("mass"+(*getVar("target_species",0)).name()) : getMaterialProperty<Real>("mass"+(*getVar("em",0)).name())),
 
     // Electron information
     _target_species(isCoupled("target_species") ? coupledValue("target_species") : _zero),
@@ -54,7 +55,7 @@ EEDFRateConstantTownsend::EEDFRateConstantTownsend(const InputParameters & param
     _elastic_collision(getParam<bool>("elastic_collision"))
 {
   if (isCoupled("target_species") && !_is_target_aux)
-    _target_id = coupled("target_speices");
+    _target_id = coupled("target_species");
   std::vector<Real> actual_mean_energy;
   std::vector<Real> rate_coefficient;
   std::string file_name = getParam<std::string>("file_location") + "/" + getParam<FileName>("property_file");
@@ -90,7 +91,6 @@ EEDFRateConstantTownsend::computeQpProperties()
   // {
   _townsend_coefficient[_qp] = _coefficient_interpolation.sample(actual_mean_energy);
   _d_alpha_d_en[_qp] = _coefficient_interpolation.sampleDerivative(actual_mean_energy);
-
   if (isCoupled("target_species"))
   {
     _townsend_coefficient[_qp] = _townsend_coefficient[_qp] * std::exp(_target_species[_qp]) / _n_gas[_qp];
