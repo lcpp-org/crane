@@ -48,6 +48,7 @@ protected:
   const MaterialProperty<Real> & _massTarget;
 
   const VariableValue & _target_species;
+  // MooseVariable & _ip_var;
   unsigned int _target_id;
   const VariableValue & _em;
   const VariableValue & _mean_en;

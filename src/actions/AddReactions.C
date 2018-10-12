@@ -178,6 +178,7 @@ AddReactions::act()
         params.set<Real>("position_units") = position_units;
         params.set<std::string>("sampling_format") = _sampling_format;
         params.set<FileName>("property_file") = "reaction_"+_reaction[i]+".txt";
+        params.set<std::vector<VariableName>>("sampler") = {"reduced_field"};
         _problem->addMaterial("EEDFRateConstant", "reaction_"+std::to_string(i), params);
       }
       else if (_rate_type[i] == "Constant")
@@ -189,7 +190,16 @@ AddReactions::act()
       }
       else if (_rate_type[i] == "Equation")
       {
-        std::cout << "WARNING: CRANE cannot yet handle equation-based equations." << std::endl;
+        InputParameters params = _factory.getValidParams("DerivativeParsedMaterial");
+        // params.set<std::string>("f_name") = _reaction_coefficient_name[i];
+        params.set<std::string>("f_name") = "k_"+_reaction[i];
+        params.set<std::vector<VariableName>>("args") = getParam<std::vector<VariableName>>("equation_variables");
+        params.set<std::vector<std::string>>("constant_names") = getParam<std::vector<std::string>>("equation_constants");
+        params.set<std::vector<std::string>>("constant_expressions") = getParam<std::vector<std::string>>("equation_values");
+        params.set<std::string>("function") = _rate_equation_string[i];
+        params.set<unsigned int>("derivative_order") = 2;
+        _problem->addMaterial("DerivativeParsedMaterial", "reaction_"+std::to_string(i)+std::to_string(i), params);
+        // std::cout << "WARNING: CRANE cannot yet handle equation-based equations." << std::endl;
         // This should be a mooseError...but I'm using it for testing purposes.
       }
       else if (_superelastic_reaction[i] == true)

@@ -72,6 +72,7 @@ AddZapdosReactions::act()
   bool find_aux;
   std::vector<bool> include_species;
   unsigned int target; // stores index of target species for electron-impact reactions
+  unsigned int aux_target;
   std::string product_kernel_name;
   std::string reactant_kernel_name;
   std::string energy_kernel_name;
@@ -90,13 +91,13 @@ AddZapdosReactions::act()
     std::cout << "WARNING: Functionality for tracking neutral gas densities is still under development." << std::endl;
   }
 
-  if (_current_task == "add_aux_variable")
-  {
-    for (unsigned int i=0; i < _num_reactions; ++i)
-    {
-      _problem->addAuxVariable(_aux_var_name[i], FIRST);
-    }
-  }
+  // if (_current_task == "add_aux_variable")
+  // {
+  //   for (unsigned int i=0; i < _num_reactions; ++i)
+  //   {
+  //     _problem->addAuxVariable(_aux_var_name[i], FIRST);
+  //   }
+  // }
 
   if (_current_task == "add_material")
   {
@@ -116,13 +117,14 @@ AddZapdosReactions::act()
         params.set<Real>("position_units") = position_units;
         params.set<std::vector<VariableName>>("em") = {_reactants[i][_electron_index[i]]};
         params.set<std::vector<VariableName>>("mean_en") = getParam<std::vector<VariableName>>("electron_energy");
-        params.set<std::string>("reaction_coefficient_format") = _coefficient_format;
+        // params.set<std::string>("reaction_coefficient_format") = _coefficient_format;
         // params.set<std::string>("sampling_format") = _sampling_format;
 
         // This section determines if the target species is a tracked variable.
         // If it isn't, the target is assumed to be the background gas (_n_gas).
         // (This cannot handle gas mixtures yet.)
         bool target_species_tracked = false;
+        bool target_species_aux = false;
         for (unsigned int j = 0; j < _species.size(); ++j)
         {
           // Checking for the target species in electron-impact reactions, so
@@ -148,10 +150,28 @@ AddZapdosReactions::act()
           if (target_species_tracked)
             break;
         }
+        for (unsigned int j = 0; j < _aux_species.size(); ++j)
+        {
+          for (unsigned int k = 0; k < _reactants[i].size(); ++k)
+          {
+            if (_reactants[i][k] == _aux_species[j])
+            {
+              target_species_aux = true;
+              aux_target = k;
+              break;
+            }
+          }
+
+          if (target_species_aux)
+            break;
+        }
         if (target_species_tracked)
         {
           params.set<std::vector<VariableName>>("target_species") = {_reactants[i][target]};
         }
+        // if (target_species_aux)
+        params.set<bool>("is_target_aux") = target_species_aux;
+
         params.set<bool>("elastic_collision") = {_elastic_collision[i]};
         params.set<FileName>("property_file") = "reaction_"+_reaction[i]+".txt";
 
@@ -169,6 +189,7 @@ AddZapdosReactions::act()
         params.set<FileName>("property_file") = "reaction_"+_reaction[i]+".txt";
         params.set<std::vector<VariableName>>("em") = {_reactants[i][_electron_index[i]]};
         params.set<std::vector<VariableName>>("mean_en") = getParam<std::vector<VariableName>>("electron_energy");
+        params.set<bool>("elastic_collision") = _elastic_collision[i];
         _problem->addMaterial("EEDFRateConstant", "reaction_"+std::to_string(i)+std::to_string(i), params);
       }
       else if (_rate_type[i] == "Constant")
@@ -229,28 +250,45 @@ AddZapdosReactions::act()
         params.set<std::string>("file_location") = "PolynomialCoefficients";
         _problem->addMaterial("SuperelasticReactionRate", "reaction_"+std::to_string(i)+std::to_string(i), params);
       }
-
       // Now we check for reactions that include a change of energy.
       // Will this require  its own material?
-      if (_energy_change[i] == true)
-      {
+      // if (_energy_change[i] == true)
+      // {
         // Gas temperature is almost in place, but not finished yet.
-        std::cout << "WARNING: energy dependence is not yet implemented." << std::endl;
-      }
+        // std::cout << "WARNING: energy dependence is not yet implemented." << std::endl;
+      // }
     }
   }
 
   // Add appropriate kernels to each reactant and product.
   if (_current_task == "add_kernel")
   {
+    int non_electron_index;
     int index; // stores index of species in the reactant/product arrays
     std::vector<std::string>::iterator iter;
     std::vector<std::string>::iterator iter_aux;
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
       energy_kernel_name = "ElectronEnergyTerm";
+      if (_elastic_collision[i])
+        energy_kernel_name += "Elastic";
       // if (!isnan(_rate_coefficient[i]) || _rate_equation[i] == true || _superelastic_reaction[i] == true || getParam<bool>("track_electron_energy") == false)
-      if (_coefficient_format == "rate" || _rate_type[i] != "EEDF")
+      if (_coefficient_format == "townsend" && _rate_type[i] == "EEDF")
+      {
+        energy_kernel_name += "Townsend";
+        product_kernel_name = "ElectronImpactReactionProduct";
+        reactant_kernel_name = "ElectronImpactReactionReactant";
+        if (getParam<bool>("track_electron_energy") == true)
+        {
+          if (_coefficient_format == "townsend")
+          {
+            product_kernel_name = "ElectronImpactReactionProduct";
+            reactant_kernel_name = "ElectronImpactReactionReactant";
+          }
+        }
+      }
+      // else if (_coefficient_format == "rate")
+      else
       {
         energy_kernel_name += "Rate";
         if (_reactants[i].size() == 1)
@@ -287,35 +325,57 @@ AddZapdosReactions::act()
           reactant_kernel_name += "Log";
         }
       }
-      else if (_coefficient_format == "townsend")
-      {
-        product_kernel_name = "ElectronImpactReactionProduct";
-        reactant_kernel_name = "ElectronImpactReactionReactant";
-        if (getParam<bool>("track_electron_energy") == true)
-        {
-          if (_coefficient_format == "townsend")
-          {
-            product_kernel_name = "ElectronImpactReactionProduct";
-            reactant_kernel_name = "ElectronImpactReactionReactant";
-          }
-        }
-      }
+
 
       if (_energy_change[i] && _rate_type[i] == "EEDF")
       {
-        InputParameters params = _factory.getValidParams(energy_kernel_name);
-        params.set<NonlinearVariableName>("variable") = _species_energy[0];
-        if (_coefficient_format == "townsend" && _rate_type[i] == "EEDF")
+        if (_elastic_collision[i])
+        {
+          // First we find the correct target species to add (need species mass for elastic energy change calculation)
+          for (unsigned int k=0; k<_reactants[i].size(); ++k)
+          {
+            if (_reactants[i][k] == "em")
+              continue;
+            else
+              non_electron_index = k;
+          }
+          // Check if value is tracked, and if so, add as coupled variable.
+          find_other = std::find(_species.begin(), _species.end(), _reactants[i][non_electron_index]) != _species.end();
+          find_aux = std::find(_aux_species.begin(), _aux_species.end(), _reactants[i][non_electron_index]) != _aux_species.end();
+
+          InputParameters params = _factory.getValidParams(energy_kernel_name);
+          params.set<NonlinearVariableName>("variable") = _species_energy[0];
+          params.set<std::string>("reaction") = _reaction[i];
           params.set<std::vector<VariableName>>("potential") = getParam<std::vector<VariableName>>("potential");
-        params.set<std::vector<VariableName>>("em") = {"em"};
-        params.set<std::string>("reaction") = _reaction[i];
-        params.set<Real>("threshold_energy") = _threshold_energy[i];
-        params.set<Real>("position_units") = _r_units;
-        _problem->addKernel(energy_kernel_name, "energy_kernel"+std::to_string(i)+"_"+_reaction[i], params);
+          params.set<std::vector<VariableName>>("electron_species") = {getParam<std::string>("electron_density")};
+          if (find_other || find_aux)
+            params.set<std::vector<VariableName>>("target_species") = {_reactants[i][non_electron_index]};
+          params.set<Real>("position_units") = _r_units;
+          _problem->addKernel(energy_kernel_name, "elastic_kernel"+std::to_string(i)+"_"+_reaction[i], params);
+
+        }
+        else
+        {
+          InputParameters params = _factory.getValidParams(energy_kernel_name);
+          params.set<NonlinearVariableName>("variable") = _species_energy[0];
+          if (_coefficient_format == "townsend" && _rate_type[i] == "EEDF")
+            params.set<std::vector<VariableName>>("potential") = getParam<std::vector<VariableName>>("potential");
+          params.set<std::vector<VariableName>>("em") = {"em"};
+          params.set<std::string>("reaction") = _reaction[i];
+          if (_elastic_collision[i])
+            params.set<bool>("elastic_collision") = _elastic_collision[i];
+          else
+            params.set<Real>("threshold_energy") = _threshold_energy[i];
+          params.set<Real>("position_units") = _r_units;
+          _problem->addKernel(energy_kernel_name, "energy_kernel"+std::to_string(i)+"_"+_reaction[i], params);
+        }
+        // if (gas_temperature)
+        // {
+        //   InputParameters params = _factory.getValidParams(energy_kernel_name);
+        // }
       }
       else if (_energy_change[i] && _rate_type[i] != "EEDF")
       {
-        int non_electron_index;
         // find_other = std::find(_species.begin(), _species.end(), _reactants[i][v_index]) != _species.end();
         // Coupled variable must be generalized to allow for 3 reactants
         InputParameters params = _factory.getValidParams(energy_kernel_name);
@@ -373,6 +433,7 @@ AddZapdosReactions::act()
           }
           v_index = std::abs(index - 1);
           find_other = std::find(_species.begin(), _species.end(), _reactants[i][v_index]) != _species.end();
+          find_aux = std::find(_aux_species.begin(), _aux_species.end(), _reactants[i][v_index]) != _aux_species.end();
           if (_species_count[i][j] < 0)
           {
             if (_coefficient_format == "townsend" && _rate_type[i] == "EEDF")
@@ -385,25 +446,22 @@ AddZapdosReactions::act()
               params.set<std::vector<VariableName>>("em") = {getParam<std::string>("electron_density")};
               params.set<Real>("position_units") = _r_units;
               params.set<std::string>("reaction") = _reaction[i];
-              // params.set<std::string>("reaction_coefficient_name") = _reaction_coefficient_name[i];
+              params.set<std::string>("reaction_coefficient_name") = _reaction_coefficient_name[i];
               _problem->addKernel(reactant_kernel_name, "kernel"+std::to_string(j)+"_"+_reaction[i], params);
             }
             // else if (_coefficient_format == "rate" || _rate_type[i] != "EEDF")
             else
             {
-              if (_reactants[i].size() == 3)
-                std::cout << _reaction[i] << std::endl;
               InputParameters params = _factory.getValidParams(reactant_kernel_name);
               params.set<NonlinearVariableName>("variable") = _species[j];
               params.set<Real>("coefficient") = _species_count[i][j];
               params.set<std::string>("reaction") = _reaction[i];
 
-              if (find_other)
+              if (find_other && !find_aux)
               {
                 for (unsigned int k=0; k<reactant_indices.size(); ++k)
                 {
-                  if (_reactants[i].size() == 3)
-                    std::cout << "   " << _reactants[i][reactant_indices[k]] << std::endl;
+                  std::cout << _reactants[i][reactant_indices[k]] << std::endl;
                   params.set<std::vector<VariableName>>(other_variables[k]) = {_reactants[i][reactant_indices[k]]};
                   if (_species[j] == _reactants[i][reactant_indices[k]])
                     params.set<bool>("_"+other_variables[k]+"_eq_u") = true;
@@ -424,6 +482,8 @@ AddZapdosReactions::act()
         for (unsigned int k=0; k<_reactants[i].size(); ++k)
         {
           include_species[k] = std::find(_species.begin(), _species.end(), _reactants[i][k]) != _species.end();
+          if (std::find(_aux_species.begin(), _aux_species.end(), _reactants[i][k]) != _aux_species.end())
+            include_species[k] = false;
         }
         if (iter != _products[i].end())
         {

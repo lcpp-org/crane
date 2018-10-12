@@ -34,10 +34,16 @@ protected:
   SplineInterpolation _coefficient_interpolation;
 
   Real _r_units;
+  bool _elastic;
   MaterialProperty<Real> & _reaction_rate;
   MaterialProperty<Real> & _d_k_d_en;
+  MaterialProperty<Real> & _energy_elastic;
   std::string _sampling_format;
-  const MaterialProperty<Real> & _reduced_field;
+  
+  const MaterialProperty<Real> & _massIncident;
+  const MaterialProperty<Real> & _massTarget;
+  // const MaterialProperty<Real> & _reduced_field;
+  const VariableValue & _sampler;
   const VariableValue & _em;
   const VariableValue & _mean_en;
 };
