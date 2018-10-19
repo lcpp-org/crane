@@ -84,7 +84,7 @@ EEDFRateConstant::computeQpProperties()
   if (_reaction_rate[_qp] < 0.0)
   {
     _reaction_rate[_qp] = 0.0;
-    _d_k_d_en[_qp] = 0.0;
+    // _d_k_d_en[_qp] = 0.0;
   }
   // if (_sampling_format == "electron_energy")
   // {
