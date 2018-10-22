@@ -51,13 +51,12 @@ validParams<ChemicalReactionsBase>()
   params.addParam<bool>("use_log", false, "Whether or not to use logarithmic densities. (N = exp(n))");
   params.addParam<bool>("use_moles", false, "Whether or not to use log molar densities.");
   params.addParam<std::vector<NonlinearVariableName>>(
-    "species_energy", "List of (tracked) energy values. (Optional; requires 'track_energy' to be True.)");
+    "_energy", "List of (tracked) energy values. (Optional; requires 'track_energy' to be True.)");
   params.addParam<std::string>("electron_density", "The variable used for density of electrons.");
-  params.addParam<std::vector<VariableName>>(
+  params.addParam<std::vector<NonlinearVariableName>>(
     "electron_energy", "Electron energy, used for energy-dependent reaction rates.");
   params.addParam<std::vector<std::string>>("gas_species", "All of the background gas species in the system.");
   params.addParam<std::vector<Real>>("gas_fraction", "The initial fraction of each gas species.");
-  params.addParam<bool>("gas_tracking", false, "If false, neutral gas is treated as uniform background (_n_gas).");
   params.addParam<bool>("gas_temperature", false, "If false, neutral gas temperature is not a solution variable.");
   params.addParam<std::vector<VariableName>>("gas_temperature_variable", "The gas temperature variable (if applicable).");
   // params.addParam<std::vector<VariableName>>("potential", "The electric potential, used for energy-dependent reaction rates.");
@@ -97,7 +96,7 @@ validParams<ChemicalReactionsBase>()
 ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   : Action(params),
     _species(getParam<std::vector<NonlinearVariableName>>("species")),
-    _species_energy(getParam<std::vector<NonlinearVariableName>>("species_energy")),
+    _electron_energy(getParam<std::vector<NonlinearVariableName>>("electron_energy")),
     _input_reactions(getParam<std::string>("reactions")),
     _r_units(getParam<Real>("position_units")),
     _sampling_format(getParam<std::string>("sampling_format")),
@@ -323,6 +322,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   _reactants.resize(_reactants.size() + superelastic_reactions);
   _products.resize(_products.size() + superelastic_reactions);
   _aux_var_name.resize(_num_reactions + superelastic_reactions);
+  _energy_change.resize(_num_reactions + superelastic_reactions);
   _reaction_coefficient_name.resize(_num_reactions + superelastic_reactions);
   if (superelastic_reactions > 0)
   {
@@ -353,6 +353,11 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
         {
           _rate_equation[new_index] = false;
         }
+
+        if (_energy_change[i])
+          _energy_change[new_index] = true;
+        else
+          _energy_change[new_index] = false;
 
         // Here we reverse the products and reactants to build superelastic reactions.
         for (unsigned int j = 0; j < _num_products[i]; ++j)

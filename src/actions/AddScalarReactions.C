@@ -76,15 +76,6 @@ AddScalarReactions::act()
   // std::vector<NonlinearVariableName> variables =
   //     getParam<std::vector<NonlinearVariableName>>("species");
 
-  bool gas_tracking = getParam<bool>("gas_tracking");
-  std::vector<std::string> gas_species = getParam<std::vector<std::string>>("gas_species");
-
-  if (gas_tracking)
-  {
-    // mooseError("Functionality for tracking neutral gas densities and temperatures is under development.");
-    std::cout << "WARNING: Functionality for tracking neutral gas densities is still under development." << std::endl;
-  }
-
   if (_current_task == "add_aux_variable")
   {
     for (unsigned int i=0; i < _num_reactions; ++i)
@@ -218,7 +209,7 @@ AddScalarReactions::act()
         // find_other = std::find(_species.begin(), _species.end(), _reactants[i][v_index]) != _species.end();
         // Coupled variable must be generalized to allow for 3 reactants
         InputParameters params = _factory.getValidParams(energy_kernel_name);
-        params.set<NonlinearVariableName>("variable") = _species_energy[0];
+        params.set<NonlinearVariableName>("variable") = _electron_energy[0];
         params.set<std::vector<VariableName>>("em") = {"em"};
         // Find the non-electron reactant
         for (unsigned int k=0; k<_reactants[i].size(); ++k)

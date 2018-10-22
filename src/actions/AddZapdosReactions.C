@@ -86,15 +86,6 @@ AddZapdosReactions::act()
       // getParam<std::vector<VariableName>>("electron_energy");
   // std::string electron_density = getParam<std::string>("electron_density");
 
-  bool gas_tracking = getParam<bool>("gas_tracking");
-  std::vector<std::string> gas_species = getParam<std::vector<std::string>>("gas_species");
-
-  if (gas_tracking)
-  {
-    // mooseError("Functionality for tracking neutral gas densities and temperatures is under development.");
-    std::cout << "WARNING: Functionality for tracking neutral gas densities is still under development." << std::endl;
-  }
-
   // if (_current_task == "add_aux_variable")
   // {
   //   for (unsigned int i=0; i < _num_reactions; ++i)
@@ -120,7 +111,7 @@ AddZapdosReactions::act()
         params.set<std::string>("file_location") = getParam<std::string>("file_location");
         params.set<Real>("position_units") = position_units;
         params.set<std::vector<VariableName>>("em") = {_reactants[i][_electron_index[i]]};
-        params.set<std::vector<VariableName>>("mean_en") = getParam<std::vector<VariableName>>("electron_energy");
+        params.set<std::vector<VariableName>>("mean_en") = {_electron_energy[0]};
         // params.set<std::string>("reaction_coefficient_format") = _coefficient_format;
         // params.set<std::string>("sampling_format") = _sampling_format;
 
@@ -192,7 +183,7 @@ AddZapdosReactions::act()
         params.set<std::string>("sampling_format") = _sampling_format;
         params.set<FileName>("property_file") = "reaction_"+_reaction[i]+".txt";
         params.set<std::vector<VariableName>>("em") = {_reactants[i][_electron_index[i]]};
-        params.set<std::vector<VariableName>>("mean_en") = getParam<std::vector<VariableName>>("electron_energy");
+        params.set<std::vector<VariableName>>("mean_en") = {_electron_energy[0]};
         params.set<bool>("elastic_collision") = _elastic_collision[i];
         params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
         _problem->addMaterial("EEDFRateConstant", "reaction_"+std::to_string(i)+std::to_string(i), params);
@@ -351,7 +342,7 @@ AddZapdosReactions::act()
         {
           // First we find the correct target species to add (need species mass for elastic energy change calculation)
           InputParameters params = _factory.getValidParams(energy_kernel_name);
-          params.set<NonlinearVariableName>("variable") = _species_energy[0];
+          params.set<NonlinearVariableName>("variable") = _electron_energy[0];
           params.set<std::string>("reaction") = _reaction[i];
           if (_coefficient_format == "townsend")
             params.set<std::vector<VariableName>>("potential") = getParam<std::vector<VariableName>>("potential");
@@ -366,7 +357,7 @@ AddZapdosReactions::act()
         else
         {
           InputParameters params = _factory.getValidParams(energy_kernel_name);
-          params.set<NonlinearVariableName>("variable") = _species_energy[0];
+          params.set<NonlinearVariableName>("variable") = _electron_energy[0];
           params.set<std::vector<VariableName>>("em") = {"em"};
           if (_coefficient_format == "townsend")
             params.set<std::vector<VariableName>>("potential") = getParam<std::vector<VariableName>>("potential");
@@ -387,7 +378,7 @@ AddZapdosReactions::act()
         // find_other = std::find(_species.begin(), _species.end(), _reactants[i][v_index]) != _species.end();
         // Coupled variable must be generalized to allow for 3 reactants
         InputParameters params = _factory.getValidParams(energy_kernel_name);
-        params.set<NonlinearVariableName>("variable") = _species_energy[0];
+        params.set<NonlinearVariableName>("variable") = _electron_energy[0];
         params.set<std::vector<VariableName>>("em") = {"em"};
         // Find the non-electron reactant
         for (unsigned int k=0; k<_reactants[i].size(); ++k)
@@ -453,7 +444,7 @@ AddZapdosReactions::act()
               InputParameters params = _factory.getValidParams(reactant_kernel_name);
               // params.set<NonlinearVariableName>("variable") = _reactants[i][index];
               params.set<NonlinearVariableName>("variable") = _species[j];
-              params.set<std::vector<VariableName>>("mean_en") = getParam<std::vector<VariableName>>("electron_energy");
+              params.set<std::vector<VariableName>>("mean_en") = {_electron_energy[0]};
               params.set<std::vector<VariableName>>("potential") = getParam<std::vector<VariableName>>("potential");
               params.set<std::vector<VariableName>>("em") = {getParam<std::string>("electron_density")};
               params.set<Real>("position_units") = _r_units;
@@ -528,7 +519,7 @@ AddZapdosReactions::act()
             {
               InputParameters params = _factory.getValidParams(product_kernel_name);
               params.set<NonlinearVariableName>("variable") = _species[j];
-              params.set<std::vector<VariableName>>("mean_en") = getParam<std::vector<VariableName>>("electron_energy");
+              params.set<std::vector<VariableName>>("mean_en") = {_electron_energy[0]};
               if (_coefficient_format == "townsend")
                 params.set<std::vector<VariableName>>("potential") = getParam<std::vector<VariableName>>("potential");
               params.set<std::vector<VariableName>>("em") = {getParam<std::string>("electron_density")};
