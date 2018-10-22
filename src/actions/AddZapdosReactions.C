@@ -56,6 +56,8 @@ AddZapdosReactions::AddZapdosReactions(InputParameters params)
     _aux_species(getParam<std::vector<std::string>>("aux_species"))
 
 {
+  if (_coefficient_format == "townsend" && !isParamValid("electron_density"))
+    mooseError("Coefficient format type 'townsend' requires an input parameter 'electron_density'!");
 }
 
 void
@@ -124,13 +126,13 @@ AddZapdosReactions::act()
         {
           // Checking for the target species in electron-impact reactions, so
           // electrons are ignored.
-          if (getParam<bool>("include_electrons") == true)
+          // if (getParam<bool>("include_electrons") == true)
+          // {
+          if (_species[j] == getParam<std::string>("electron_density"))
           {
-            if (_species[j] == getParam<std::string>("electron_density"))
-            {
-              continue;
-            }
+            continue;
           }
+          // }
 
           for (unsigned int k = 0; k < _reactants[i].size(); ++k)
           {
@@ -277,14 +279,14 @@ AddZapdosReactions::act()
         energy_kernel_name += "Townsend";
         product_kernel_name = "ElectronImpactReactionProduct";
         reactant_kernel_name = "ElectronImpactReactionReactant";
-        if (getParam<bool>("track_electron_energy") == true)
-        {
-          if (_coefficient_format == "townsend")
-          {
-            product_kernel_name = "ElectronImpactReactionProduct";
-            reactant_kernel_name = "ElectronImpactReactionReactant";
-          }
-        }
+        // if (getParam<bool>("track_electron_energy") == true)
+        // {
+        //   if (_coefficient_format == "townsend")
+        //   {
+        //     product_kernel_name = "ElectronImpactReactionProduct";
+        //     reactant_kernel_name = "ElectronImpactReactionReactant";
+        //   }
+        // }
       }
       // else if (_coefficient_format == "rate")
       else
@@ -305,21 +307,8 @@ AddZapdosReactions::act()
           product_kernel_name = "ProductThirdOrder";
           reactant_kernel_name = "ReactantThirdOrder";
         }
-        if (_use_log && _use_moles)
+        if (_use_log)
         {
-          std::cout << "NOTE: Parameters 'use_log' and 'use_moles' both set to true! \n use_moles already assumes logarithm form. Applying molar kernels." << std::endl;
-          product_kernel_name += "Moles";
-          reactant_kernel_name += "Moles";
-        }
-        else if (_use_log && !_use_moles)
-        {
-          product_kernel_name += "Log";
-          reactant_kernel_name += "Log";
-        }
-        else if (!_use_log && _use_moles)
-        {
-          // product_kernel_name += "Moles";
-          // reactant_kernel_name += "Moles";
           product_kernel_name += "Log";
           reactant_kernel_name += "Log";
         }

@@ -70,6 +70,12 @@ AddReactions::AddReactions(InputParameters params)
     _coefficient_format(getParam<std::string>("reaction_coefficient_format")),
     _aux_species(getParam<std::vector<std::string>>("aux_species"))
 {
+  if (_coefficient_format == "townsend" && !isParamValid("electron_density"))
+    mooseError("Coefficient format type 'townsend' requires an input parameter 'electron_density'!");
+  // for (unsigned int i=0; i<_num_reactions; ++i)
+  // {
+  //   if (_)
+  // }
 }
 
 void
@@ -134,13 +140,13 @@ AddReactions::act()
         {
           // Checking for the target species in electron-impact reactions, so
           // electrons are ignored.
-          if (getParam<bool>("include_electrons") == true)
+          // if (getParam<bool>("include_electrons") == true)
+          // {
+          if (_species[j] == getParam<std::string>("electron_density"))
           {
-            if (_species[j] == getParam<std::string>("electron_density"))
-            {
-              continue;
-            }
+            continue;
           }
+          // }
 
           for (unsigned int k = 0; k < _reactants[i].size(); ++k)
           {
@@ -292,21 +298,8 @@ AddReactions::act()
             product_kernel_name = "ProductThirdOrder";
             reactant_kernel_name = "ReactantThirdOrder";
           }
-          if (_use_log && _use_moles)
+          if (_use_log)
           {
-            std::cout << "NOTE: Parameters 'use_log' and 'use_moles' both set to true! \n use_moles already assumes logarithm form. Applying molar kernels." << std::endl;
-            product_kernel_name += "Moles";
-            reactant_kernel_name += "Moles";
-          }
-          else if (_use_log && !_use_moles)
-          {
-            product_kernel_name += "Log";
-            reactant_kernel_name += "Log";
-          }
-          else if (!_use_log && _use_moles)
-          {
-            // product_kernel_name += "Moles";
-            // reactant_kernel_name += "Moles";
             product_kernel_name += "Log";
             reactant_kernel_name += "Log";
           }

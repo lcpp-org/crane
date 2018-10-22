@@ -46,12 +46,12 @@ validParams<ChemicalReactionsBase>()
     "species", "List of (tracked) species included in reactions (both products and reactants)");
   params.addParam<std::vector<Real>>("reaction_coefficient", "The reaction coefficients.");
   params.addParam<bool>("include_electrons", false, "Whether or not electrons are being considered.");
-  params.addParam<bool>("track_energy", false, "Whether or not to track gas energy/temperature.");
-  params.addParam<bool>("track_electron_energy", false, "Whether or not to track electron energy.");
+  // params.addParam<bool>("track_energy", false, "Whether or not to track gas energy/temperature.");
+  // params.addParam<bool>("track_electron_energy", false, "Whether or not to track electron energy.");
   params.addParam<bool>("use_log", false, "Whether or not to use logarithmic densities. (N = exp(n))");
-  params.addParam<bool>("use_moles", false, "Whether or not to use log molar densities.");
-  params.addParam<std::vector<NonlinearVariableName>>(
-    "_energy", "List of (tracked) energy values. (Optional; requires 'track_energy' to be True.)");
+  // params.addParam<bool>("use_moles", false, "Whether or not to use log molar densities.");
+  // params.addParam<std::vector<NonlinearVariableName>>(
+    // "_energy", "List of (tracked) energy values. (Optional; requires 'track_energy' to be True.)");
   params.addParam<std::string>("electron_density", "The variable used for density of electrons.");
   params.addParam<std::vector<NonlinearVariableName>>(
     "electron_energy", "Electron energy, used for energy-dependent reaction rates.");
@@ -63,7 +63,7 @@ validParams<ChemicalReactionsBase>()
   params.addRequiredParam<std::string>("reactions", "The list of reactions to be added");
   params.addParam<Real>("position_units", 1.0, "The units of position.");
   params.addParam<std::string>("file_location", "", "The location of the reaction rate files. Default: empty string (current directory).");
-  params.addParam<bool>("use_moles", "Whether to use molar units.");
+  // params.addParam<bool>("use_moles", "Whether to use molar units.");
   params.addParam<std::string>("sampling_format", "reduced_field", "Sample rate constants with E/N (reduced_field) or Te (electron_energy).");
   params.addParam<std::vector<std::string>>("equation_constants", "The constants included in the reaction equation(s).");
   params.addParam<std::vector<std::string>>("equation_values", "The values of the constants included in the reaction equation(s).");
@@ -100,8 +100,8 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     _input_reactions(getParam<std::string>("reactions")),
     _r_units(getParam<Real>("position_units")),
     _sampling_format(getParam<std::string>("sampling_format")),
-    _use_log(getParam<bool>("use_log")),
-    _use_moles(getParam<bool>("use_moles"))
+    _use_log(getParam<bool>("use_log"))
+    // _use_moles(getParam<bool>("use_moles"))
 {
   std::istringstream iss(_input_reactions);
   std::string token;
@@ -526,7 +526,8 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
       }
     }
 
-
+    if (_energy_change[i] && (!isParamValid("electron_energy") && !isParamValid("gas_energy")))
+      mooseError("Reactions have energy changes, but no electron or gas temperature variable is included!");
   }
 
 }

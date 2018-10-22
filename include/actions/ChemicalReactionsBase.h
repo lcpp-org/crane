@@ -24,7 +24,7 @@ protected:
   Real _r_units;
   std::string _sampling_format;
   bool _use_log;
-  bool _use_moles;
+  // bool _use_moles;
 
   std::vector<bool> _energy_change;
   // std::vector<VariableName> _potential;
