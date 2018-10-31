@@ -132,21 +132,21 @@ AddScalarReactions::act()
         params.set<std::vector<std::string>>("constant_expressions") = getParam<std::vector<std::string>>("equation_values");
         // params.set<UserObjectName>("electron_temperature") = "value_provider";
         // params.set<std::vector<VariableName>>("reduced_field") = {"reduced_field"};
-        if (getParam<bool>("gas_temperature"))
-        {
-          params.set<bool>("gas_temperature") = true;
-          std::vector<NonlinearVariableName> gas_temp = getParam<std::vector<NonlinearVariableName>>("equation_variables");
-          std::string temp_var;
-          for (unsigned int m = 0; m<gas_temp.size(); ++m)
-          {
-            if (gas_temp[m] == "Tgas")
-              temp_var = gas_temp[m];
-              break;
-          }
-          params.set<std::vector<VariableName>>("args") = {temp_var};
-          // params.set<std::vector<VariableName>>("args") = getParam<std::vector<VariableName>>("equation_variables");
-
-        }
+        // if (getParam<bool>("gas_temperature"))
+        // {
+        //   params.set<bool>("gas_temperature") = true;
+        //   std::vector<NonlinearVariableName> gas_temp = getParam<std::vector<NonlinearVariableName>>("equation_variables");
+        //   std::string temp_var;
+        //   for (unsigned int m = 0; m<gas_temp.size(); ++m)
+        //   {
+        //     if (gas_temp[m] == "Tgas")
+        //       temp_var = gas_temp[m];
+        //       break;
+        //   }
+        //   params.set<std::vector<VariableName>>("args") = {temp_var};
+        //   // params.set<std::vector<VariableName>>("args") = getParam<std::vector<VariableName>>("equation_variables");
+        //
+        // }
         // params.set<std::vector<VariableName>>("args") = {"Te"};
         params.set<std::vector<VariableName>>("args") = getParam<std::vector<VariableName>>("equation_variables");
         // params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN NONLINEAR";

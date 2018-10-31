@@ -46,29 +46,22 @@ validParams<ChemicalReactionsBase>()
     "species", "List of (tracked) species included in reactions (both products and reactants)");
   params.addParam<std::vector<Real>>("reaction_coefficient", "The reaction coefficients.");
   params.addParam<bool>("include_electrons", false, "Whether or not electrons are being considered.");
-  // params.addParam<bool>("track_energy", false, "Whether or not to track gas energy/temperature.");
-  // params.addParam<bool>("track_electron_energy", false, "Whether or not to track electron energy.");
   params.addParam<bool>("use_log", false, "Whether or not to use logarithmic densities. (N = exp(n))");
-  // params.addParam<bool>("use_moles", false, "Whether or not to use log molar densities.");
-  // params.addParam<std::vector<NonlinearVariableName>>(
-    // "_energy", "List of (tracked) energy values. (Optional; requires 'track_energy' to be True.)");
   params.addParam<std::string>("electron_density", "The variable used for density of electrons.");
   params.addParam<std::vector<NonlinearVariableName>>(
     "electron_energy", "Electron energy, used for energy-dependent reaction rates.");
+  params.addParam<std::vector<NonlinearVariableName>>(
+    "gas_energy", "Gas energy, used for energy-dependent reaction rates.");
   params.addParam<std::vector<std::string>>("gas_species", "All of the background gas species in the system.");
   params.addParam<std::vector<Real>>("gas_fraction", "The initial fraction of each gas species.");
-  params.addParam<bool>("gas_temperature", false, "If false, neutral gas temperature is not a solution variable.");
-  params.addParam<std::vector<VariableName>>("gas_temperature_variable", "The gas temperature variable (if applicable).");
-  // params.addParam<std::vector<VariableName>>("potential", "The electric potential, used for energy-dependent reaction rates.");
   params.addRequiredParam<std::string>("reactions", "The list of reactions to be added");
   params.addParam<Real>("position_units", 1.0, "The units of position.");
   params.addParam<std::string>("file_location", "", "The location of the reaction rate files. Default: empty string (current directory).");
-  // params.addParam<bool>("use_moles", "Whether to use molar units.");
   params.addParam<std::string>("sampling_format", "reduced_field", "Sample rate constants with E/N (reduced_field) or Te (electron_energy).");
   params.addParam<std::vector<std::string>>("equation_constants", "The constants included in the reaction equation(s).");
   params.addParam<std::vector<std::string>>("equation_values", "The values of the constants included in the reaction equation(s).");
   params.addParam<std::vector<VariableName>>("equation_variables", "Any nonlinear variables that appear in the equations.");
-  params.addParam<std::vector<VariableName>>("rate_provider_var", "The name of the variable used to sample from BOLOS files.");
+  params.addParam<std::vector<VariableName>>("rate_provider_var", "The name of the variable used to sample from BOLOS/Bolsig+ files.");
   params.addClassDescription("This Action automatically adds the necessary kernels and materials for a reaction network.");
 
   return params;
@@ -97,6 +90,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   : Action(params),
     _species(getParam<std::vector<NonlinearVariableName>>("species")),
     _electron_energy(getParam<std::vector<NonlinearVariableName>>("electron_energy")),
+    _gas_energy(getParam<std::vector<NonlinearVariableName>>("gas_energy")),
     _input_reactions(getParam<std::string>("reactions")),
     _r_units(getParam<Real>("position_units")),
     _sampling_format(getParam<std::string>("sampling_format")),
@@ -186,7 +180,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     }
     _aux_var_name[i] = "rate_constant"+std::to_string(i);  // Stores name of rate coefficients
     _reaction_coefficient_name[i] = "rate_constant"+std::to_string(i);
-    if (rate_coefficient_string[i] == std::string("BOLOS"))
+    if (rate_coefficient_string[i] == std::string("EEDF"))
     {
       _rate_coefficient[i] = NAN;
       _rate_type[i] = "EEDF";
@@ -214,7 +208,25 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     }
     else
     {
-      _rate_coefficient[i] = std::stod(rate_coefficient_string[i]);
+      try
+      {
+        _rate_coefficient[i] = std::stod(rate_coefficient_string[i]);
+      }
+      catch (const std::invalid_argument&)
+      {
+        mooseError("Rate coefficient '" + rate_coefficient_string[i] + "' is invalid! "
+      "There are three rate coefficient types that are accepted:\n"
+      "  1. Constant (A + B -> C  : 10)\n"
+      "  2. Equation (A + B -> C  : {1e-4*exp(10)})\n"
+      "  3. EEDF     (A + B -> C  : EEDF)");
+        throw;
+      }
+      catch (const std::out_of_range&)
+      {
+        std::cerr << "Argument out of range for a double\n";
+        throw;
+      }
+      // _rate_coefficient[i] = std::stod(rate_coefficient_string[i]);
       _rate_type[i] = "Constant";
     }
   }
@@ -526,10 +538,23 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
       }
     }
 
-    if (_energy_change[i] && (!isParamValid("electron_energy") && !isParamValid("gas_energy")))
-      mooseError("Reactions have energy changes, but no electron or gas temperature variable is included!");
-  }
+    if (_energy_change[i])
+    {
+      if (!isParamValid("electron_energy") && !isParamValid("gas_energy"))
+        mooseError("Reactions have energy changes, but no electron or gas temperature variable is included!");
+    }
 
+  }
+  if (isParamValid("electron_energy"))
+  {
+    _electron_energy_term.push_back(true);
+    _energy_variable.push_back(_electron_energy[0]);
+  }
+  if (isParamValid("gas_energy"))
+  {
+    _electron_energy_term.push_back(false);
+    _energy_variable.push_back(_gas_energy[0]);
+  }
 }
 
 void

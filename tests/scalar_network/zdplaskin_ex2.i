@@ -81,10 +81,10 @@
     rate_provider_var = 'reduced_field'
 
 
-    reactions = 'e + Ar -> e + e + Ar+          : BOLOS
-                 e + Ar -> Ar* + e              : BOLOS
-                 e + Ar* -> Ar + e              : BOLOS
-                 e + Ar* -> Ar+ + e + e         : BOLOS
+    reactions = 'e + Ar -> e + e + Ar+          : EEDF
+                 e + Ar -> Ar* + e              : EEDF
+                 e + Ar* -> Ar + e              : EEDF
+                 e + Ar* -> Ar+ + e + e         : EEDF
                  Ar2+ + e -> Ar* + Ar           : {8.5e-7*((Te/1.5)*11600/300.0)^(-0.67)}
                  Ar2+ + Ar -> Ar+ + Ar + Ar     : {(6.06e-6/Tgas)*exp(-15130.0/Tgas)}
                  Ar* + Ar* -> Ar2+ + e          : 6.0e-10

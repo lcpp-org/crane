@@ -48,7 +48,7 @@
   [./ScalarNetwork]
     species = 'e Ar+ Ar'
     file_location = 'Example1'
-    reactions = 'e + Ar -> e + e + Ar+          : BOLOS
+    reactions = 'e + Ar -> e + e + Ar+          : EEDF
                  e + Ar+ + Ar -> Ar + Ar       : 1e-25'
 
    [../]
