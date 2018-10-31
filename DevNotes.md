@@ -38,4 +38,19 @@
 
 ## Oct. 22
 1. Electron energy is now a single parameter. Removes redundancy. Also adding gas temperature support.
-  * If the user wants to track individual species energies...this becomes more complicated. For now I will only use the two (electron & gas). Future work!
+  * If the user wants to track individual species energies...this becomes more complicated. For now I will only use the two (electron & gas). Not sure if additional temperature variables are really necessary.
+2. Slight differences exist between CRANE-computed densities and wolf-computed densities...not sure if it is just differences in timesteps due to the jacobians being wrong in CRANE. The final values are identical across the board.
+
+## Oct. 23
+1. !!!! Try to make warning-free before APS (Nov 4) (in debug mode as well)
+2. Need to make more tests -
+  * Each kernel, scalar kernel, material, etc. must be tested
+  * 0D & 1D tests (they can be the same, doesn't matter)
+
+## Oct. 30
+1. Sakiyama test problems were caused by inconsistent units. Rate coefficients were in mol/m^3, but since Zapdos runs in molar form by default (why...?), they need to be in mol/m^3, mol^2/m^6, etc...
+
+## Oct. 31
+1. Still need to add more tests!
+2. Possibly remove all n_gas parameters. Is neither clear nor universally applicable.
+  * Stick to AuxVariables

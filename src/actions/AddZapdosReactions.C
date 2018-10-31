@@ -58,6 +58,9 @@ AddZapdosReactions::AddZapdosReactions(InputParameters params)
 {
   if (_coefficient_format == "townsend" && !isParamValid("electron_density"))
     mooseError("Coefficient format type 'townsend' requires an input parameter 'electron_density'!");
+
+  if (_coefficient_format == "townsend" && !isParamValid("electron_energy"))
+    mooseError("Coefficient format type 'townsend' requires an input parameter 'electron_energy'!");
 }
 
 void
@@ -357,10 +360,6 @@ AddZapdosReactions::act()
           params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
           _problem->addKernel(energy_kernel_name, "energy_kernel"+std::to_string(i)+"_"+_reaction[i], params);
         }
-        // if (gas_temperature)
-        // {
-        //   InputParameters params = _factory.getValidParams(energy_kernel_name);
-        // }
       }
       else if (_energy_change[i] && _rate_type[i] != "EEDF")
       {
@@ -470,8 +469,7 @@ AddZapdosReactions::act()
               params.set<NonlinearVariableName>("variable") = _species[j];
               params.set<Real>("coefficient") = _species_count[i][j];
               params.set<std::string>("reaction") = _reaction[i];
-
-              if (find_other && !find_aux)
+              if (find_other || find_aux)
               {
                 for (unsigned int k=0; k<reactant_indices.size(); ++k)
                 {
@@ -496,8 +494,10 @@ AddZapdosReactions::act()
         for (unsigned int k=0; k<_reactants[i].size(); ++k)
         {
           include_species[k] = std::find(_species.begin(), _species.end(), _reactants[i][k]) != _species.end();
-          if (std::find(_aux_species.begin(), _aux_species.end(), _reactants[i][k]) != _aux_species.end())
-            include_species[k] = false;
+          // if (std::find(_aux_species.begin(), _aux_species.end(), _reactants[i][k]) != _aux_species.end())
+          // include_species[k] = false;
+          if (include_species[k] == false)
+            include_species[k] = std::find(_aux_species.begin(), _aux_species.end(), _reactants[i][k]) != _aux_species.end();
         }
         if (iter != _products[i].end())
         {
@@ -554,6 +554,7 @@ AddZapdosReactions::act()
               // If a species is not tracked, it is treated as a background gas.
               for (unsigned int k=0; k<_reactants[i].size(); ++k)
               {
+                // std::cout << _reaction[i] << ": \n" << "  " << _reactants[i][k] << ", " << include_species[k] << std::endl;
                 if (include_species[k])
                 {
                   params.set<std::vector<VariableName>>(other_variables[k]) = {_reactants[i][k]};

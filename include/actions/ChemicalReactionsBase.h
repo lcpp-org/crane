@@ -20,6 +20,7 @@ public:
 protected:
   const std::vector<NonlinearVariableName> _species;
   const std::vector<NonlinearVariableName> _electron_energy;
+  const std::vector<NonlinearVariableName> _gas_energy;
   std::string _input_reactions;
   Real _r_units;
   std::string _sampling_format;
@@ -60,6 +61,8 @@ protected:
   std::vector<std::string> _rate_equation_string;
   /// Number of reactions
   unsigned int _num_reactions;
+  std::vector<bool> _electron_energy_term;
+  std::vector<NonlinearVariableName> _energy_variable;
 };
 
 #endif // CHEMICALREACTIONSBASE_H
