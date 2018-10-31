@@ -53,7 +53,7 @@ See https://help.github.com/ if further help is needed on using Git and GitHub. 
    * If you are using the terminal (in Linux or MacOS) or command prompt (Windows), use the following command in the directory where the workshop .tex file is located:
 
       ```
-      pdflatex -synctex=1 -interaction=nonstopmode "gec_workshop".tex
+      pdflatex -synctex=1 -interaction=nonstopmode "keniley_crane_aps-gec".tex
       ```
 
       **NOTE:** Because the LaTeX compiler requires cross-referencing information to build the table of contents, you must run this command twice to ensure that the table of contents is built and visible for presentation navigation!
