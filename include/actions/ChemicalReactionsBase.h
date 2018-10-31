@@ -19,12 +19,12 @@ public:
 
 protected:
   const std::vector<NonlinearVariableName> _species;
-  const std::vector<NonlinearVariableName> _species_energy;
+  const std::vector<NonlinearVariableName> _electron_energy;
   std::string _input_reactions;
   Real _r_units;
   std::string _sampling_format;
   bool _use_log;
-  bool _use_moles;
+  // bool _use_moles;
 
   std::vector<bool> _energy_change;
   // std::vector<VariableName> _potential;

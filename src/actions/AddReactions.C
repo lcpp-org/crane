@@ -40,8 +40,9 @@ validParams<AddReactions>()
   MooseEnum orders(AddVariableAction::getNonlinearVariableOrders());
 
   InputParameters params = validParams<ChemicalReactionsBase>();
-  params.addRequiredParam<std::string>("reaction_coefficient_format",
+  params.addParam<std::string>("reaction_coefficient_format", "rate",
     "The format of the reaction coefficient. Options: rate or townsend.");
+  params.addParam<std::vector<std::string>>("aux_species", "Auxiliary species that are not included in nonlinear solve.");
   params.addClassDescription("This Action automatically adds the necessary kernels and materials for a reaction network.");
 
   return params;
@@ -66,8 +67,15 @@ static inline string trim(string &s)
 
 AddReactions::AddReactions(InputParameters params)
   : ChemicalReactionsBase(params),
-    _coefficient_format(getParam<std::string>("reaction_coefficient_format"))
+    _coefficient_format(getParam<std::string>("reaction_coefficient_format")),
+    _aux_species(getParam<std::vector<std::string>>("aux_species"))
 {
+  if (_coefficient_format == "townsend" && !isParamValid("electron_density"))
+    mooseError("Coefficient format type 'townsend' requires an input parameter 'electron_density'!");
+  // for (unsigned int i=0; i<_num_reactions; ++i)
+  // {
+  //   if (_)
+  // }
 }
 
 void
@@ -82,6 +90,7 @@ AddReactions::act()
   other_variables[1] = "w";
   other_variables[2] = "x";
   bool find_other;
+  bool find_aux;
   std::vector<bool> include_species;
   unsigned int target; // stores index of target species for electron-impact reactions
   std::string product_kernel_name;
@@ -93,14 +102,6 @@ AddReactions::act()
       // getParam<std::vector<VariableName>>("electron_energy");
   // std::string electron_density = getParam<std::string>("electron_density");
 
-  bool gas_tracking = getParam<bool>("gas_tracking");
-  std::vector<std::string> gas_species = getParam<std::vector<std::string>>("gas_species");
-
-  if (gas_tracking)
-  {
-    // mooseError("Functionality for tracking neutral gas densities and temperatures is under development.");
-    std::cout << "WARNING: Functionality for tracking neutral gas densities is still under development." << std::endl;
-  }
 
   if (_current_task == "add_aux_variable")
   {
@@ -139,13 +140,13 @@ AddReactions::act()
         {
           // Checking for the target species in electron-impact reactions, so
           // electrons are ignored.
-          if (getParam<bool>("include_electrons") == true)
+          // if (getParam<bool>("include_electrons") == true)
+          // {
+          if (_species[j] == getParam<std::string>("electron_density"))
           {
-            if (_species[j] == getParam<std::string>("electron_density"))
-            {
-              continue;
-            }
+            continue;
           }
+          // }
 
           for (unsigned int k = 0; k < _reactants[i].size(); ++k)
           {
@@ -252,46 +253,175 @@ AddReactions::act()
   // Add appropriate kernels to each reactant and product.
   if (_current_task == "add_kernel")
   {
+    int non_electron_index;
     int index; // stores index of species in the reactant/product arrays
     std::vector<std::string>::iterator iter;
+    std::vector<std::string>::iterator iter_aux;
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
-      // if (!isnan(_rate_coefficient[i]) || _rate_equation[i] == true || _superelastic_reaction[i] == true || getParam<bool>("track_electron_energy") == false)
-      if (_coefficient_format == "rate")
-      {
-        if (_reactants[i].size() == 1)
+      // Check for energy dependence
+      if (_energy_change[i] && !isParamValid("electron_energy"))
+        mooseError("Reaction " + _reaction[i] + " requires the species_energy variable to be included as an input parameter!");
+      energy_kernel_name = "EnergyTerm";
+      if (_elastic_collision[i])
+        energy_kernel_name += "Elastic";
+        if (_coefficient_format == "townsend" && _rate_type[i] == "EEDF")
         {
-          product_kernel_name = "ProductFirstOrder";
-          reactant_kernel_name = "ReactantFirstOrder";
+          energy_kernel_name += "Townsend";
+          product_kernel_name = "ElectronImpactReactionProduct";
+          reactant_kernel_name = "ElectronImpactReactionReactant";
+          if (getParam<bool>("track_electron_energy") == true)
+          {
+            if (_coefficient_format == "townsend")
+            {
+              product_kernel_name = "ElectronImpactReactionProduct";
+              reactant_kernel_name = "ElectronImpactReactionReactant";
+            }
+          }
         }
-        else if (_reactants[i].size() == 2)
+        // else if (_coefficient_format == "rate")
+        else
         {
-          product_kernel_name = "ProductSecondOrder";
-          reactant_kernel_name = "ReactantSecondOrder";
+          energy_kernel_name += "Rate";
+          if (_reactants[i].size() == 1)
+          {
+            product_kernel_name = "ProductFirstOrder";
+            reactant_kernel_name = "ReactantFirstOrder";
+          }
+          else if (_reactants[i].size() == 2)
+          {
+            product_kernel_name = "ProductSecondOrder";
+            reactant_kernel_name = "ReactantSecondOrder";
+          }
+          else
+          {
+            product_kernel_name = "ProductThirdOrder";
+            reactant_kernel_name = "ReactantThirdOrder";
+          }
+          if (_use_log)
+          {
+            product_kernel_name += "Log";
+            reactant_kernel_name += "Log";
+          }
+        }
+      // // if (!isnan(_rate_coefficient[i]) || _rate_equation[i] == true || _superelastic_reaction[i] == true || getParam<bool>("track_electron_energy") == false)
+      // if (_coefficient_format == "rate")
+      // {
+      //   if (_reactants[i].size() == 1)
+      //   {
+      //     product_kernel_name = "ProductFirstOrder";
+      //     reactant_kernel_name = "ReactantFirstOrder";
+      //   }
+      //   else if (_reactants[i].size() == 2)
+      //   {
+      //     product_kernel_name = "ProductSecondOrder";
+      //     reactant_kernel_name = "ReactantSecondOrder";
+      //   }
+      //   else
+      //   {
+      //     product_kernel_name = "ProductThirdOrder";
+      //     reactant_kernel_name = "ReactantThirdOrder";
+      //   }
+      //   if (_use_log)
+      //   {
+      //     product_kernel_name += "Log";
+      //     reactant_kernel_name += "Log";
+      //   }
+      // }
+      // else if (_coefficient_format == "townsend")
+      // {
+      //   energy_kernel_name += "Townsend";
+      //   if (getParam<bool>("track_electron_energy") == true)
+      //   {
+      //     if (_coefficient_format == "townsend")
+      //     {
+      //       product_kernel_name = "ElectronImpactReactionProduct";
+      //       reactant_kernel_name = "ElectronImpactReactionReactant";
+      //     }
+      //   }
+      // }
+      if (_energy_change[i] && _rate_type[i] == "EEDF")
+      {
+        for (unsigned int k=0; k<_reactants[i].size(); ++k)
+        {
+          if (_reactants[i][k] == "em")
+            continue;
+          else
+            non_electron_index = k;
+        }
+        // Check if value is tracked, and if so, add as coupled variable.
+        find_other = std::find(_species.begin(), _species.end(), _reactants[i][non_electron_index]) != _species.end();
+        find_aux = std::find(_aux_species.begin(), _aux_species.end(), _reactants[i][non_electron_index]) != _aux_species.end();
+        if (_elastic_collision[i])
+        {
+          // First we find the correct target species to add (need species mass for elastic energy change calculation)
+          InputParameters params = _factory.getValidParams(energy_kernel_name);
+          params.set<NonlinearVariableName>("variable") = _electron_energy[0];
+          params.set<std::string>("reaction") = _reaction[i];
+          if (_coefficient_format == "townsend")
+            params.set<std::vector<VariableName>>("potential") = getParam<std::vector<VariableName>>("potential");
+          params.set<std::vector<VariableName>>("electron_species") = {getParam<std::string>("electron_density")};
+          if (find_other || find_aux)
+            params.set<std::vector<VariableName>>("target_species") = {_reactants[i][non_electron_index]};
+          params.set<Real>("position_units") = _r_units;
+          params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
+          _problem->addKernel(energy_kernel_name, "elastic_kernel"+std::to_string(i)+"_"+_reaction[i], params);
+
         }
         else
         {
-          product_kernel_name = "ProductThirdOrder";
-          reactant_kernel_name = "ReactantThirdOrder";
-        }
-        if (_use_log)
-        {
-          product_kernel_name += "Log";
-          reactant_kernel_name += "Log";
-        }
-      }
-      else if (_coefficient_format == "townsend")
-      {
-        if (getParam<bool>("track_electron_energy") == true)
-        {
+          InputParameters params = _factory.getValidParams(energy_kernel_name);
+          params.set<NonlinearVariableName>("variable") = _electron_energy[0];
+          params.set<std::vector<VariableName>>("em") = {"em"};
           if (_coefficient_format == "townsend")
-          {
-            product_kernel_name = "ElectronImpactReactionProduct";
-            reactant_kernel_name = "ElectronImpactReactionReactant";
-          }
+            params.set<std::vector<VariableName>>("potential") = getParam<std::vector<VariableName>>("potential");
+          // params.set<std::vector<VariableName>>("v") = {"Ar"};
+          params.set<std::string>("reaction") = _reaction[i];
+          params.set<Real>("threshold_energy") = _threshold_energy[i];
+          params.set<Real>("position_units") = _r_units;
+          params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
+          _problem->addKernel(energy_kernel_name, "energy_kernel"+std::to_string(i)+"_"+_reaction[i], params);
         }
+        // if (gas_temperature)
+        // {
+        //   InputParameters params = _factory.getValidParams(energy_kernel_name);
+        // }
       }
+      else if (_energy_change[i] && _rate_type[i] != "EEDF")
+      {
+        // find_other = std::find(_species.begin(), _species.end(), _reactants[i][v_index]) != _species.end();
+        // Coupled variable must be generalized to allow for 3 reactants
+        InputParameters params = _factory.getValidParams(energy_kernel_name);
+        params.set<NonlinearVariableName>("variable") = _electron_energy[0];
+        // Check if each reactant is a tracked species, and add the necessary variable(s)
+        // reactant 1
+        if (std::find(_species.begin(), _species.end(), _reactants[i][0]) != _species.end())
+          params.set<std::vector<VariableName>>("v") = {_reactants[i][0]};
+        // reactant 2
+        if (std::find(_species.begin(), _species.end(), _reactants[i][1]) != _species.end())
+          params.set<std::vector<VariableName>>("w") = {_reactants[i][1]};
+        // params.set<std::vector<VariableName>>("em") = {_reactants[i][0]};
+        // // Find the non-electron reactant
+        // for (unsigned int k=0; k<_reactants[i].size(); ++k)
+        // {
+        //   if (_reactants[i][k] == "em")
+        //     continue;
+        //   else
+        //     non_electron_index = k;
+        // }
+        // // Check if value is tracked, and if so, add as coupled variable.
+        // find_other = std::find(_species.begin(), _species.end(), _reactants[i][non_electron_index]) != _species.end();
+        // find_aux = std::find(_aux_species.begin(), _aux_species.end(), _reactants[i][non_electron_index]) != _aux_species.end();
+        // if (find_other || find_aux)
+        //   params.set<std::vector<VariableName>>("v") = {_reactants[i][non_electron_index]};
 
+        // params.set<std::vector<VariableName>>("v") = {"Ar*"};
+        params.set<std::string>("reaction") = _reaction[i];
+        params.set<Real>("threshold_energy") = _threshold_energy[i];
+        params.set<Real>("position_units") = _r_units;
+        params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
+        _problem->addKernel(energy_kernel_name, "energy_kernel"+std::to_string(i)+"_"+_reaction[i], params);
+      }
       for (int j = 0; j < _species.size(); ++j)
       {
         iter = std::find(_reactants[i].begin(), _reactants[i].end(), _species[j]);

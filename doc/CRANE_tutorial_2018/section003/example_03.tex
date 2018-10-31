@@ -1,0 +1,99 @@
+\subsection{Example 3: Two Argon Reactions}
+\begin{frame}[fragile]
+	\frametitle{\insertsubsectionhead}
+	\begin{itemize}
+		\item 2 reactions between 3 species (Ar, Ar+, e-)
+		\item Derived from ZDPlasKin example: Two Reaction Test Case \footnotemark
+		\begin{align*}
+			&e + Ar \xrightarrow{k_1} 2e + Ar^+  \\
+			&e + Ar^+ + Ar \xrightarrow{k_2} 2Ar  
+		\end{align*}
+		\item $\tfrac{E}{N} = 50 Td \rightarrow 50\times 10^{-21} V m^2$
+		\item $T_{gas} = 300 K$ , $t=[0,0.25 \mu s]$
+		\item With these parameters, this becomes a system of three coupled ODEs with constant rate coefficients
+		\item The data file needed to read the ionization reaction is already included in the directory: \texttt{crane/problems/zdplaskin\_two\_reactions}
+		\item The reduced electric field is added as an Auxiliary variable
+
+	\end{itemize}
+	\footnotetext[2]{{\scriptsize \color{blue} https://www.zdplaskin.laplace.univ-tlse.fr/two-reaction-test-case-start-here/}}
+\end{frame}
+
+\begin{frame}[fragile]
+	\frametitle{\insertsubsectionhead}
+	\begin{itemize}
+		\item Input Parameters:
+		\begin{align*}
+				&e + Ar \xrightarrow{k_1} 2e + Ar^+  \\
+				&e + Ar^+ + Ar \xrightarrow{k_2} 2Ar  
+			\end{align*}
+		\begin{itemize}
+			\item[$\ast$] $n_{Ar}(t=0) = 2.5e19 [cm^{-3}]$
+			\item[$\ast$] $n_{e}(t=0), n_{Ar^+}(t=0) = 1.0 [cm^{-3}]$
+			\item[$\ast$] $k_1 = $\{EEDF convolution\}
+			\item[$\ast$] $k_2 = 1e-25 \quad [cm^3 s^{-1}]$
+			\item[$\ast$] $\tfrac{E}{N} = 50 Td \rightarrow 50\times 10^{-21} V m^2$
+			\item[$\ast$] $T_{gas} = 300 K$ 
+			\item[$\ast$] $t=[0,0.25 \mu s]$
+		\end{itemize}
+	\item Rate constant tabulated as a function of reduced electric field included in `projects/crane/problems/Example1/'
+	\item Input file: `zdplaskin\_ex1.i'
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+	\frametitle{Declaring Scalar Variables}
+	\begin{columns}
+	\column{0.5\textwidth}
+	\begin{Verbatim}[fontsize=\scriptsize]
+    [./Ar]
+      family = SCALAR
+      order = FIRST
+      initial_condition = 2.5e19
+      scaling = 2.5e-19
+    [../]
+	\end{Verbatim}
+	\begin{itemize}
+		\item This block declares a \textbf{first-order scalar} variable named \textbf{Ar}
+		\item The (optional) scaling parameter is used to scale the variable values closer to unity, which is desireable for convergence
+	\end{itemize}
+
+	\column{0.5\textwidth}
+	\begin{Verbatim}[fontsize=\scriptsize]
+    [./dAr_dt]
+      type = ODETimeDerivative
+      variable = Ar
+    [../]
+    
+	\end{Verbatim}
+	\begin{itemize}
+		\item All nonlinear variables need at least one Kernel active
+		\item The \textit{ChemicalReactions} Action automatically adds all reaction kernels, but the time derivative term must be added manually for each nonlinear variable
+	\end{itemize}
+	\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+	\frametitle{\insertsubsectionhead \hspace{1pt} - Running}
+		\begin{itemize}
+			\item The problem input file is located in the \texttt{problems} directory, named \texttt{zdplaskin\_two\_reactions.i}
+			\item To run, navigate to the problems directory and provide the input file to the executable:
+			\begin{enumerate}
+				\item Navigate to the problems directory: \newline
+				\hspace*{8pt} \texttt{cd \textasciitilde/projects/crane/problems}
+				\item Locate the input file: \newline
+				\hspace*{8pt} \texttt{problems/zdplaskin\_two\_reactions.i}
+				\item Run the problem with CRANE: \newline
+				\hspace*{8pt} \texttt{../crane-opt -i zdplaskin\_two\_reactions.i}
+				\item Check output files: \newline
+				\hspace*{8pt} \texttt{problems/zdplaskin\_two\_reactions\_out.csv}
+				\item Plot results: \newline
+				\hspace*{8pt} \texttt{python zdplaskin\_two\_reactions.py}
+			\end{enumerate}
+		\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Example 3 Results}
+	\centering
+	\includegraphics[width=0.75\textwidth]{./pics/example3.png}
+\end{frame}

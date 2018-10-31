@@ -35,3 +35,7 @@
 3. Streamline-upwind petrov-galerkin - replace log form while still ensuring positivity (better convergence than log density format)
   * Possible to do before APS (Nov 5)? Probably not. Should be done this year though. Log form feels so cumbersome. It only serves to complicate the energy-dependent Jacobians, which are already complicated to begin with!
 4. !!!!! Aux variables coupling is broken! Probably has to do with the jacobian terms.
+
+## Oct. 22
+1. Electron energy is now a single parameter. Removes redundancy. Also adding gas temperature support.
+  * If the user wants to track individual species energies...this becomes more complicated. For now I will only use the two (electron & gas). Future work!
