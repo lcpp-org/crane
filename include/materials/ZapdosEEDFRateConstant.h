@@ -11,22 +11,22 @@
 /*                                                              */
 /*              See COPYRIGHT for full restrictions             */
 /****************************************************************/
-#ifndef EEDFRATECONSTANT_H_
-#define EEDFRATECONSTANT_H_
+#ifndef ZAPDOSEEDFRATECONSTANT_H_
+#define ZAPDOSEEDFRATECONSTANT_H_
 
 #include "Material.h"
 /* #include "LinearInterpolation.h" */
 #include "SplineInterpolation.h"
 
-class EEDFRateConstant;
+class ZapdosEEDFRateConstant;
 
 template <>
-InputParameters validParams<EEDFRateConstant>();
+InputParameters validParams<ZapdosEEDFRateConstant>();
 
-class EEDFRateConstant : public Material
+class ZapdosEEDFRateConstant : public Material
 {
 public:
-  EEDFRateConstant(const InputParameters & parameters);
+  ZapdosEEDFRateConstant(const InputParameters & parameters);
 
 protected:
   virtual void computeQpProperties();
@@ -38,6 +38,7 @@ protected:
   MaterialProperty<Real> & _reaction_rate;
   MaterialProperty<Real> & _d_k_d_en;
   MaterialProperty<Real> & _energy_elastic;
+  std::string _sampling_format;
 
   const MaterialProperty<Real> & _massIncident;
   const MaterialProperty<Real> & _massTarget;
@@ -47,4 +48,4 @@ protected:
   const VariableValue & _mean_en;
 };
 
-#endif // EEDFRATECONSTANT_H_
+#endif // ZAPDOSEEDFRATECONSTANT_H_

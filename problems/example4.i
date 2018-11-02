@@ -4,99 +4,180 @@
   xmin = 0
   xmax = 1
   nx = 1
+  # nx = 20
+  # elem_type = EDGE2
 []
 
 [Variables]
-  # ODE variables
-  [./e]
+  [./N]
     family = SCALAR
     order = FIRST
-    initial_condition = 1e6
-    scaling = 1e-6
+    # initial_condition = 1e-20
+    initial_condition = 0.0
   [../]
 
-  [./Ar+]
+  [./N2]
     family = SCALAR
     order = FIRST
-    initial_condition = 1e6
-    scaling = 1e-6
+    initial_condition = 2.4474637681159418e+19
+    scaling = 2.447e-19
   [../]
 
-  [./Ar]
+  [./N2A]
     family = SCALAR
     order = FIRST
-    initial_condition = 3.21883e18
-    scaling = 3.2e-18
+    # initial_condition = 1e-20
+    initial_condition = 0.0
   [../]
 
-  [./Ar*]
+  [./N2B]
     family = SCALAR
     order = FIRST
-    initial_condition = 1e6
-    scaling = 1e-6
+    # initial_condition = 1e-20
+    initial_condition = 0.0
   [../]
 
-  [./Ar2+]
+  [./N2a1]
     family = SCALAR
     order = FIRST
-    initial_condition = 1
+    # initial_condition = 1e-20
+    initial_condition = 0.0
+  [../]
+
+  [./N2C]
+    family = SCALAR
+    order = FIRST
+    # initial_condition = 1e-20
+    initial_condition = 0.0
+  [../]
+
+  [./N+]
+    family = SCALAR
+    order = FIRST
+    # initial_condition = 1e-20
+    initial_condition = 0.0
+  [../]
+
+  [./N2+]
+    family = SCALAR
+    order = FIRST
+    # initial_condition = 1e-20
+    initial_condition = 0.0
+  [../]
+
+  [./N3+]
+    family = SCALAR
+    order = FIRST
+    # initial_condition = 1e-20
+    initial_condition = 0.0
+  [../]
+
+  [./N4+]
+    family = SCALAR
+    order = FIRST
+    # initial_condition = 1e-20
+    initial_condition = 0.0
   [../]
 []
 
 [ScalarKernels]
-  [./de_dt]
+  [./dN_dt]
     type = ODETimeDerivative
-    variable = e
+    variable = N
   [../]
 
-  [./dAr+_dt]
+  [./dN2_dt]
     type = ODETimeDerivative
-    variable = Ar+
+    variable = N2
   [../]
 
-  [./dAr_dt]
+  [./dN2A_dt]
     type = ODETimeDerivative
-    variable = Ar
+    variable = N2A
   [../]
 
-  [./dAr*_dt]
+  [./dN2B_dt]
     type = ODETimeDerivative
-    variable = Ar*
+    variable = N2B
   [../]
 
-  [./dAr2_dt]
+  [./dN2a_dt]
     type = ODETimeDerivative
-    variable = Ar2+
+    variable = N2a1
+  [../]
+
+  [./dN2C_dt]
+    type = ODETimeDerivative
+    variable = N2C
+  [../]
+
+  [./dN+_dt]
+    type = ODETimeDerivative
+    variable = N+
+  [../]
+
+  [./dN2+_dt]
+    type = ODETimeDerivative
+    variable = N2+
+  [../]
+
+  [./dN3+_dt]
+    type = ODETimeDerivative
+    variable = N3+
+  [../]
+
+  [./dN4+_dt]
+    type = ODETimeDerivative
+    variable = N4+
   [../]
 []
 
 
 [ChemicalReactions]
   [./ScalarNetwork]
-    species = 'e Ar* Ar+ Ar Ar2+'
-    reaction_coefficient_format = 'rate'
-    file_location = 'Example2'
+    species = 'e N N2 N2A N2B N2a1 N2C N+ N2+ N3+ N4+'
+    aux_species = 'e'
+    file_location = 'Example4'
 
     # These are parameters required equation-based rate coefficients
-    equation_constants = 'Tgas J pi'
-    equation_values = '300 2.405 3.141'
-    equation_variables = 'Te'
+    equation_variables = 'Te Teff'
     rate_provider_var = 'reduced_field'
 
 
-    reactions = 'e + Ar -> e + e + Ar+          : EEDF
-                 e + Ar -> Ar* + e              : EEDF
-                 e + Ar* -> Ar + e              : EEDF
-                 e + Ar* -> Ar+ + e + e         : EEDF
-                 Ar2+ + e -> Ar* + Ar           : {8.5e-7*((Te/1.5)*11600/300.0)^(-0.67)}
-                 Ar2+ + Ar -> Ar+ + Ar + Ar     : {(6.06e-6/Tgas)*exp(-15130.0/Tgas)}
-                 Ar* + Ar* -> Ar2+ + e          : 6.0e-10
-                 Ar+ + e + e -> Ar + e          : {8.75e-27*((Te/1.5)^(-4.5))}
-                 Ar* + Ar + Ar -> Ar + Ar + Ar  : 1.399e-32
-                 Ar+ + Ar + Ar -> Ar2+ + Ar     : {2.25e-31*(Tgas/300.0)^(-0.4)}
-                 e -> W                         : {1.52*(760/100)*(Tgas/273.16)*(Te/1.5)*((J/0.4)^2 + (pi/0.4)^2)}
-                 Ar+ -> W                       : {1.52*(760/100)*(Tgas/273.16)*(Te/1.5)*((J/0.4)^2 + (pi/0.4)^2)}
-                 Ar2+ -> W                      : {1.52*(760/100)*(Tgas/273.16)*(Te/1.5)*((J/0.4)^2 + (pi/0.4)^2)}'
+    reactions = 'e + N2 -> e + N2A          : EEDF
+                 e + N2 -> e + N2B          : EEDF
+                 e + N2 -> e + N2a1         : EEDF
+                 e + N2 -> e + N2C          : EEDF
+                 e + N2 -> e + e + N2+      : EEDF
+                 N2A + N2a1 -> N4+ + e      : 4.0e-12
+                 N2a1 + N2a1 -> N4+ + e     : 4.0e-11
+                 N+ + e + N2 -> N + N2      : {6.0e-27*(300/(Te*11600))^1.5}
+                 N2+ + e -> N + N           : {1.8e-7*(300/(Te*11600))^0.39}
+                 N3+ + e -> N2 + N          : {2.0e-7*(300/(Te*11600))^0.5}
+                 N4+ + e -> N2 + N2         : {2.3e-6*(300/(Te*11600))^0.53}
+                 N+ + N + N2 -> N2+ + N2    : 1.0e-29
+                 N+ + N2 + N2 -> N3+ + N2   : {1.7e-29*(300.0/Teff)^2.1}
+                 N2+ + N -> N+ + N2         : {7.2e-13*(Teff/300.0)}
+                 N2+ + N2A -> N3+ + N       : 3.0e-10
+                 N2+ + N2 + N -> N3+ + N2   : {9.0e-30*exp(400.0/Teff)}
+                 N2+ + N2 + N2 -> N4+ + N2  : {5.2e-29*(300.0/Teff)^2.2}
+                 N3+ + N -> N2+ + N2        : 6.6e-11
+                 N4+ + N -> N+ + N2 + N2    : 1.0e-11
+                 N4+ + N2 -> N2+ + N2 + N2  : {2.1e-16*exp(Teff/121.0)}
+                 N2A -> N2                  : 5.0e-1
+                 N2B -> N2A                 : 1.3e5
+                 N2a1 -> N2                 : 1.0e2
+                 N2C -> N2B                 : 2.5e7
+                 N2A + N -> N2 + N          : 2.0e-12
+                 N2A + N2 -> N2 + N2        : 3.0e-16
+                 N2A + N2A -> N2 + N2B      : 3.0e-10
+                 N2A + N2A -> N2 + N2C      : 1.5e-10
+                 N2B + N2 -> N2 + N2        : 2.0e-12
+                 N2B + N2 -> N2A + N2       : 3.0e-11
+                 N2a1 + N2 -> N2 + N2B      : 1.9e-13
+                 N2C + N2 -> N2 + N2a1      : 1.0e-11
+                 N + N + N2 -> N2A + N2     : 1.7e-33
+                 N + N + N2 -> N2B + N2     : 2.4e-33'
   [../]
 []
 
@@ -105,10 +186,9 @@
   [./reduced_field]
     order = FIRST
     family = SCALAR
-    initial_condition = 7.7667949e-20
   [../]
 
-  [./mobility]
+  [./e]
     order = FIRST
     family = SCALAR
   [../]
@@ -118,85 +198,134 @@
     family = SCALAR
   [../]
 
-  [./current]
+  [./Teff]
     order = FIRST
     family = SCALAR
   [../]
 []
 
 [AuxScalarKernels]
-  [./reduced_field_calculate]
-    type = ParsedAuxScalar
-    variable = reduced_field
-    constant_names = 'V d qe R'
-    constant_expressions = '1000 0.004 1.602e-19 1e5'
-    args = 'reduced_field Ar current'
-    function = 'V/(d+R*current/(reduced_field*Ar*1e6))/(Ar*1e6)'
-    execute_on = 'TIMESTEP_END'
-  [../]
-
-  [./e_drift]
-    type = ParsedAuxScalar
-    # variable = Vdr
-    variable = current
-    constant_names = 'r pi'
-    constant_expressions = '0.004 3.1415926'
-    args = 'reduced_field mobility Ar e'
-    function = '(reduced_field * mobility * Ar*1e6) * 1.6e-19 * pi*(r^2.0) * (e*1e6)'
-    execute_on = 'TIMESTEP_BEGIN'
-  [../]
-
-  [./mobility_calculation]
+  [./field_calculation]
     type = DataReadScalar
-    variable = mobility
-    sampler = reduced_field
-    property_file = 'Example2/electron_mobility.txt'
-    execute_on = 'INITIAL TIMESTEP_BEGIN'
+    variable = reduced_field
+    # scale_factor = 1e-21
+    use_time = true
+    property_file = 'Example3/reduced_field.txt'
+    # execute_on = 'INITIAL TIMESTEP_END'
+    execute_on = 'TIMESTEP_BEGIN'
   [../]
 
   [./temperature_calculation]
     type = DataReadScalar
     variable = Te
+    scale_factor = 1.5e-1
     sampler = reduced_field
-    property_file = 'Example2/electron_temperature.txt'
-    execute_on = 'INITIAL TIMESTEP_BEGIN'
+    property_file = 'Example3/electron_temperature.txt'
+    execute_on = 'TIMESTEP_BEGIN'
+  [../]
+
+  [./density_calculation]
+    type = DataReadScalar
+    variable = e
+    use_time = true
+    property_file = 'Example3/electron_density.txt'
+    # execute_on = 'INITIAL TIMESTEP_END'
+    execute_on = 'TIMESTEP_BEGIN'
+  [../]
+
+  [./Teff_calculation]
+    type = ParsedAuxScalar
+    variable = Teff
+    constant_names = 'Tgas'
+    constant_expressions = '300'
+    args = 'reduced_field'
+    function = 'Tgas+(0.12*(reduced_field*1e21)^2)'
+    execute_on = 'INITIAL TIMESTEP_END'
+    # execute_on = 'TIMESTEP_BEGIN'
   [../]
 []
 
-[UserObjects]
-  active = 'value_provider'
-
-  [./value_provider]
-    type = ValueProvider
-    property_file = 'Example2/electron_temperature.txt'
-  [../]
-[]
+# [UserObjects]
+#   active = 'value_provider'
+#
+#   [./value_provider]
+#     type = ValueProvider
+#     # property_file = 'BOLSIG_rates/electron_temperature.txt'
+#     property_file = 'BOLSIG_rates/electron_temperature.txt'
+#   [../]
+# []
 
 [Executioner]
+  # implicit-euler,  explicit-euler,  crank-nicolson,  bdf2,  explicit-midpoint,  dirk,  explicit-tvd-rk-2
+  # PJFNK JFNK NEWTON FD LINEAR
+  #line_search = none
   type = Transient
-  end_time = 1e-3
+  # end_time = 1.17e-4
+  end_time = 2.5e-3
+  # dt = 1.0e-18
+  # dt = 1e-10
+  # num_steps  = 10
   solve_type = 'linear'
+  # scheme = crank-nicolson
+  # dt = 1e-10
+  # dt = 5e-5
   dtmin = 1e-20
   dtmax = 1e-5
   petsc_options_iname = '-snes_linesearch_type'
-  petsc_options_value = 'basic'
+  # petsc_options_value = 'basic'
+  # trans_ss_check = true
+  # steady_state_tolerance = 1e-10
+  petsc_options_value = 'l2'
+  # [./TimeStepper]
+  #   type = IterationAdaptiveDT
+  #   cutback_factor = 0.9
+  #   dt = 1e-10
+  #   growth_factor = 1.01
+  #   # optimal_iterations = 20
+  # [../]
   [./TimeStepper]
-    type = IterationAdaptiveDT
-    cutback_factor = 0.9
-    # dt = 1e-10
-    dt = 1e-11
-    growth_factor = 1.01
+    type = CSVTimeSequenceStepper
+    # header = true
+    file_name = 'Example3/reduced_field.txt'
+    delimiter = ' '
+    column_index = 0
   [../]
 []
 
 [Preconditioning]
+  active = 'smp'
+
   [./smp]
     type = SMP
+    full = true
+    #ksp_norm = none
+  [../]
+
+  [./fd]
+    type = FDP
     full = true
   [../]
 []
 
 [Outputs]
+  # [./out]
+  #   type = Exodus
+  #   execute_on = 'TIMESTEP_END'
+  # [../]
+  #exodus = true
   csv = true
-  interval = 10
+  # perf_log = true
+  # interval = 1
+  # [./csv_out]
+  #   type = CSV
+  #   #execute_on = 'final'
+  #   show = 'reduced_field e N N2 N2A N2B N2C N+ N2+ N3+ N4+'
+  # [../]
+
+  # This outputs all of the rate constants.
+  # [./csv_out_2]
+  #   type = CSV
+  #   show = 'rate_constant0 rate_constant1 rate_constant2 rate_constant3 rate_constant4 rate_constant5 rate_constant6 rate_constant7 rate_constant8 rate_constant9'
+  #   # show = 'rate_constant0 rate_constant1 rate_constant2 rate_constant3'
+  # [../]
 []

@@ -133,7 +133,7 @@ AddReactions::act()
         params.set<std::vector<VariableName>>("em") = {_reactants[i][_electron_index[i]]};
         params.set<std::vector<VariableName>>("mean_en") = getParam<std::vector<VariableName>>("electron_energy");
         params.set<std::string>("reaction_coefficient_format") = _coefficient_format;
-        params.set<std::string>("sampling_format") = _sampling_format;
+        params.set<std::string>("sampling_format") = _sampling_variable;
 
         // This section determines if the target species is a tracked variable.
         // If it isn't, the target is assumed to be the background gas (_n_gas).
@@ -180,9 +180,10 @@ AddReactions::act()
         params.set<std::string>("reaction") = _reaction[i];
         params.set<std::string>("file_location") = getParam<std::string>("file_location");
         params.set<Real>("position_units") = position_units;
-        params.set<std::string>("sampling_format") = _sampling_format;
+        params.set<std::vector<VariableName>>("sampler") = {_sampling_variable};
         params.set<FileName>("property_file") = "reaction_"+_reaction[i]+".txt";
-        params.set<std::vector<VariableName>>("sampler") = {"reduced_field"};
+        params.set<bool>("elastic_collision") = {_elastic_collision[i]};
+        params.set<std::vector<VariableName>>("em") = {_reactants[i][_electron_index[i]]};
         _problem->addMaterial("EEDFRateConstant", "reaction_"+std::to_string(i), params);
       }
       else if (_rate_type[i] == "Constant")
@@ -309,7 +310,7 @@ AddReactions::act()
       {
         for (unsigned int k=0; k<_reactants[i].size(); ++k)
         {
-          if (_reactants[i][k] == "em")
+          if (_reactants[i][k] == getParam<std::string>("electron_density"))
             continue;
           else
             non_electron_index = k;
@@ -337,7 +338,7 @@ AddReactions::act()
         {
           InputParameters params = _factory.getValidParams(energy_kernel_name);
           params.set<NonlinearVariableName>("variable") = _electron_energy[0];
-          params.set<std::vector<VariableName>>("em") = {"em"};
+          params.set<std::vector<VariableName>>("em") = {getParam<std::string>("electron_density")};
           if (_coefficient_format == "townsend")
             params.set<std::vector<VariableName>>("potential") = getParam<std::vector<VariableName>>("potential");
           // params.set<std::vector<VariableName>>("v") = {"Ar"};

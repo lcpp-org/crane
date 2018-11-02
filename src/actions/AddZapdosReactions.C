@@ -181,17 +181,17 @@ AddZapdosReactions::act()
       // else if (_rate_type[i] )
       {
         Real position_units = getParam<Real>("position_units");
-        InputParameters params = _factory.getValidParams("EEDFRateConstant");
+        InputParameters params = _factory.getValidParams("ZapdosEEDFRateConstant");
         params.set<std::string>("reaction") = _reaction[i];
         params.set<std::string>("file_location") = getParam<std::string>("file_location");
         params.set<Real>("position_units") = position_units;
-        params.set<std::string>("sampling_format") = _sampling_format;
+        params.set<std::string>("sampling_format") = _sampling_variable;
         params.set<FileName>("property_file") = "reaction_"+_reaction[i]+".txt";
         params.set<std::vector<VariableName>>("em") = {_reactants[i][_electron_index[i]]};
         params.set<std::vector<VariableName>>("mean_en") = {_electron_energy[0]};
         params.set<bool>("elastic_collision") = _elastic_collision[i];
         params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
-        _problem->addMaterial("EEDFRateConstant", "reaction_"+std::to_string(i)+std::to_string(i), params);
+        _problem->addMaterial("ZapdosEEDFRateConstant", "reaction_"+std::to_string(i)+std::to_string(i), params);
       }
       else if (_rate_type[i] == "Constant")
       {
