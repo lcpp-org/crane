@@ -1,89 +1,115 @@
-\subsection{Example 5: Nitrogen Reaction Network}
+\subsection{Example 5 (Hands On): Two Argon Reactions}
+
+\begin{frame}[fragile]
+	\frametitle{\insertsubsectionhead}
+	\begin{minipage}{0.6\linewidth}
+	\begin{itemize}
+		\item So far you have seen 4 pre-made examples of using CRANE. All of the input files are already in place, so you can ensure that the results are reproduced\footnotemark on your own machine(s).
+		\item ...but the point of this code is to let you use it for your own applications!
+		\item This next example will be \textbf{hands-on} - try to write your own input file!
+		\item The completed input file is already present for guidance: \texttt{/problems/example5.i}
+	\end{itemize}
+	\end{minipage}%
+	\begin{minipage}{0.4\linewidth}
+		\includegraphics[scale=2.4]{pics/the_difference.png}
+	\end{minipage}
+	\footnotetext[4]{\scriptsize Image courtesy of https://xkcd.com/242/}
+\end{frame}
+
 \begin{frame}[fragile]
 	\frametitle{\insertsubsectionhead}
 	\begin{itemize}
-		\item ZDPlasKin example 3: 34 reactions between 11 species \footnotemark
-		\item In this example, electric field and electron density are read from files containing time-varying data
-		\item Electron temperature is calculated from \textit{Bolsig+}, as are electron-impact rate coefficients
-		\item In this case, electrons \textit{are not considered a nonlinear species} and do not contribute to the jacobian
-		\item Reduced electric field is calculated based on electron mobility, gas density, and physical domain
+		\item 2 reactions between 3 species (Ar, Ar+, e-)
+		\item \textbf{ZDPlasKin example}\footnotemark: Two Reaction Test Case 
+		\begin{align*}
+			&e + Ar \xrightarrow{k_1} 2e + Ar^+  \\
+			&e + Ar^+ + Ar \xrightarrow{k_2} 2Ar  
+		\end{align*}
+		\item $\tfrac{E}{N} = 50 Td \rightarrow 50\times 10^{-21} V m^2$
+		\item $T_{gas} = 300 K$ , $t=[0,0.25 \mu s]$
+		\item With these parameters, this becomes a system of three coupled ODEs with constant rate coefficients
+		\item The reduced electric field is added as an Auxiliary variable
+
 	\end{itemize}
-	\footnotetext[4]{{\scriptsize \color{blue} https://www.zdplaskin.laplace.univ-tlse.fr/external-profiles-of-electron-density-and-electric-field/}}
-\end{frame}
-
-
-
-
-\begin{frame}[fragile]
-	\frametitle{Example 5: Input Parameters}
-	\begin{itemize}
-		\item Initial Conditions: $N_2(t=0) = 2.447464e19$; all other species start with $n_i(0) = 0 cm^{-3}$
-		\item $T_{gas} = 300 K$ , $t=[0,2.5 ms]$
-		\item $T_{eff} = T_{gas}+\Big(0.12 * \Big(\tfrac{E}{N}*1e21 \Big)^2 \Big)$
-		\item Reduced field, electron temperature, and electron density pulled from tabulated data 
-		\item Input file: `zdplaskin\_ex3.i'
-	\end{itemize}
+	\footnotetext[5]{{\scriptsize \color{blue} https://www.zdplaskin.laplace.univ-tlse.fr/two-reaction-test-case-start-here/}}
 \end{frame}
 
 \begin{frame}[fragile]
-	\frametitle{Example 5: Reading Time Data From File}
-	\begin{Verbatim}[fontsize=\scriptsize]
-    [./field_calculation]
-      type = DataReadScalar
-      variable = reduced_field
-      use_time = true
-      property_file = `Example3/reduced_field.txt'
-      execute_on = `TIMESTEP_BEGIN'
-    [../]
-	\end{Verbatim}
+	\frametitle{\insertsubsectionhead}
 	\begin{itemize}
-		\item `DataReadScalar' AuxKernel is used as in Example 2
-		\item Setting `use\_time' to `true' tells MOOSE to sample from the tabulated data set using the time variable
+		\item Input Parameters:
+		\begin{align*}
+				&e + Ar \xrightarrow{k_1} 2e + Ar^+  \\
+				&e + Ar^+ + Ar \xrightarrow{k_2} 2Ar  
+			\end{align*}
+		\begin{itemize}
+			\item[$\ast$] $n_{Ar}(t=0) = 2.5e19 [cm^{-3}]$
+			\item[$\ast$] $n_{e}(t=0), n_{Ar^+}(t=0) = 1.0 [cm^{-3}]$
+			\item[$\ast$] $k_1 = $\{EEDF convolution\}
+			\item[$\ast$] $k_2 = 1e-25 \quad [cm^3 s^{-1}]$
+			\item[$\ast$] $\tfrac{E}{N} = 50 Td \rightarrow 50\times 10^{-21} V m^2$
+			\item[$\ast$] $T_{gas} = 300 K$ 
+			\item[$\ast$] $t=[0,0.25 \mu s]$
+		\end{itemize}
+	\item Rate constant tabulated as a function of reduced electric field included in `projects/crane/problems/Example5/'
+	\item Input file: `example5.i'
 	\end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]
-	\frametitle{Example 5: Scaling Data Read From File}
-	\begin{Verbatim}[fontsize=\scriptsize]
-    [./field_calculation]
-      type = DataReadScalar
-      variable = Te
-      scale_factor = 1.5e-1
-      sampler = reduced_field
-      property_file = `Example3/electron_temperature.txt'
-      execute_on = `TIMESTEP_BEGIN'
-    [../]
-	\end{Verbatim}
-	\begin{itemize}
-		\item Electron temperature for this problem is also read from a data file, but sampled based on the `reduced\_field' AuxVariable rather than time
-		\item The \textbf{scale\_factor} parameter is multiplied into the result after being read from the data file. This allows the user to convert the data to their desired units.
-	\end{itemize}
-\end{frame}
+%\begin{frame}[fragile]
+%	\frametitle{Declaring Scalar Variables}
+%	\begin{columns}
+%	\column{0.5\textwidth}
+%	\begin{Verbatim}[fontsize=\scriptsize]
+%    [./Ar]
+%      family = SCALAR
+%      order = FIRST
+%      initial_condition = 2.5e19
+%      scaling = 2.5e-19
+%    [../]
+%	\end{Verbatim}
+%	\begin{itemize}
+%		\item This block declares a \textbf{first-order scalar} variable named \textbf{Ar}
+%		\item The (optional) scaling parameter is used to scale the variable values closer to unity, which is desireable for convergence
+%	\end{itemize}
+%
+%	\column{0.5\textwidth}
+%	\begin{Verbatim}[fontsize=\scriptsize]
+%    [./dAr_dt]
+%      type = ODETimeDerivative
+%      variable = Ar
+%    [../]
+%    
+%	\end{Verbatim}
+%	\begin{itemize}
+%		\item All nonlinear variables need at least one Kernel active
+%		\item The \textit{ChemicalReactions} Action automatically adds all reaction kernels, but the time derivative term must be added manually for each nonlinear variable
+%	\end{itemize}
+%	\end{columns}
+%\end{frame}
 
 \begin{frame}[fragile]
-	\frametitle{Example 5: Action Parameters}
-	\begin{Verbatim}[fontsize=\tiny]
-    [ChemicalReactions]
-      [./ScalarNetwork]
-        species = `e N N2 N2A N2B N2a1 N2C N+ N2+ N3+ N4+'
-        aux_species = `e'
-        file_location = `Example3'
-
-        # These are parameters required equation-based rate coefficients
-        equation_variables = `Te Teff'
-        rate_provider_var = `reduced_field'
-        reactions = `...'
-      [../]
-    []
-	\end{Verbatim}
-	\begin{itemize}
-		\item Since electrons are being read from a data file, they are not a nonlinear species. The \textbf{aux\_species} parameter allows auxiliary variables to be coupled into the reaction network.
-		\item Variables that are used in any equation-based rate coefficients must be listed in the \textbf{equation\_variables} parameter
-	\end{itemize}
+	\frametitle{\insertsubsectionhead \hspace{1pt} - Running}
+		\begin{itemize}
+			\item The problem input file is located in the \texttt{problems} directory, named \texttt{zdplaskin\_two\_reactions.i}
+			\item To run, navigate to the problems directory and provide the input file to the executable:
+			\begin{enumerate}
+				\item Navigate to the problems directory: \newline
+				\hspace*{8pt} \texttt{cd \textasciitilde/projects/crane/problems}
+				\item Locate the input file: \newline
+				\hspace*{8pt} \texttt{problems/example5.i}
+				\item Run the problem with CRANE: \newline
+				\hspace*{8pt} \texttt{../crane-opt -i example5.i}
+				\item Check output files: \newline
+				\hspace*{8pt} \texttt{problems/example5\_out.csv}
+				\item Plot results: \newline
+				\hspace*{8pt} \texttt{python example5.py}
+			\end{enumerate}
+		\end{itemize}
 \end{frame}
 
 \begin{frame}
-	\frametitle{Example 5: Results}
+	\frametitle{Example 5 Results}
 	\centering
-	\includegraphics[width=0.75\textwidth]{./pics/example5.png}
+	\includegraphics[width=0.75\textwidth]{./pics/example3.png}
 \end{frame}
