@@ -12,7 +12,7 @@
   add_time_derivatives = true
 []
 
-# Evil reaction:
+# Evil reaction:h
 # O + O + O3 -> O2 + O3     : {4.6e-34 * exp(1050/Te)}
 # Look at that exponent!
 [ChemicalReactions]
