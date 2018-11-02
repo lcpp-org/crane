@@ -57,7 +57,7 @@ validParams<ChemicalReactionsBase>()
   params.addRequiredParam<std::string>("reactions", "The list of reactions to be added");
   params.addParam<Real>("position_units", 1.0, "The units of position.");
   params.addParam<std::string>("file_location", "", "The location of the reaction rate files. Default: empty string (current directory).");
-  params.addParam<std::string>("sampling_format", "reduced_field", "Sample rate constants with E/N (reduced_field) or Te (electron_energy).");
+  params.addParam<std::string>("sampling_variable", "reduced_field", "Sample rate constants with E/N (reduced_field) or Te (electron_energy).");
   params.addParam<std::vector<std::string>>("equation_constants", "The constants included in the reaction equation(s).");
   params.addParam<std::vector<std::string>>("equation_values", "The values of the constants included in the reaction equation(s).");
   params.addParam<std::vector<VariableName>>("equation_variables", "Any nonlinear variables that appear in the equations.");
@@ -93,7 +93,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     _gas_energy(getParam<std::vector<NonlinearVariableName>>("gas_energy")),
     _input_reactions(getParam<std::string>("reactions")),
     _r_units(getParam<Real>("position_units")),
-    _sampling_format(getParam<std::string>("sampling_format")),
+    _sampling_variable(getParam<std::string>("sampling_variable")),
     _use_log(getParam<bool>("use_log"))
     // _use_moles(getParam<bool>("use_moles"))
 {

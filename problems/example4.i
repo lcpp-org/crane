@@ -137,7 +137,7 @@
   [./ScalarNetwork]
     species = 'e N N2 N2A N2B N2a1 N2C N+ N2+ N3+ N4+'
     aux_species = 'e'
-    file_location = 'Example3'
+    file_location = 'Example4'
 
     # These are parameters required equation-based rate coefficients
     equation_variables = 'Te Teff'

@@ -51,9 +51,10 @@
 [ChemicalReactions]
   [./ScalarNetwork]
     species = 'e Ar+ Ar'
-    file_location = 'Example1'
+    file_location = 'Example5'
+    sampling_format = 'reduced_field'
 
-    reactions = 'e + Ar -> e + e + Ar+          : BOLOS
+    reactions = 'e + Ar -> e + e + Ar+          : EEDF
                  e + Ar+ + Ar -> Ar + Ar        : 1e-25'
 
    [../]
@@ -72,11 +73,11 @@
   type = Transient
   end_time = 0.25e-6
   dt = 1e-9
-  solve_type = 'linear'
+  solve_type = LINEAR
   dtmin = 1e-20
   dtmax = 1e-8
-  # petsc_options_iname = '-snes_linesearch_type'
-  # petsc_options_value = 'basic'
+  petsc_options_iname = '-snes_linesearch_type'
+  petsc_options_value = 'basic'
   # petsc_options_value = 'l2'
 []
 

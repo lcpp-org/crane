@@ -23,7 +23,7 @@ protected:
   const std::vector<NonlinearVariableName> _gas_energy;
   std::string _input_reactions;
   Real _r_units;
-  std::string _sampling_format;
+  std::string _sampling_variable;
   bool _use_log;
   // bool _use_moles;
 
