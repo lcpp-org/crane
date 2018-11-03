@@ -210,7 +210,7 @@
     variable = reduced_field
     # scale_factor = 1e-21
     use_time = true
-    property_file = 'Example3/reduced_field.txt'
+    property_file = 'Example4/reduced_field.txt'
     # execute_on = 'INITIAL TIMESTEP_END'
     execute_on = 'TIMESTEP_BEGIN'
   [../]
@@ -220,7 +220,7 @@
     variable = Te
     scale_factor = 1.5e-1
     sampler = reduced_field
-    property_file = 'Example3/electron_temperature.txt'
+    property_file = 'Example4/electron_temperature.txt'
     execute_on = 'TIMESTEP_BEGIN'
   [../]
 
@@ -228,7 +228,7 @@
     type = DataReadScalar
     variable = e
     use_time = true
-    property_file = 'Example3/electron_density.txt'
+    property_file = 'Example4/electron_density.txt'
     # execute_on = 'INITIAL TIMESTEP_END'
     execute_on = 'TIMESTEP_BEGIN'
   [../]
@@ -286,7 +286,7 @@
   [./TimeStepper]
     type = CSVTimeSequenceStepper
     # header = true
-    file_name = 'Example3/reduced_field.txt'
+    file_name = 'Example4/reduced_field.txt'
     delimiter = ' '
     column_index = 0
   [../]
