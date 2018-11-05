@@ -7,39 +7,49 @@
 []
 
 [Variables]
+  [./dummy]
+  [../]
   # ODE variables
   [./e]
     family = SCALAR
     order = FIRST
     initial_condition = 1e6
-    scaling = 1e-6
+    scaling = 1e-9
   [../]
 
   [./Ar+]
     family = SCALAR
     order = FIRST
     initial_condition = 1e6
-    scaling = 1e-6
+    scaling = 1e-9
   [../]
 
   [./Ar]
     family = SCALAR
     order = FIRST
     initial_condition = 3.21883e18
-    scaling = 3.2e-18
+    scaling = 1e-10
   [../]
 
   [./Ar*]
     family = SCALAR
     order = FIRST
     initial_condition = 1e6
-    scaling = 1e-6
+    scaling = 1e-10
   [../]
 
   [./Ar2+]
     family = SCALAR
     order = FIRST
     initial_condition = 1
+    scaling = 1e-7
+  [../]
+[]
+
+[Kernels]
+  [./dummy_kernel]
+    type = TimeDerivative
+    variable = dummy
   [../]
 []
 
@@ -163,6 +173,10 @@
   [../]
 []
 
+[Debug]
+  show_var_residual_norms = true
+[]
+
 [UserObjects]
   active = 'value_provider'
 
@@ -175,16 +189,14 @@
 [Executioner]
   type = Transient
   end_time = 1e-3
-  solve_type = 'linear'
+  solve_type = LINEAR
   dtmin = 1e-20
   dtmax = 1e-5
-  petsc_options_iname = '-snes_linesearch_type'
-  petsc_options_value = 'basic'
+  line_search = basic
   [./TimeStepper]
     type = IterationAdaptiveDT
     cutback_factor = 0.9
-    # dt = 1e-10
-    dt = 1e-11
+    dt = 1e-10
     growth_factor = 1.01
   [../]
 []
@@ -198,5 +210,5 @@
 
 [Outputs]
   csv = true
-  interval = 10
+  # interval = 10
 []

@@ -1,18 +1,13 @@
 [Mesh]
   type = GeneratedMesh
   dim = 1
-  xmin = 0
-  xmax = 1
   nx = 1
-  # nx = 20
-  # elem_type = EDGE2
 []
 
 [Variables]
   [./N]
     family = SCALAR
     order = FIRST
-    # initial_condition = 1e-20
     initial_condition = 0.0
   [../]
 
@@ -20,62 +15,53 @@
     family = SCALAR
     order = FIRST
     initial_condition = 2.4474637681159418e+19
-    scaling = 2.447e-19
   [../]
 
   [./N2A]
     family = SCALAR
     order = FIRST
-    # initial_condition = 1e-20
     initial_condition = 0.0
   [../]
 
   [./N2B]
     family = SCALAR
     order = FIRST
-    # initial_condition = 1e-20
     initial_condition = 0.0
   [../]
 
   [./N2a1]
     family = SCALAR
     order = FIRST
-    # initial_condition = 1e-20
     initial_condition = 0.0
   [../]
 
   [./N2C]
     family = SCALAR
     order = FIRST
-    # initial_condition = 1e-20
     initial_condition = 0.0
   [../]
 
   [./N+]
     family = SCALAR
     order = FIRST
-    # initial_condition = 1e-20
     initial_condition = 0.0
   [../]
 
   [./N2+]
     family = SCALAR
     order = FIRST
-    # initial_condition = 1e-20
     initial_condition = 0.0
   [../]
 
   [./N3+]
     family = SCALAR
     order = FIRST
-    # initial_condition = 1e-20
     initial_condition = 0.0
   [../]
 
   [./N4+]
     family = SCALAR
     order = FIRST
-    # initial_condition = 1e-20
     initial_condition = 0.0
   [../]
 []
@@ -241,51 +227,20 @@
     args = 'reduced_field'
     function = 'Tgas+(0.12*(reduced_field*1e21)^2)'
     execute_on = 'INITIAL TIMESTEP_END'
-    # execute_on = 'TIMESTEP_BEGIN'
   [../]
 []
 
-# [UserObjects]
-#   active = 'value_provider'
-#
-#   [./value_provider]
-#     type = ValueProvider
-#     # property_file = 'BOLSIG_rates/electron_temperature.txt'
-#     property_file = 'BOLSIG_rates/electron_temperature.txt'
-#   [../]
-# []
-
 [Executioner]
-  # implicit-euler,  explicit-euler,  crank-nicolson,  bdf2,  explicit-midpoint,  dirk,  explicit-tvd-rk-2
-  # PJFNK JFNK NEWTON FD LINEAR
-  #line_search = none
   type = Transient
-  # end_time = 1.17e-4
   end_time = 2.5e-3
-  # dt = 1.0e-18
-  # dt = 1e-10
-  # num_steps  = 10
-  solve_type = 'linear'
-  # scheme = crank-nicolson
-  # dt = 1e-10
-  # dt = 5e-5
+  solve_type = LINEAR
   dtmin = 1e-20
   dtmax = 1e-5
   petsc_options_iname = '-snes_linesearch_type'
-  # petsc_options_value = 'basic'
-  # trans_ss_check = true
-  # steady_state_tolerance = 1e-10
   petsc_options_value = 'l2'
-  # [./TimeStepper]
-  #   type = IterationAdaptiveDT
-  #   cutback_factor = 0.9
-  #   dt = 1e-10
-  #   growth_factor = 1.01
-  #   # optimal_iterations = 20
-  # [../]
+
   [./TimeStepper]
     type = CSVTimeSequenceStepper
-    # header = true
     file_name = 'Example4/reduced_field.txt'
     delimiter = ' '
     column_index = 0
@@ -293,39 +248,12 @@
 []
 
 [Preconditioning]
-  active = 'smp'
-
   [./smp]
     type = SMP
-    full = true
-    #ksp_norm = none
-  [../]
-
-  [./fd]
-    type = FDP
     full = true
   [../]
 []
 
 [Outputs]
-  # [./out]
-  #   type = Exodus
-  #   execute_on = 'TIMESTEP_END'
-  # [../]
-  #exodus = true
   csv = true
-  # perf_log = true
-  # interval = 1
-  # [./csv_out]
-  #   type = CSV
-  #   #execute_on = 'final'
-  #   show = 'reduced_field e N N2 N2A N2B N2C N+ N2+ N3+ N4+'
-  # [../]
-
-  # This outputs all of the rate constants.
-  # [./csv_out_2]
-  #   type = CSV
-  #   show = 'rate_constant0 rate_constant1 rate_constant2 rate_constant3 rate_constant4 rate_constant5 rate_constant6 rate_constant7 rate_constant8 rate_constant9'
-  #   # show = 'rate_constant0 rate_constant1 rate_constant2 rate_constant3'
-  # [../]
 []

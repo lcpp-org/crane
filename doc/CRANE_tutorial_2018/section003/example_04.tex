@@ -8,7 +8,7 @@
 		\item In this case, electrons \textit{are not considered a nonlinear species} and do not contribute to the jacobian
 		\item Reduced electric field is calculated based on electron mobility, gas density, and physical domain
 	\end{itemize}
-	\footnotetext[4]{{\scriptsize \color{blue} https://www.zdplaskin.laplace.univ-tlse.fr/external-profiles-of-electron-density-and-electric-field/}}
+	\footnotetext[3]{{\scriptsize \color{blue} https://www.zdplaskin.laplace.univ-tlse.fr/external-profiles-of-electron-density-and-electric-field/}}
 \end{frame}
 
 
@@ -28,13 +28,15 @@
 \begin{frame}[fragile]
 	\frametitle{Example 4: Reading Time Data From File}
 	\begin{Verbatim}[fontsize=\scriptsize]
-    [./field_calculation]
-      type = DataReadScalar
-      variable = reduced_field
-      use_time = true
-      property_file = `Example3/reduced_field.txt'
-      execute_on = `TIMESTEP_BEGIN'
-    [../]
+    [AuxKernels]
+      [./field_calculation]
+        type = DataReadScalar
+        variable = reduced_field
+        use_time = true
+        property_file = `Example3/reduced_field.txt'
+        execute_on = `TIMESTEP_BEGIN'
+      [../]
+    []
 	\end{Verbatim}
 	\begin{itemize}
 		\item `DataReadScalar' AuxKernel is used as in Example 3
@@ -45,14 +47,16 @@
 \begin{frame}[fragile]
 	\frametitle{Example 4: Scaling Data Read From File}
 	\begin{Verbatim}[fontsize=\scriptsize]
-    [./field_calculation]
-      type = DataReadScalar
-      variable = Te
-      scale_factor = 1.5e-1
-      sampler = reduced_field
-      property_file = `Example4/electron_temperature.txt'
-      execute_on = `TIMESTEP_BEGIN'
-    [../]
+    [AuxKernels]
+      [./field_calculation]
+        type = DataReadScalar
+        variable = Te
+        scale_factor = 1.5e-1
+        sampler = reduced_field
+        property_file = `Example4/electron_temperature.txt'
+        execute_on = `TIMESTEP_BEGIN'
+      [../]
+    []
 	\end{Verbatim}
 	\begin{itemize}
 		\item Electron temperature for this problem is also read from a data file, but sampled based on the `reduced\_field' AuxVariable rather than time
