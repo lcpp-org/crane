@@ -78,16 +78,14 @@
 [Executioner]
   type = Transient
   end_time = 1e-1
-  # solve_type = 'linear'
-  solve_type = LINEAR
+  solve_type = NEWTON
   dtmin = 1e-20
-  # dtmax = 1e-5
-  # petsc_options_iname = '-snes_linesearch_type'
-  # petsc_options_value = 'basic'
+
+  steady_state_detection = true
+  steady_state_tolerance = 1e-06
   [./TimeStepper]
     type = IterationAdaptiveDT
     cutback_factor = 0.9
-    # dt = 1e-10
     dt = 1e-8
     growth_factor = 1.01
   [../]
