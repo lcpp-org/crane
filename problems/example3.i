@@ -7,49 +7,40 @@
 []
 
 [Variables]
-  [./dummy]
-  [../]
   # ODE variables
   [./e]
     family = SCALAR
     order = FIRST
     initial_condition = 1e6
-    scaling = 1e-9
+    # scaling = 1e-2
   [../]
 
   [./Ar+]
     family = SCALAR
     order = FIRST
     initial_condition = 1e6
-    scaling = 1e-9
+    # scaling = 1e-2
   [../]
 
   [./Ar]
     family = SCALAR
     order = FIRST
     initial_condition = 3.21883e18
-    scaling = 1e-10
+    scaling = 1e-15
   [../]
 
   [./Ar*]
     family = SCALAR
     order = FIRST
     initial_condition = 1e6
-    scaling = 1e-10
+    # scaling = 1e-2
   [../]
 
   [./Ar2+]
     family = SCALAR
     order = FIRST
     initial_condition = 1
-    scaling = 1e-7
-  [../]
-[]
-
-[Kernels]
-  [./dummy_kernel]
-    type = TimeDerivative
-    variable = dummy
+    # scaling = 1e-2
   [../]
 []
 
@@ -92,6 +83,7 @@
     equation_values = '300 2.405 3.141'
     equation_variables = 'Te'
     rate_provider_var = 'reduced_field'
+    sampling_variable = 'reduced_field'
 
 
     reactions = 'e + Ar -> e + e + Ar+          : EEDF
@@ -189,10 +181,12 @@
 [Executioner]
   type = Transient
   end_time = 1e-3
-  solve_type = LINEAR
+  solve_type = JFNK
   dtmin = 1e-20
   dtmax = 1e-5
-  line_search = basic
+  line_search = none
+  trans_ss_check = true
+  steady_state_start_time = 1e-4
   [./TimeStepper]
     type = IterationAdaptiveDT
     cutback_factor = 0.9

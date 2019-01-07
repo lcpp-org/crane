@@ -203,42 +203,58 @@ AddScalarReactions::act()
         reactant_kernel_name += "Log";
       }
 
-      if (_energy_change[i] && _rate_type[i] != "EEDF")
+      // if (_energy_change[i] && _rate_type[i] != "EEDF")
+      // {
+      if (_energy_change[i])
       {
-        int non_electron_index;
-        // find_other = std::find(_species.begin(), _species.end(), _reactants[i][v_index]) != _species.end();
-        // Coupled variable must be generalized to allow for 3 reactants
-        InputParameters params = _factory.getValidParams(energy_kernel_name);
-        params.set<NonlinearVariableName>("variable") = _electron_energy[0];
-        params.set<std::vector<VariableName>>("em") = {"em"};
-        // Find the non-electron reactant
-        for (unsigned int k=0; k<_reactants[i].size(); ++k)
+        Real energy_sign;
+        for (unsigned int t=0; t<_energy_variable.size(); ++t)
         {
-          if (_reactants[i][k] == "em")
-            continue;
-          else
-            non_electron_index = k;
-        }
-        // Check if value is tracked, and if so, add as coupled variable.
-        find_other = std::find(_species.begin(), _species.end(), _reactants[i][non_electron_index]) != _species.end();
-        find_aux = std::find(_aux_species.begin(), _aux_species.end(), _reactants[i][non_electron_index]) != _aux_species.end();
-        if (find_other || find_aux)
-          params.set<std::vector<VariableName>>("v") = {_reactants[i][non_electron_index]};
+          if (_rate_type[i] != "EEDF")
+          {
+            if (_electron_energy_term[t])
+              energy_sign = 1.0;
+            else
+              energy_sign = -1.0;
 
-        // params.set<std::vector<VariableName>>("v") = {"Ar*"};
-        params.set<std::string>("reaction") = _reaction[i];
-        params.set<Real>("threshold_energy") = _threshold_energy[i];
-        params.set<Real>("position_units") = _r_units;
-        _problem->addKernel(energy_kernel_name, "energy_kernel"+std::to_string(i)+"_"+_reaction[i], params);
+            int non_electron_index;
+            // find_other = std::find(_species.begin(), _species.end(), _reactants[i][v_index]) != _species.end();
+            // Coupled variable must be generalized to allow for 3 reactants
+            InputParameters params = _factory.getValidParams(energy_kernel_name);
+            // params.set<NonlinearVariableName>("variable") = _electron_energy[0];
+            params.set<NonlinearVariableName>("variable") = _energy_variable[t];
+            // params.set<std::vector<VariableName>>("em") = {"em"};
+            params.set<std::vector<VariableName>>("em") = {getParam<std::string>("electron_density")};
+            // Find the non-electron reactant
+            for (unsigned int k=0; k<_reactants[i].size(); ++k)
+            {
+              if (_reactants[i][k] == getParam<std::string>("electron_density"))
+                continue;
+              else
+                non_electron_index = k;
+            }
+            // Check if value is tracked, and if so, add as coupled variable.
+            find_other = std::find(_species.begin(), _species.end(), _reactants[i][non_electron_index]) != _species.end();
+            find_aux = std::find(_aux_species.begin(), _aux_species.end(), _reactants[i][non_electron_index]) != _aux_species.end();
+            if (find_other || find_aux)
+              params.set<std::vector<VariableName>>("v") = {_reactants[i][non_electron_index]};
+
+            // params.set<std::vector<VariableName>>("v") = {"Ar*"};
+            params.set<std::string>("reaction") = _reaction[i];
+            params.set<Real>("threshold_energy") = energy_sign * _threshold_energy[i];
+            params.set<Real>("position_units") = _r_units;
+            _problem->addKernel(energy_kernel_name, "energy_kernel"+std::to_string(i)+"_"+_reaction[i], params);
+          }
+        }
       }
 
-      // Find any aux variables in the species list.
-      // If found, that index is skipped in the next loop.
       for (int j = 0; j < _species.size(); ++j)
       {
         iter = std::find(_reactants[i].begin(), _reactants[i].end(), _species[j]);
         index = std::distance(_reactants[i].begin(), iter);
 
+        // Find any aux variables in the species list.
+        // If found, this index is skipped.
         iter_aux = std::find(_aux_species.begin(), _aux_species.end(), _species[j]);
         if (iter_aux != _aux_species.end())
         {
