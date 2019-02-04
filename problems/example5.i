@@ -8,7 +8,19 @@
   [./e]
     family = SCALAR
     order = FIRST
-    initial_condition = 1e6
+    initial_condition = 1
+  [../]
+
+  [./Ar]
+    family = SCALAR
+    order = FIRST
+    initial_condition = 2.5e19
+  [../]
+
+  [./Ar+]
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   # Add two more scalar variables here
@@ -20,18 +32,29 @@
     variable = e
   [../]
 
+  [./dAr_dt]
+    type = ODETimeDerivative
+    variable = Ar
+  [../]
+
+  [./dAr+_dt]
+    type = ODETimeDerivative
+    variable = Ar+
+  [../]
+
   # Add two more scalar kernels here
 
 []
 
 [ChemicalReactions]
   [./ScalarNetwork]
-    species = ''
+    species = 'e Ar Ar+'
     file_location = 'Example5'
     sampling_variable = 'reduced_field'
 
     # Add reactions here
-    reactions = ''
+    reactions = 'e + Ar -> e + e + Ar+   : EEDF
+    e + Ar+ + Ar -> Ar + Ar : 1e-25'
 
    [../]
 []
@@ -50,8 +73,9 @@
   end_time = 0.25e-6
   dt = 1e-9
   solve_type = LINEAR
-  petsc_options_iname = '-snes_linesearch_type'
-  petsc_options_value = 'basic'
+  line_search = basic
+  # petsc_options_iname = '-snes_linesearch_type'
+  # petsc_options_value = 'basic'
 []
 
 [Preconditioning]

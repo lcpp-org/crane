@@ -39,7 +39,7 @@
   [./ScalarNetwork]
     species = 'x y'
     reaction_coefficient_format = 'rate'
-    scalar_problem = false
+
     reactions = 'x -> x + x             : 0.666667
                  x + y -> y             : 1.333333
                  y + x -> x + y + y     : 1
@@ -65,4 +65,8 @@
 
 [Outputs]
   csv = true
+  [./console]
+    type = Console
+    # execute_scalars_on = 'none'
+  [../]
 []

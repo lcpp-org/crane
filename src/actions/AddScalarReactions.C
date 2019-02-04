@@ -41,13 +41,24 @@ validParams<AddScalarReactions>()
 
   InputParameters params = validParams<ChemicalReactionsBase>();
   params.addParam<std::vector<std::string>>("aux_species", "Auxiliary species that are not included in nonlinear solve.");
+  params.addParam<bool>("use_bolsig", false, "Whether or not to use Bolsig+ (or bolos) to compute EEDF rate coefficients.");
+  params.addParam<std::string>("boltzmann_input_file", "The name of the input file being used for Bolsig+.");
+  params.addParam<bool>("output_table", false, "Whether or not to use an output table used for Bolsig+. If false, Bolsig+ should be run every timestep.");
+  params.addParam<std::vector<VariableName>>("reduced_field", "The name of the reduced_field variable. (Required for running Bolsig+.)");
+  params.addParam<std::vector<VariableName>>("neutral_density", "The name of the total neutral density AuxVariable. (Required for running Bolsig+.)");
+  params.addParam<std::vector<VariableName>>("ionization_fraction", "The name of the ionization fraction AuxVariable. (Not required for running Bolsig+, but may affect results negatively if not included.)");
+  params.addParam<std::vector<VariableName>>("mole_fractions", "The name of the mole fractions of the target species for Bolsig+.");
+  params.addParam<std::string>("table_variable", "The variable being used to tabulate rate and transport coefficients.");
+  params.addParam<int>("run_every", 1, "How many timesteps should pass before rerunning Bolsig+. (If output_table=false, this should be left to 1 so it runs every timestep.)");
+  params.addParam<Real>("conversion_factor", 1, "Convert the results by this multiplication factor. Bolsig+ calculates everything in SI units (m, m^2, m^3, etc.).");
   params.addClassDescription("This Action automatically adds the necessary kernels and materials for a reaction network.");
   return params;
 }
 
 AddScalarReactions::AddScalarReactions(InputParameters params)
   : ChemicalReactionsBase(params),
-    _aux_species(getParam<std::vector<std::string>>("aux_species"))
+    _aux_species(getParam<std::vector<std::string>>("aux_species")),
+    _use_bolsig(getParam<bool>("use_bolsig"))
 {
 }
 
@@ -86,6 +97,26 @@ AddScalarReactions::act()
 
   if (_current_task == "add_user_object")
   {
+    if (_use_bolsig)
+    {
+      // Here we add the UserObject controlling Bolsig+.
+      InputParameters params = _factory.getValidParams("BoltzmannSolverScalar");
+      params.set<std::string>("boltzmann_input_file") = getParam<std::string>("boltzmann_input_file");
+      params.set<bool>("output_table") = getParam<bool>("output_table");
+      params.set<std::string>("table_variable") = getParam<std::string>("table_variable");
+      params.set<ExecFlagEnum>("execute_on") = "INITIAL TIMESTEP_BEGIN";
+      params.set<std::vector<VariableName>>("reduced_field") = getParam<std::vector<VariableName>>("reduced_field");
+      params.set<std::vector<VariableName>>("neutral_density") = getParam<std::vector<VariableName>>("neutral_density");
+      params.set<std::vector<VariableName>>("ionization_fraction") = getParam<std::vector<VariableName>>("ionization_fraction");
+      params.set<std::vector<VariableName>>("mole_fractions") = getParam<std::vector<VariableName>>("mole_fractions");
+      params.set<std::vector<std::string>>("reaction_type") = _reaction_identifier;
+      params.set<std::vector<std::string>>("reaction_number") = {_eedf_reaction_number};
+      params.set<int>("n_steps") = getParam<int>("run_every");
+      params.set<Real>("conversion_factor") = getParam<Real>("conversion_factor");
+      params.set<std::vector<std::string>>("reaction_species") = _reaction_species;
+      _problem->addUserObject("BoltzmannSolverScalar", "bolsig", params);
+    }
+
     for (unsigned int i=0; i < _num_reactions; ++i)
     {
       // If this particular reaction is not reversible, skip to the next one.
@@ -113,13 +144,26 @@ AddScalarReactions::act()
     {
       if (_rate_type[i] == "EEDF" && !_superelastic_reaction[i])
       {
-        InputParameters params = _factory.getValidParams("DataReadScalar");
-        params.set<AuxVariableName>("variable") = {_aux_var_name[i]};
-        params.set<std::vector<VariableName>>("sampler") = {getParam<std::string>("sampling_variable")};
-        params.set<FileName>("property_file") = "reaction_"+_reaction[i]+".txt";
-        params.set<std::string>("file_location") = getParam<std::string>("file_location");
-        params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
-        _problem->addAuxScalarKernel("DataReadScalar", "aux_rate"+std::to_string(i), params);
+        if (_use_bolsig)
+        {
+          InputParameters params = _factory.getValidParams("EEDFRateCoefficientScalar");
+          params.set<UserObjectName>("rate_provider") = "bolsig";
+          params.set<AuxVariableName>("variable") = {_aux_var_name[i]};
+          params.set<bool>("sample_value") = true;
+          params.set<std::vector<VariableName>>("sample_variable") = {getParam<std::string>("sampling_variable")};
+          params.set<int>("reaction_number") = i;
+          _problem->addAuxScalarKernel("EEDFRateCoefficientScalar", "aux_rate"+std::to_string(i), params);
+        }
+        else
+        {
+          InputParameters params = _factory.getValidParams("DataReadScalar");
+          params.set<AuxVariableName>("variable") = {_aux_var_name[i]};
+          params.set<std::vector<VariableName>>("sampler") = {getParam<std::string>("sampling_variable")};
+          params.set<FileName>("property_file") = "reaction_"+_reaction[i]+".txt";
+          params.set<std::string>("file_location") = getParam<std::string>("file_location");
+          params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
+          _problem->addAuxScalarKernel("DataReadScalar", "aux_rate"+std::to_string(i), params);
+        }
       }
       else if (_rate_type[i] == "Equation" && !_superelastic_reaction[i])
       {
@@ -203,42 +247,58 @@ AddScalarReactions::act()
         reactant_kernel_name += "Log";
       }
 
-      if (_energy_change[i] && _rate_type[i] != "EEDF")
+      // if (_energy_change[i] && _rate_type[i] != "EEDF")
+      // {
+      if (_energy_change[i])
       {
-        int non_electron_index;
-        // find_other = std::find(_species.begin(), _species.end(), _reactants[i][v_index]) != _species.end();
-        // Coupled variable must be generalized to allow for 3 reactants
-        InputParameters params = _factory.getValidParams(energy_kernel_name);
-        params.set<NonlinearVariableName>("variable") = _electron_energy[0];
-        params.set<std::vector<VariableName>>("em") = {"em"};
-        // Find the non-electron reactant
-        for (unsigned int k=0; k<_reactants[i].size(); ++k)
+        Real energy_sign;
+        for (unsigned int t=0; t<_energy_variable.size(); ++t)
         {
-          if (_reactants[i][k] == "em")
-            continue;
-          else
-            non_electron_index = k;
-        }
-        // Check if value is tracked, and if so, add as coupled variable.
-        find_other = std::find(_species.begin(), _species.end(), _reactants[i][non_electron_index]) != _species.end();
-        find_aux = std::find(_aux_species.begin(), _aux_species.end(), _reactants[i][non_electron_index]) != _aux_species.end();
-        if (find_other || find_aux)
-          params.set<std::vector<VariableName>>("v") = {_reactants[i][non_electron_index]};
+          if (_rate_type[i] != "EEDF")
+          {
+            if (_electron_energy_term[t])
+              energy_sign = 1.0;
+            else
+              energy_sign = -1.0;
 
-        // params.set<std::vector<VariableName>>("v") = {"Ar*"};
-        params.set<std::string>("reaction") = _reaction[i];
-        params.set<Real>("threshold_energy") = _threshold_energy[i];
-        params.set<Real>("position_units") = _r_units;
-        _problem->addKernel(energy_kernel_name, "energy_kernel"+std::to_string(i)+"_"+_reaction[i], params);
+            int non_electron_index;
+            // find_other = std::find(_species.begin(), _species.end(), _reactants[i][v_index]) != _species.end();
+            // Coupled variable must be generalized to allow for 3 reactants
+            InputParameters params = _factory.getValidParams(energy_kernel_name);
+            // params.set<NonlinearVariableName>("variable") = _electron_energy[0];
+            params.set<NonlinearVariableName>("variable") = _energy_variable[t];
+            // params.set<std::vector<VariableName>>("em") = {"em"};
+            params.set<std::vector<VariableName>>("em") = {getParam<std::string>("electron_density")};
+            // Find the non-electron reactant
+            for (unsigned int k=0; k<_reactants[i].size(); ++k)
+            {
+              if (_reactants[i][k] == getParam<std::string>("electron_density"))
+                continue;
+              else
+                non_electron_index = k;
+            }
+            // Check if value is tracked, and if so, add as coupled variable.
+            find_other = std::find(_species.begin(), _species.end(), _reactants[i][non_electron_index]) != _species.end();
+            find_aux = std::find(_aux_species.begin(), _aux_species.end(), _reactants[i][non_electron_index]) != _aux_species.end();
+            if (find_other || find_aux)
+              params.set<std::vector<VariableName>>("v") = {_reactants[i][non_electron_index]};
+
+            // params.set<std::vector<VariableName>>("v") = {"Ar*"};
+            params.set<std::string>("reaction") = _reaction[i];
+            params.set<Real>("threshold_energy") = energy_sign * _threshold_energy[i];
+            params.set<Real>("position_units") = _r_units;
+            _problem->addKernel(energy_kernel_name, "energy_kernel"+std::to_string(i)+"_"+_reaction[i], params);
+          }
+        }
       }
 
-      // Find any aux variables in the species list.
-      // If found, that index is skipped in the next loop.
       for (int j = 0; j < _species.size(); ++j)
       {
         iter = std::find(_reactants[i].begin(), _reactants[i].end(), _species[j]);
         index = std::distance(_reactants[i].begin(), iter);
 
+        // Find any aux variables in the species list.
+        // If found, this index is skipped.
         iter_aux = std::find(_aux_species.begin(), _aux_species.end(), _species[j]);
         if (iter_aux != _aux_species.end())
         {

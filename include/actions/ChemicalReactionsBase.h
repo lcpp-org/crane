@@ -59,6 +59,10 @@ protected:
   std::vector<int> _num_reactants;
   std::vector<int> _num_products;
   std::vector<std::string> _rate_equation_string;
+  std::vector<std::string> _reaction_identifier;
+  std::vector<std::string> _eedf_reaction_number;
+  std::vector<std::string> _reaction_species;
+  int _bolsig_reaction;
   /// Number of reactions
   unsigned int _num_reactions;
   std::vector<bool> _electron_energy_term;

@@ -15,6 +15,7 @@
     family = SCALAR
     order = FIRST
     initial_condition = 2.4474637681159418e+19
+    scaling = 1e-10
   [../]
 
   [./N2A]
@@ -27,6 +28,7 @@
     family = SCALAR
     order = FIRST
     initial_condition = 0.0
+    scaling = 1e-5
   [../]
 
   [./N2a1]
@@ -39,6 +41,7 @@
     family = SCALAR
     order = FIRST
     initial_condition = 0.0
+    scaling = 1e-5
   [../]
 
   [./N+]
@@ -233,18 +236,19 @@
 [Executioner]
   type = Transient
   end_time = 2.5e-3
-  solve_type = LINEAR
-  dtmin = 1e-20
-  dtmax = 1e-5
+  solve_type = NEWTON
+  # scheme = bdf2
+  # dtmin = 1e-20
+  # dtmax = 1e-5
   petsc_options_iname = '-snes_linesearch_type'
   petsc_options_value = 'l2'
-
-  [./TimeStepper]
-    type = CSVTimeSequenceStepper
-    file_name = 'Example4/reduced_field.txt'
-    delimiter = ' '
-    column_index = 0
-  [../]
+  dt = 1e-6
+  # [./TimeStepper]
+  #   type = CSVTimeSequenceStepper
+  #   file_name = 'Example4/reduced_field.txt'
+  #   delimiter = ' '
+  #   column_index = 0
+  # [../]
 []
 
 [Preconditioning]
