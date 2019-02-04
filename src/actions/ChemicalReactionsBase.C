@@ -109,8 +109,11 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   size_t pos_end;
   size_t eq_start;
   size_t eq_end;
+  size_t rxn_identifier_start;
+  size_t rxn_identifier_end;
   int counter;
   counter = 0;
+  _bolsig_reaction = 0;
   while (std::getline(iss >> std::ws, token)) // splits by \n character (default) and ignores leading whitespace
   {
     // Define check for change of energy
@@ -125,8 +128,21 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     eq_start = token.find('{');
     eq_end = token.find('}');
 
+    // Parentheses enclose the reaction identifier (ionization, excitation, de-excitation, etc.)
+    // Note that both [] and () will never be used, since energy changes are included in the cross section data
+    rxn_identifier_start = token.find('(');
+    rxn_identifier_end = token.find(')');
+
     _reaction.push_back(token.substr(0, pos)); // Stores reactions
-    rate_coefficient_string.push_back(token.substr(pos+1, pos_start - (pos+1)));
+
+    if (rxn_identifier_start != std::string::npos)
+    {
+      rate_coefficient_string.push_back(token.substr(pos+1, rxn_identifier_start - (pos+1)));
+    }
+    else
+    {
+      rate_coefficient_string.push_back(token.substr(pos+1, pos_start - (pos+1)));
+    }
 
     trim(_reaction[counter]);
     trim(rate_coefficient_string[counter]);
@@ -152,9 +168,19 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
       _rate_equation_string.push_back("NONE");
       _rate_equation.push_back(false);
     }
+
+    if (rxn_identifier_start != std::string::npos && !_rate_equation[counter])
+    {
+      _reaction_identifier.push_back(token.substr(rxn_identifier_start + 1, rxn_identifier_end-rxn_identifier_start-1));
+      _eedf_reaction_number.push_back(std::to_string(counter));
+      _bolsig_reaction += 1; // Counts the number of bolsig reactions (this is the only instance in which a reaction identifier is used)
+    }
+    // else
+    // {
+      // _reaction_identifier.push_back("NONE");
+    // }
     counter += 1;
   }
-
   _num_reactions = _reaction.size();
   _rate_coefficient.resize(_num_reactions, 0);
   _threshold_energy.resize(_num_reactions, 0);
@@ -289,6 +315,14 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
         _products[i].push_back(token);
       }
       counter = counter + 1;
+    }
+
+    for (unsigned int k = 0; k < _reactants[i].size(); ++k)
+    {
+      if (_reactants[i][k] != getParam<std::string>("electron_density") && _rate_type[i] == "EEDF")
+      {
+        _reaction_species.push_back(_reactants[i][k]);
+      }
     }
 
     _num_reactants.push_back(_reactants[i].size());
