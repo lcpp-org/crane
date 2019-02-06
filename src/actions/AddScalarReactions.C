@@ -44,6 +44,7 @@ validParams<AddScalarReactions>()
   params.addParam<bool>("use_bolsig", false, "Whether or not to use Bolsig+ (or bolos) to compute EEDF rate coefficients.");
   params.addParam<std::string>("boltzmann_input_file", "The name of the input file being used for Bolsig+.");
   params.addParam<bool>("output_table", false, "Whether or not to use an output table used for Bolsig+. If false, Bolsig+ should be run every timestep.");
+  params.addParam<std::string>("cross_section_data", "The file name of the cross section data used for Bolsig+.");
   params.addParam<std::vector<VariableName>>("reduced_field", "The name of the reduced_field variable. (Required for running Bolsig+.)");
   params.addParam<std::vector<VariableName>>("neutral_density", "The name of the total neutral density AuxVariable. (Required for running Bolsig+.)");
   params.addParam<std::vector<VariableName>>("ionization_fraction", "The name of the ionization fraction AuxVariable. (Not required for running Bolsig+, but may affect results negatively if not included.)");
@@ -110,10 +111,12 @@ AddScalarReactions::act()
       params.set<std::vector<VariableName>>("ionization_fraction") = getParam<std::vector<VariableName>>("ionization_fraction");
       params.set<std::vector<VariableName>>("mole_fractions") = getParam<std::vector<VariableName>>("mole_fractions");
       params.set<std::vector<std::string>>("reaction_type") = _reaction_identifier;
-      params.set<std::vector<std::string>>("reaction_number") = {_eedf_reaction_number};
+      params.set<std::vector<int>>("reaction_number") = {_eedf_reaction_number};
+      params.set<int>("number_reactions") = _eedf_reaction_counter;
       params.set<int>("n_steps") = getParam<int>("run_every");
       params.set<Real>("conversion_factor") = getParam<Real>("conversion_factor");
       params.set<std::vector<std::string>>("reaction_species") = _reaction_species;
+      params.set<std::string>("cross_section_data") = getParam<std::string>("cross_section_data");
       _problem->addUserObject("BoltzmannSolverScalar", "bolsig", params);
     }
 
@@ -151,7 +154,8 @@ AddScalarReactions::act()
           params.set<AuxVariableName>("variable") = {_aux_var_name[i]};
           params.set<bool>("sample_value") = true;
           params.set<std::vector<VariableName>>("sample_variable") = {getParam<std::string>("sampling_variable")};
-          params.set<int>("reaction_number") = i;
+          // params.set<int>("reaction_number") = i;
+          params.set<int>("reaction_number") = _eedf_reaction_number[i];
           _problem->addAuxScalarKernel("EEDFRateCoefficientScalar", "aux_rate"+std::to_string(i), params);
         }
         else

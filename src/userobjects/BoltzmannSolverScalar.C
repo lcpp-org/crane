@@ -29,16 +29,17 @@ validParams<BoltzmannSolverScalar>()
   params.addCoupledVar("reduced_field", "The Variable/AuxVariable representing the reduced field. (Optional.)");
   params.addCoupledVar("neutral_density", "The neutral density of the plasma (background + excited states).");
   params.addCoupledVar("ionization_fraction", "The AuxVariable representing the ionization fraction of the plasma. (Currently: n_e / n_tot)");
+  params.addRequiredParam<std::string>("cross_section_data", "The name of the cross section file that Bolsig+ will use.");
   params.addRequiredParam<std::string>("boltzmann_input_file", "The name of the input file to Bolsig+.");
   params.addRequiredParam<std::vector<std::string>>("reaction_species", "The name of the species.");
   params.addRequiredParam<std::vector<std::string>>("reaction_type", "The type of reaction for the corresponding reaction_species.");
-  params.addRequiredParam<std::vector<std::string>>("reaction_number", "An array containing the number of the reaction in the list. (e.g. 1, 3, 4)");
+  params.addRequiredParam<std::vector<int>>("reaction_number", "An array containing the number of the reaction in the list. (e.g. 1, 3, 4)");
+  params.addRequiredParam<int>("number_reactions", "The number of reactions being computed by Bolsig+.");
   params.addParam<Real>("conversion_factor", 1.0, "Units of rate coefficients output by Bolsig+ default to m^3/s. This will be used to convert those values to your desired units.");
   params.addParam<bool>("output_table", false,
     "Whether or not the rate coefficients should be output as a table. If False, single values are output.");
   params.addParam<std::string>("table_variable", "The variable being used to tabulate rate coefficient data. Options: reduced_field or electron_temperature.");
   params.addParam<int>("n_steps", 1, "Bolsig+ will be updated and run every n_steps. Default: 1 (runs every timestep).");
-  // params.addCoupledVar("")
   return params;
 }
 
@@ -58,6 +59,7 @@ BoltzmannSolverScalar::BoltzmannSolverScalar(const InputParameters & parameters)
   _nargs(coupledScalarComponents("mole_fractions")),
   _args(_nargs),
   _fractions_string(_nargs),
+  _cross_sections(getParam<std::string>("cross_section_data")),
   _reduced_field(coupledScalarValue("reduced_field")),
   _plasma_density(coupledScalarValue("neutral_density")),
   _ionization_fraction(coupledScalarValue("ionization_fraction")),
@@ -65,10 +67,29 @@ BoltzmannSolverScalar::BoltzmannSolverScalar(const InputParameters & parameters)
   _reaction_type(getParam<std::vector<std::string>>("reaction_type")),
   _output_table(getParam<bool>("output_table")),
   _table_variable(getParam<std::string>("table_variable")),
-  _reaction_number(getParam<std::vector<std::string>>("reaction_number")),
+  _reaction_number(getParam<std::vector<int>>("reaction_number")),
+  _num_reactions(getParam<int>("number_reactions")),
   _n_steps(getParam<int>("n_steps")),
   _conversion_factor(getParam<Real>("conversion_factor"))
 {
+  // First append the .dat file extension to the end of the input, output, and cross section files
+  std::string output_file;
+
+  _cross_sections = _cross_sections+".dat";
+  _output_file_name = _file_name+"_out.dat";
+  _file_name = _file_name+".dat";
+
+  // Now edit the input file with cross section data
+  std::string edit_command;
+  edit_command = "sed -e \"9s/.*/"+_cross_sections+" \\/ File/\" -i \'\' " + _file_name;
+  const char *command = edit_command.c_str();
+  system(command);
+
+  // Next the output file is named ("input_file_name_out")
+  edit_command = "sed -e \"54s/.*/"+_output_file_name+" \\/   File /\" -i \'\' " + _file_name;
+  command = edit_command.c_str();
+  system(command);
+
   int line_counter;
   std::string line;
   for (int i=0; i<_nargs;++i)
@@ -107,13 +128,11 @@ BoltzmannSolverScalar::BoltzmannSolverScalar(const InputParameters & parameters)
       input_file >> _table_number;
   }
 
-  _num_reactions = _reaction_number.size();
+  // _num_reactions = _reaction_number.size();
   // Now we find the line numbers in the output file
-  _reaction_line.resize(_reaction_number.size());  // Creates a vector of integers to store the line numbers
-  _coefficient_interpolation.resize(_reaction_number.size());
-  // _x_val.resize(_reaction_number.size());
-  _rate_coefficient.resize(_reaction_number.size());
-  // std::ifstream file("example3_bolsig_out.dat");
+  _reaction_line.resize(_num_reactions);  // Creates a vector of integers to store the line numbers
+  _coefficient_interpolation.resize(_num_reactions);
+  _rate_coefficient.resize(_num_reactions);
   if (_output_table)
   {
     _x_val.resize(_table_number);
@@ -144,7 +163,7 @@ BoltzmannSolverScalar::BoltzmannSolverScalar(const InputParameters & parameters)
     // int line_counter;
     for (int i=0; i<_num_reactions; ++i)
     {
-      std::ifstream file("example3_bolsig_out.dat");
+      std::ifstream file(_output_file_name);
       line_counter = 0;
       current_reaction = _reaction_species[i] + "    " + _reaction_type[i];
       while (getline(file,line))
@@ -164,7 +183,7 @@ BoltzmannSolverScalar::BoltzmannSolverScalar(const InputParameters & parameters)
     }
 
     line_counter = 0;
-    std::ifstream file("example3_bolsig_out.dat");
+    std::ifstream file(_output_file_name);
     while (getline(file,line))
     {
       line_counter++;
@@ -327,7 +346,7 @@ BoltzmannSolverScalar::execute()
     std::cout << "\nRunning BOLSIG+..." << std::endl;
     system(command);
     std::cout << "DONE" << std::endl;
-    std::fstream file("example3_bolsig_out.dat");
+    std::fstream file(_output_file_name);
 
     if (_output_table)
     {

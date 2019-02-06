@@ -47,6 +47,7 @@ protected:
   std::size_t _nargs;
   std::vector<VariableValue *> _args;
   std::vector<std::stringstream> _fractions_string;
+  std::string _cross_sections;
   const VariableValue & _reduced_field;
   const VariableValue & _plasma_density;
   const VariableValue & _ionization_fraction;
@@ -54,14 +55,15 @@ protected:
   std::vector<std::string> _reaction_type;
   std::string _bolsig_run;
   bool _output_table;
+  std::string _output_file_name;
   std::string _table_variable;
   std::vector<Real> _x_val;
   std::vector<std::vector<Real>> _rate_coefficient;
-  std::vector<std::string> _reaction_number;
+  std::vector<int> _reaction_number;
+  int _num_reactions;
   int _n_steps;
   Real _conversion_factor;
   // int _table_size;
-  int _num_reactions;
   std::vector<int> _reaction_line;
   int _mobility_line;
   int _diffusivity_line;
