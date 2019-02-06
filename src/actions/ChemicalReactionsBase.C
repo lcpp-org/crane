@@ -320,10 +320,21 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
 
     for (unsigned int k = 0; k < _reactants[i].size(); ++k)
     {
-      if (_reactants[i][k] != getParam<std::string>("electron_density") && _rate_type[i] == "EEDF")
+      if (_rate_type[i] == "EEDF")
       {
-        _reaction_species.push_back(_reactants[i][k]);
+        if (!isParamValid("electron_density"))
+        {
+          mooseError("EEDF reaction selected, but electron_density is not set! Please denote the electron species.");
+        }
+        else
+        {
+          if (_reactants[i][k] != getParam<std::string>("electron_density"))
+          {
+            _reaction_species.push_back(_reactants[i][k]);
+          }
+        }
       }
+
     }
 
     _num_reactants.push_back(_reactants[i].size());
