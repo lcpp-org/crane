@@ -113,7 +113,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   size_t rxn_identifier_end;
   int counter;
   counter = 0;
-  _bolsig_reaction = 0;
+  _eedf_reaction_counter = 0;
   while (std::getline(iss >> std::ws, token)) // splits by \n character (default) and ignores leading whitespace
   {
     // Define check for change of energy
@@ -172,13 +172,14 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     if (rxn_identifier_start != std::string::npos && !_rate_equation[counter])
     {
       _reaction_identifier.push_back(token.substr(rxn_identifier_start + 1, rxn_identifier_end-rxn_identifier_start-1));
-      _eedf_reaction_number.push_back(std::to_string(counter));
-      _bolsig_reaction += 1; // Counts the number of bolsig reactions (this is the only instance in which a reaction identifier is used)
+      _eedf_reaction_number.push_back(_eedf_reaction_counter);
+      _eedf_reaction_counter += 1; // Counts the number of EEDF reactions (this is the only instance in which a reaction identifier is used)
     }
-    // else
-    // {
+    else
+    {
       // _reaction_identifier.push_back("NONE");
-    // }
+      _eedf_reaction_number.push_back(123456);
+    }
     counter += 1;
   }
   _num_reactions = _reaction.size();
