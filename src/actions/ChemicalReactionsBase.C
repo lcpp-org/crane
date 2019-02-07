@@ -42,6 +42,7 @@ validParams<ChemicalReactionsBase>()
   MooseEnum orders(AddVariableAction::getNonlinearVariableOrders());
 
   InputParameters params = validParams<AddVariableAction>();
+  params.addParam<bool>("use_bolsig", false, "Whether or not to use Bolsig+ (or bolos) to compute EEDF rate coefficients.");
   params.addRequiredParam<std::vector<NonlinearVariableName>>(
     "species", "List of (tracked) species included in reactions (both products and reactants)");
   params.addParam<std::vector<Real>>("reaction_coefficient", "The reaction coefficients.");
@@ -94,7 +95,8 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     _input_reactions(getParam<std::string>("reactions")),
     _r_units(getParam<Real>("position_units")),
     _sampling_variable(getParam<std::string>("sampling_variable")),
-    _use_log(getParam<bool>("use_log"))
+    _use_log(getParam<bool>("use_log")),
+    _use_bolsig(getParam<bool>("use_bolsig"))
     // _use_moles(getParam<bool>("use_moles"))
 {
   std::istringstream iss(_input_reactions);
@@ -320,7 +322,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
 
     for (unsigned int k = 0; k < _reactants[i].size(); ++k)
     {
-      if (_rate_type[i] == "EEDF")
+      if (_rate_type[i] == "EEDF" && _use_bolsig)
       {
         if (!isParamValid("electron_density"))
         {

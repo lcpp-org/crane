@@ -21,7 +21,6 @@ public:
 
 protected:
   std::vector<std::string> _aux_species;
-  bool _use_bolsig;
 
 
 };

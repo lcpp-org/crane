@@ -67,6 +67,7 @@ protected:
   unsigned int _num_reactions;
   std::vector<bool> _electron_energy_term;
   std::vector<NonlinearVariableName> _energy_variable;
+  bool _use_bolsig;
 };
 
 #endif // CHEMICALREACTIONSBASE_H
