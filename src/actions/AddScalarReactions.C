@@ -41,7 +41,6 @@ validParams<AddScalarReactions>()
 
   InputParameters params = validParams<ChemicalReactionsBase>();
   params.addParam<std::vector<std::string>>("aux_species", "Auxiliary species that are not included in nonlinear solve.");
-  params.addParam<bool>("use_bolsig", false, "Whether or not to use Bolsig+ (or bolos) to compute EEDF rate coefficients.");
   params.addParam<std::string>("boltzmann_input_file", "The name of the input file being used for Bolsig+.");
   params.addParam<bool>("output_table", false, "Whether or not to use an output table used for Bolsig+. If false, Bolsig+ should be run every timestep.");
   params.addParam<std::string>("cross_section_data", "The file name of the cross section data used for Bolsig+.");
@@ -58,8 +57,8 @@ validParams<AddScalarReactions>()
 
 AddScalarReactions::AddScalarReactions(InputParameters params)
   : ChemicalReactionsBase(params),
-    _aux_species(getParam<std::vector<std::string>>("aux_species")),
-    _use_bolsig(getParam<bool>("use_bolsig"))
+    _aux_species(getParam<std::vector<std::string>>("aux_species"))
+    // _use_bolsig(getParam<bool>("use_bolsig"))
 {
 }
 
