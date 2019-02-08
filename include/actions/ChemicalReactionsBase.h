@@ -60,6 +60,7 @@ protected:
   std::vector<int> _num_products;
   std::vector<std::string> _rate_equation_string;
   std::vector<std::string> _reaction_identifier;
+  std::vector<bool> _is_identified;
   std::vector<int> _eedf_reaction_number;
   std::vector<std::string> _reaction_species;
   int _eedf_reaction_counter;

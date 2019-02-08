@@ -162,7 +162,14 @@ AddScalarReactions::act()
           InputParameters params = _factory.getValidParams("DataReadScalar");
           params.set<AuxVariableName>("variable") = {_aux_var_name[i]};
           params.set<std::vector<VariableName>>("sampler") = {getParam<std::string>("sampling_variable")};
-          params.set<FileName>("property_file") = "reaction_"+_reaction[i]+".txt";
+          if (_is_identified[i])
+          {
+            params.set<FileName>("property_file") = _reaction_identifier[_eedf_reaction_number[i]];
+          }
+          else
+          {
+            params.set<FileName>("property_file") = "reaction_"+_reaction[i]+".txt";
+          }
           params.set<std::string>("file_location") = getParam<std::string>("file_location");
           params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
           _problem->addAuxScalarKernel("DataReadScalar", "aux_rate"+std::to_string(i), params);

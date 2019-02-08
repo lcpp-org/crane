@@ -173,12 +173,14 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
 
     if (rxn_identifier_start != std::string::npos && !_rate_equation[counter])
     {
+      _is_identified.push_back(true);
       _reaction_identifier.push_back(token.substr(rxn_identifier_start + 1, rxn_identifier_end-rxn_identifier_start-1));
       _eedf_reaction_number.push_back(_eedf_reaction_counter);
       _eedf_reaction_counter += 1; // Counts the number of EEDF reactions (this is the only instance in which a reaction identifier is used)
     }
     else
     {
+      _is_identified.push_back(false);
       // _reaction_identifier.push_back("NONE");
       _eedf_reaction_number.push_back(123456);
     }
