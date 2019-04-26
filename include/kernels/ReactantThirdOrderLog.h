@@ -31,7 +31,7 @@ public:
 protected:
   virtual Real computeQpResidual();
   virtual Real computeQpJacobian();
-  virtual Real computeQpOffDiagJacobian(unsigned int jvar);
+  virtual Real computeQpOffDiagJacobian();
 
   // The reaction coefficient
   // MooseVariable & _coupled_var_A;

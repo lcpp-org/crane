@@ -119,7 +119,7 @@ ReactantThirdOrderLog::computeQpJacobian()
 }
 
 Real
-ReactantThirdOrderLog::computeQpOffDiagJacobian(unsigned int jvar)
+ReactantThirdOrderLog::computeQpOffDiagJacobian()
 {
   Real mult1,mult2,u_mult,power;
   if (_v_coupled)

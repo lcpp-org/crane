@@ -56,7 +56,7 @@ ProductFirstOrder::computeQpJacobian()
 }
 
 Real
-ProductFirstOrder::computeQpOffDiagJacobian(unsigned int jvar)
+ProductFirstOrder::computeQpOffDiagJacobian()
 {
   if (isCoupled("v"))
   {

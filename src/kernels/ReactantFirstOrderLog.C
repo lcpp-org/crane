@@ -46,7 +46,7 @@ ReactantFirstOrderLog::computeQpJacobian()
 }
 
 Real
-ReactantFirstOrderLog::computeQpOffDiagJacobian(unsigned int jvar)
+ReactantFirstOrderLog::computeQpOffDiagJacobian()
 {
   return 0.0;
 }

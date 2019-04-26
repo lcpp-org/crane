@@ -74,7 +74,7 @@ Product3BodyScalarLog::computeQpJacobian()
 {
   Real mult1, mult2, mult3;
   Real power, eq_u_mult, gas_mult;
-  Real rate_constant;
+
   power = 0.0;
   eq_u_mult = 0.0;
   gas_mult = 0.0;

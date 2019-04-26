@@ -66,11 +66,7 @@ Real
 Reactant3BodyScalar::computeQpJacobian()
 {
   Real mult1, mult2;
-  Real power, eq_u_mult, gas_mult;
   Real rate_constant;
-  // power = 0.0;
-  // eq_u_mult = 1.0;
-  // gas_mult = 1.0;
 
   if (isCoupledScalar("v"))
     mult1 = _v[_i];

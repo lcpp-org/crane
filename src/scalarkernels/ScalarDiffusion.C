@@ -30,7 +30,7 @@ ScalarDiffusion::computeQpJacobian()
 }
 
 Real
-ScalarDiffusion::computeQpOffDiagJacobian(unsigned int jvar)
+ScalarDiffusion::computeQpOffDiagJacobian()
 {
   return 0;
 }
