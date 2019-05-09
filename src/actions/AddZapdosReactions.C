@@ -362,6 +362,8 @@ AddZapdosReactions::act()
             else
             {
               InputParameters params = _factory.getValidParams(energy_kernel_name);
+              if (find_other || find_aux)
+                params.set<std::vector<VariableName>>("v") = {_reactants[i][non_electron_index]};
               params.set<NonlinearVariableName>("variable") = _electron_energy[0];
               params.set<std::vector<VariableName>>("em") = {"em"};
               if (_coefficient_format == "townsend")
@@ -463,7 +465,7 @@ AddZapdosReactions::act()
               params.set<NonlinearVariableName>("variable") = _species[j];
               params.set<Real>("coefficient") = _species_count[i][j];
               params.set<std::string>("reaction") = _reaction[i];
-              params.set<std::vector<VariableName>>("energy") = getParam<std::vector<VariableName>>("electron_energy");
+              params.set<std::vector<VariableName>>("energy") = {_electron_energy[0]};
               if (find_other && !find_aux)
               {
                 for (unsigned int k=0; k<reactant_indices.size(); ++k)
@@ -545,7 +547,7 @@ AddZapdosReactions::act()
               {
                 if (_reactants[i][k] == getParam<std::string>("electron_density"))
                 {
-                  params.set<std::vector<VariableName>>("electron") = {getParam<std::string>("electron_density")};
+                  params.set<std::vector<VariableName>>("electron") = {_electron_energy[0]};
                   if (_species[j] == _reactants[i][k])
                     params.set<bool>("_electron_eq_u") = true;
                 }
