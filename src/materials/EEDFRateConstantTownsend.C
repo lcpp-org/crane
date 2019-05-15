@@ -56,6 +56,8 @@ EEDFRateConstantTownsend::EEDFRateConstantTownsend(const InputParameters & param
 {
   if (isCoupled("target_species") && !_is_target_aux)
     _target_id = coupled("target_species");
+  std::vector<Real> temp_x;
+  std::vector<Real> temp_y;
   std::vector<Real> actual_mean_energy;
   std::vector<Real> rate_coefficient;
   std::string file_name = getParam<std::string>("file_location") + "/" + getParam<FileName>("property_file");
@@ -68,15 +70,50 @@ EEDFRateConstantTownsend::EEDFRateConstantTownsend(const InputParameters & param
   {
     while (myfile >> value)
     {
-      actual_mean_energy.push_back(value);
+      temp_x.push_back(value);
       myfile >> value;
-      rate_coefficient.push_back(value);
+      temp_y.push_back(value);
+
+      actual_mean_energy.push_back(1);
+      rate_coefficient.push_back(1);
     }
     myfile.close();
   }
   else
     mooseError("Unable to open file");
 
+  // if (std::is_sorted(actual_mean_energy.begin(), actual_mean_energy.end())) {
+  //   std::cout << "TRUE" << std::endl;
+  // }
+  // else
+  // {
+  //   std::cout << "FALSE" << std::endl;
+  // }
+  // for (int i = 45; i < 75; ++i)
+  // {
+  //   std::cout << i << ", " << actual_mean_energy[i] << std::endl;
+  // }
+
+  // Ensure that arrays are sorted (should be done externally or by Bolsig+ wrapper; this is not permanent)
+  std::vector<size_t> idx(actual_mean_energy.size());
+  std::iota(idx.begin(), idx.end(), 0);
+  // std::sort(idx.begin(), idx.end(), [&actual_mean_energy](size_t i1, size_t i2){return actual_mean_energy[i1] < actual_mean_energy[i2];});
+  std::sort(idx.begin(), idx.end(), [&temp_x](size_t i1, size_t i2){return temp_x[i1] < temp_x[i2];});
+  for (int i = 0; i < idx.size(); ++i)
+  {
+    // actual_mean_energy[i] = actual_mean_energy[idx[i]];
+    actual_mean_energy[i] = temp_x[idx[i]];
+    rate_coefficient[i] = temp_y[idx[i]];
+    // std::cout << i << ", " << actual_mean_energy[i] << std::endl;
+  }
+  // std::sort(actual_mean_energy.begin(), actual_mean_energy.end());
+  // std::cout << "Sorted: " << std::endl;
+  // for (int i = 45; i < 75; ++i)
+  // {
+  //
+  //   // std::cout << i << ", " << idx[i] << ", " << actual_mean_energy[i] << std::endl;
+  //   std::cout << actual_mean_energy[i] << ", " << actual_mean_energy[idx[i]] << std::endl;
+  // }
   _coefficient_interpolation.setData(actual_mean_energy, rate_coefficient);
 
   if (_coefficient_format != "rate" && _coefficient_format != "townsend")

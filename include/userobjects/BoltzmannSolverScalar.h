@@ -62,6 +62,7 @@ protected:
   std::vector<int> _reaction_number;
   int _num_reactions;
   int _n_steps;
+  Real _cutoff_time;
   Real _conversion_factor;
   // int _table_size;
   std::vector<int> _reaction_line;

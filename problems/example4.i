@@ -9,6 +9,7 @@
     family = SCALAR
     order = FIRST
     initial_condition = 0.0
+    scaling = 1e-5
   [../]
 
   [./N2]
@@ -22,6 +23,7 @@
     family = SCALAR
     order = FIRST
     initial_condition = 0.0
+    scaling = 1e-8
   [../]
 
   [./N2B]
@@ -48,24 +50,28 @@
     family = SCALAR
     order = FIRST
     initial_condition = 0.0
+    scaling = 1e-5
   [../]
 
   [./N2+]
     family = SCALAR
     order = FIRST
     initial_condition = 0.0
+    scaling = 1e-5
   [../]
 
   [./N3+]
     family = SCALAR
     order = FIRST
     initial_condition = 0.0
+    scaling = 1e-5
   [../]
 
   [./N4+]
     family = SCALAR
     order = FIRST
     initial_condition = 0.0
+    scaling = 1e-5
   [../]
 []
 
@@ -210,6 +216,7 @@
     scale_factor = 1.5e-1
     sampler = reduced_field
     property_file = 'Example4/electron_temperature.txt'
+    # execute_on = 'TIMESTEP_BEGIN'
     execute_on = 'TIMESTEP_BEGIN'
   [../]
 
@@ -229,7 +236,7 @@
     constant_expressions = '300'
     args = 'reduced_field'
     function = 'Tgas+(0.12*(reduced_field*1e21)^2)'
-    execute_on = 'INITIAL TIMESTEP_END'
+    execute_on = 'INITIAL NONLINEAR'
   [../]
 []
 
@@ -237,27 +244,47 @@
   type = Transient
   end_time = 2.5e-3
   solve_type = NEWTON
-  # scheme = bdf2
+  # scheme = crank-nicolson
+  # scheme = newmark-beta
   # dtmin = 1e-20
   # dtmax = 1e-5
-  petsc_options_iname = '-snes_linesearch_type'
-  petsc_options_value = 'l2'
-  dt = 1e-6
+  # petsc_options_iname = '-snes_linesearch_type'
+  # petsc_options_value = 'l2'
+  # petsc_options_iname = '-pc_type -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda'
+  # petsc_options_value = 'lu NONZERO 1.e-10 preonly 1e-3'
+  line_search = basic
+  nl_rel_tol = 1e-5
+  # nl_abs_tol = 7e-5
+  # dt = 1e-5
+  dtmax = 1e-5
   # [./TimeStepper]
   #   type = CSVTimeSequenceStepper
   #   file_name = 'Example4/reduced_field.txt'
   #   delimiter = ' '
   #   column_index = 0
   # [../]
+  [./TimeStepper]
+    type = IterationAdaptiveDT
+    cutback_factor = 0.4
+    dt = 1e-8
+    growth_factor = 1.2
+    optimal_iterations = 15
+  [../]
 []
 
 [Preconditioning]
   [./smp]
     type = SMP
     full = true
+    # ksp_norm = none
   [../]
 []
 
 [Outputs]
   csv = true
+  [./console]
+    type = Console
+    execute_scalars_on = 'none'
+    # execute_on = 'initial'
+  [../]
 []

@@ -42,9 +42,19 @@ EEDFRateCoefficientScalar::computeValue()
 {
   // std::cout << _data.test(0) << std::endl;
   // return 0.0;
+  Real val;
   if (_sample_value)
   {
-    return _data.coefficient_sample(_reaction_number, _sampler_var[0]/1e-21);
+    val = _data.coefficient_sample(_reaction_number, _sampler_var[0]/1e-21);
+    if (val < 0.0)
+    {
+      return 0.0;
+    }
+    else
+    {
+      return val;
+    }
+    // return _data.coefficient_sample(_reaction_number, _sampler_var[0]/1e-21);
   }
   else
   {
