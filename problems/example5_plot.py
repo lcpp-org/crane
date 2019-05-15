@@ -2,7 +2,8 @@ import numpy as np
 import matplotlib.pylab as plt
 
 # Output CSV file name
-file = 'example5_scale_out.csv'
+# file = 'example5_scale_out.csv'
+file = 'example5_out.csv'
 
 data = np.genfromtxt(file, dtype=float, delimiter=',', skip_header=1)
 

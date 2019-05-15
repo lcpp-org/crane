@@ -50,6 +50,7 @@ validParams<AddScalarReactions>()
   params.addParam<std::vector<VariableName>>("mole_fractions", "The name of the mole fractions of the target species for Bolsig+.");
   params.addParam<std::string>("table_variable", "The variable being used to tabulate rate and transport coefficients.");
   params.addParam<int>("run_every", 1, "How many timesteps should pass before rerunning Bolsig+. (If output_table=false, this should be left to 1 so it runs every timestep.)");
+  params.addParam<Real>("cutoff_time", -1, "After this simulation time has been reached, Bolsig+ will no longer be run.");
   params.addParam<Real>("conversion_factor", 1, "Convert the results by this multiplication factor. Bolsig+ calculates everything in SI units (m, m^2, m^3, etc.).");
   params.addClassDescription("This Action automatically adds the necessary kernels and materials for a reaction network.");
   return params;
@@ -113,6 +114,7 @@ AddScalarReactions::act()
       params.set<std::vector<int>>("reaction_number") = {_eedf_reaction_number};
       params.set<int>("number_reactions") = _eedf_reaction_counter;
       params.set<int>("n_steps") = getParam<int>("run_every");
+      params.set<Real>("cutoff_time") = getParam<Real>("cutoff_time");
       params.set<Real>("conversion_factor") = getParam<Real>("conversion_factor");
       params.set<std::vector<std::string>>("reaction_species") = _reaction_species;
       params.set<std::string>("cross_section_data") = getParam<std::string>("cross_section_data");

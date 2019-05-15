@@ -40,6 +40,7 @@ validParams<BoltzmannSolverScalar>()
     "Whether or not the rate coefficients should be output as a table. If False, single values are output.");
   params.addParam<std::string>("table_variable", "The variable being used to tabulate rate coefficient data. Options: reduced_field or electron_temperature.");
   params.addParam<int>("n_steps", 1, "Bolsig+ will be updated and run every n_steps. Default: 1 (runs every timestep).");
+  params.addParam<Real>("cutoff_time", -1.0, "If the simulation time is over this value, BOLSIG+ will not run.");
   return params;
 }
 
@@ -70,6 +71,7 @@ BoltzmannSolverScalar::BoltzmannSolverScalar(const InputParameters & parameters)
   _reaction_number(getParam<std::vector<int>>("reaction_number")),
   _num_reactions(getParam<int>("number_reactions")),
   _n_steps(getParam<int>("n_steps")),
+  _cutoff_time(getParam<Real>("cutoff_time")),
   _conversion_factor(getParam<Real>("conversion_factor"))
 {
   // First append the .dat file extension to the end of the input, output, and cross section files
@@ -281,7 +283,8 @@ BoltzmannSolverScalar::initialize()
   // sed -e "34s/.*/0.23 0.77  \/ Gas composition fraction/" -i ''  temp_in.dat
   //   line # ^     [       ] <- replacement string
   // If n steps have passed, write mole fractions and reduced field value into input file
-
+  if (_t <= _cutoff_time)
+  {
   if (_timestep_number == _n_steps || _timestep_number == 0)
   {
     std::string edit_command;
@@ -329,6 +332,7 @@ BoltzmannSolverScalar::initialize()
     command = edit_command.c_str();
     system(command);
   }
+}
 
 }
 
@@ -337,6 +341,8 @@ BoltzmannSolverScalar::execute()
 {
   // Run BOLSIG+
   // system("./bolsigminus example3.dat");
+  if (_t <= _cutoff_time)
+  {
   if (_timestep_number == _n_steps || _timestep_number == 0)
   {
 
@@ -417,6 +423,7 @@ BoltzmannSolverScalar::execute()
   // Not sure how to do this easily. Ugh.
 
   // std::cout << "Tabulating rate coefficients..." << std::endl;
+}
 }
 
 void
