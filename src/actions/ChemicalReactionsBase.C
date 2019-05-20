@@ -42,28 +42,45 @@ validParams<ChemicalReactionsBase>()
   MooseEnum orders(AddVariableAction::getNonlinearVariableOrders());
 
   InputParameters params = validParams<AddVariableAction>();
-  params.addParam<bool>("use_bolsig", false, "Whether or not to use Bolsig+ (or bolos) to compute EEDF rate coefficients.");
+  params.addParam<bool>(
+      "use_bolsig",
+      false,
+      "Whether or not to use Bolsig+ (or bolos) to compute EEDF rate coefficients.");
   params.addRequiredParam<std::vector<NonlinearVariableName>>(
-    "species", "List of (tracked) species included in reactions (both products and reactants)");
+      "species", "List of (tracked) species included in reactions (both products and reactants)");
   params.addParam<std::vector<Real>>("reaction_coefficient", "The reaction coefficients.");
-  params.addParam<bool>("include_electrons", false, "Whether or not electrons are being considered.");
-  params.addParam<bool>("use_log", false, "Whether or not to use logarithmic densities. (N = exp(n))");
+  params.addParam<bool>(
+      "include_electrons", false, "Whether or not electrons are being considered.");
+  params.addParam<bool>(
+      "use_log", false, "Whether or not to use logarithmic densities. (N = exp(n))");
   params.addParam<std::string>("electron_density", "The variable used for density of electrons.");
   params.addParam<std::vector<NonlinearVariableName>>(
-    "electron_energy", "Electron energy, used for energy-dependent reaction rates.");
+      "electron_energy", "Electron energy, used for energy-dependent reaction rates.");
   params.addParam<std::vector<NonlinearVariableName>>(
-    "gas_energy", "Gas energy, used for energy-dependent reaction rates.");
-  params.addParam<std::vector<std::string>>("gas_species", "All of the background gas species in the system.");
+      "gas_energy", "Gas energy, used for energy-dependent reaction rates.");
+  params.addParam<std::vector<std::string>>("gas_species",
+                                            "All of the background gas species in the system.");
   params.addParam<std::vector<Real>>("gas_fraction", "The initial fraction of each gas species.");
   params.addRequiredParam<std::string>("reactions", "The list of reactions to be added");
   params.addParam<Real>("position_units", 1.0, "The units of position.");
-  params.addParam<std::string>("file_location", "", "The location of the reaction rate files. Default: empty string (current directory).");
-  params.addParam<std::string>("sampling_variable", "reduced_field", "Sample rate constants with E/N (reduced_field) or Te (electron_energy).");
-  params.addParam<std::vector<std::string>>("equation_constants", "The constants included in the reaction equation(s).");
-  params.addParam<std::vector<std::string>>("equation_values", "The values of the constants included in the reaction equation(s).");
-  params.addParam<std::vector<VariableName>>("equation_variables", "Any nonlinear variables that appear in the equations.");
-  params.addParam<std::vector<VariableName>>("rate_provider_var", "The name of the variable used to sample from BOLOS/Bolsig+ files.");
-  params.addClassDescription("This Action automatically adds the necessary kernels and materials for a reaction network.");
+  params.addParam<std::string>(
+      "file_location",
+      "",
+      "The location of the reaction rate files. Default: empty string (current directory).");
+  params.addParam<std::string>(
+      "sampling_variable",
+      "reduced_field",
+      "Sample rate constants with E/N (reduced_field) or Te (electron_energy).");
+  params.addParam<std::vector<std::string>>("equation_constants",
+                                            "The constants included in the reaction equation(s).");
+  params.addParam<std::vector<std::string>>(
+      "equation_values", "The values of the constants included in the reaction equation(s).");
+  params.addParam<std::vector<VariableName>>(
+      "equation_variables", "Any nonlinear variables that appear in the equations.");
+  params.addParam<std::vector<VariableName>>(
+      "rate_provider_var", "The name of the variable used to sample from BOLOS/Bolsig+ files.");
+  params.addClassDescription(
+      "This Action automatically adds the necessary kernels and materials for a reaction network.");
 
   return params;
 }
@@ -97,7 +114,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     _sampling_variable(getParam<std::string>("sampling_variable")),
     _use_log(getParam<bool>("use_log")),
     _use_bolsig(getParam<bool>("use_bolsig"))
-    // _use_moles(getParam<bool>("use_moles"))
+// _use_moles(getParam<bool>("use_moles"))
 {
   std::istringstream iss(_input_reactions);
   std::string token;
@@ -116,7 +133,8 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   int counter;
   counter = 0;
   _eedf_reaction_counter = 0;
-  while (std::getline(iss >> std::ws, token)) // splits by \n character (default) and ignores leading whitespace
+  while (std::getline(iss >> std::ws,
+                      token)) // splits by \n character (default) and ignores leading whitespace
   {
     // Define check for change of energy
     // bool _energy_change = false;
@@ -131,7 +149,8 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     eq_end = token.find('}');
 
     // Parentheses enclose the reaction identifier (ionization, excitation, de-excitation, etc.)
-    // Note that both [] and () will never be used, since energy changes are included in the cross section data
+    // Note that both [] and () will never be used, since energy changes are included in the cross
+    // section data
     rxn_identifier_start = token.find('(');
     rxn_identifier_end = token.find(')');
 
@@ -139,11 +158,11 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
 
     if (rxn_identifier_start != std::string::npos)
     {
-      rate_coefficient_string.push_back(token.substr(pos+1, rxn_identifier_start - (pos+1)));
+      rate_coefficient_string.push_back(token.substr(pos + 1, rxn_identifier_start - (pos + 1)));
     }
     else
     {
-      rate_coefficient_string.push_back(token.substr(pos+1, pos_start - (pos+1)));
+      rate_coefficient_string.push_back(token.substr(pos + 1, pos_start - (pos + 1)));
     }
 
     trim(_reaction[counter]);
@@ -151,7 +170,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
 
     if (pos_start != std::string::npos)
     {
-      threshold_energy_string.push_back(token.substr(pos_start + 1, pos_end-pos_start-1));
+      threshold_energy_string.push_back(token.substr(pos_start + 1, pos_end - pos_start - 1));
       _energy_change.push_back(true);
     }
     else
@@ -162,7 +181,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
 
     if (eq_start != std::string::npos)
     {
-      _rate_equation_string.push_back(token.substr(eq_start + 1, eq_end-eq_start-1));
+      _rate_equation_string.push_back(token.substr(eq_start + 1, eq_end - eq_start - 1));
       _rate_equation.push_back(true);
     }
     else
@@ -174,9 +193,11 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     if (rxn_identifier_start != std::string::npos && !_rate_equation[counter])
     {
       _is_identified.push_back(true);
-      _reaction_identifier.push_back(token.substr(rxn_identifier_start + 1, rxn_identifier_end-rxn_identifier_start-1));
+      _reaction_identifier.push_back(
+          token.substr(rxn_identifier_start + 1, rxn_identifier_end - rxn_identifier_start - 1));
       _eedf_reaction_number.push_back(_eedf_reaction_counter);
-      _eedf_reaction_counter += 1; // Counts the number of EEDF reactions (this is the only instance in which a reaction identifier is used)
+      _eedf_reaction_counter += 1; // Counts the number of EEDF reactions (this is the only instance
+                                   // in which a reaction identifier is used)
     }
     else
     {
@@ -209,8 +230,8 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     {
       _threshold_energy[i] = std::stod(threshold_energy_string[i]);
     }
-    _aux_var_name[i] = "rate_constant"+std::to_string(i);  // Stores name of rate coefficients
-    _reaction_coefficient_name[i] = "rate_constant"+std::to_string(i);
+    _aux_var_name[i] = "rate_constant" + std::to_string(i); // Stores name of rate coefficients
+    _reaction_coefficient_name[i] = "rate_constant" + std::to_string(i);
     if (rate_coefficient_string[i] == std::string("EEDF"))
     {
       _rate_coefficient[i] = NAN;
@@ -243,16 +264,17 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
       {
         _rate_coefficient[i] = std::stod(rate_coefficient_string[i]);
       }
-      catch (const std::invalid_argument&)
+      catch (const std::invalid_argument &)
       {
-        mooseError("Rate coefficient '" + rate_coefficient_string[i] + "' is invalid! "
-      "There are three rate coefficient types that are accepted:\n"
-      "  1. Constant (A + B -> C  : 10)\n"
-      "  2. Equation (A + B -> C  : {1e-4*exp(10)})\n"
-      "  3. EEDF     (A + B -> C  : EEDF)");
+        mooseError("Rate coefficient '" + rate_coefficient_string[i] +
+                   "' is invalid! "
+                   "There are three rate coefficient types that are accepted:\n"
+                   "  1. Constant (A + B -> C  : 10)\n"
+                   "  2. Equation (A + B -> C  : {1e-4*exp(10)})\n"
+                   "  3. EEDF     (A + B -> C  : EEDF)");
         throw;
       }
-      catch (const std::out_of_range&)
+      catch (const std::out_of_range &)
       {
         std::cerr << "Argument out of range for a double\n";
         throw;
@@ -269,7 +291,8 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   // _species_electron.resize(_num_reactions, std::vector<bool>(_species.size()));
 
   // Split each reaction equation into reactants and products
-  int superelastic_reactions = 0;  // stores number of superelastic reactions, which will be added to _num_reactions
+  int superelastic_reactions =
+      0; // stores number of superelastic reactions, which will be added to _num_reactions
   for (unsigned int i = 0; i < _num_reactions; ++i)
   {
     std::istringstream iss2(_reaction[i]);
@@ -328,7 +351,8 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
       {
         if (!isParamValid("electron_density"))
         {
-          mooseError("EEDF reaction selected, but electron_density is not set! Please denote the electron species.");
+          mooseError("EEDF reaction selected, but electron_density is not set! Please denote the "
+                     "electron species.");
         }
         else
         {
@@ -338,7 +362,6 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
           }
         }
       }
-
     }
 
     _num_reactants.push_back(_reactants[i].size());
@@ -380,7 +403,8 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   _rate_coefficient.resize(_num_reactions + superelastic_reactions);
   _threshold_energy.resize(_num_reactions + superelastic_reactions);
   _rate_equation.resize(_num_reactions + superelastic_reactions);
-  _species_count.resize(_num_reactions + superelastic_reactions, std::vector<Real>(_species.size()));
+  _species_count.resize(_num_reactions + superelastic_reactions,
+                        std::vector<Real>(_species.size()));
   _reactants.resize(_reactants.size() + superelastic_reactions);
   _products.resize(_products.size() + superelastic_reactions);
   _aux_var_name.resize(_num_reactions + superelastic_reactions);
@@ -405,8 +429,8 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
         _superelastic_reaction[new_index] = true;
         _rate_coefficient[new_index] = NAN;
         _threshold_energy[new_index] = -_threshold_energy[i];
-        _aux_var_name[new_index] = "rate_constant"+std::to_string(new_index);
-        _reaction_coefficient_name[new_index] = "rate_constant"+std::to_string(new_index);
+        _aux_var_name[new_index] = "rate_constant" + std::to_string(new_index);
+        _reaction_coefficient_name[new_index] = "rate_constant" + std::to_string(new_index);
         if (_rate_equation[i] == true)
         {
           _rate_equation[new_index] = true;
@@ -422,7 +446,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
           _energy_change[new_index] = false;
 
         // Here we reverse the products and reactants to build superelastic reactions.
-        for (unsigned int j = 0; j < _num_products[i]; ++j)
+        for (MooseIndex(_num_products[i]) j = 0; j < _num_products[i]; ++j)
         {
           new_reaction.append(_products[i][j]);
           _reactants[new_index].push_back(_products[i][j]);
@@ -480,7 +504,6 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     }
   }
 
-
   _num_reactions += superelastic_reactions;
   // for (unsigned int i=0; i<_num_reactions; ++i)
   // {
@@ -497,7 +520,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   // some of the species are considered to be uniform background gases or
   // arbitrary source/sink terms.
   sort(_all_participants.begin(), _all_participants.end());
-  std::vector<std::string>:: iterator it;
+  std::vector<std::string>::iterator it;
   it = std::unique(_all_participants.begin(), _all_participants.end());
   _all_participants.resize(std::distance(_all_participants.begin(), it));
 
@@ -525,8 +548,6 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
           _stoichiometric_coeff[i][j] += 1;
         }
       }
-
-
     }
   }
   _reaction_participants.resize(_num_reactions);
@@ -534,7 +555,8 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   // Now we find which index of _all_participants is associated with _species
   // so they can be accurately referred to later if necessary.
 
-  _species_index.resize(_species.size()); // Stores vector of indices relating _all_participants to _species.
+  _species_index.resize(
+      _species.size()); // Stores vector of indices relating _all_participants to _species.
   std::vector<std::string>::iterator iter;
 
   for (unsigned int i = 0; i < _species.size(); ++i)
@@ -546,14 +568,18 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   // Finally, we reduce _all_participants to find just the relevant participants
   // (and stoichiometric coefficients) for each individual reaction.
 
-  for (unsigned int i=0; i<_num_reactions; ++i)
+  for (unsigned int i = 0; i < _num_reactions; ++i)
   {
-    std::vector<std::string> species_temp(_reactants[i]); // Copy reactants into new temporary vector
-    species_temp.insert(species_temp.end(), _products[i].begin(), _products[i].end()); // Append products to new temp vector (so it now stores all reactants and products)
+    std::vector<std::string> species_temp(
+        _reactants[i]); // Copy reactants into new temporary vector
+    species_temp.insert(species_temp.end(),
+                        _products[i].begin(),
+                        _products[i].end()); // Append products to new temp vector (so it now stores
+                                             // all reactants and products)
 
     // Separate out the unique values from species_temp
     sort(species_temp.begin(), species_temp.end());
-    std::vector<std::string>:: iterator it;
+    std::vector<std::string>::iterator it;
     it = std::unique(species_temp.begin(), species_temp.end());
     species_temp.resize(std::distance(species_temp.begin(), it));
     // _reaction_participants[i].resize(species_temp.size());
@@ -591,9 +617,9 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     if (_energy_change[i])
     {
       if (!isParamValid("electron_energy") && !isParamValid("gas_energy"))
-        mooseError("Reactions have energy changes, but no electron or gas temperature variable is included!");
+        mooseError("Reactions have energy changes, but no electron or gas temperature variable is "
+                   "included!");
     }
-
   }
   if (isParamValid("electron_energy"))
   {

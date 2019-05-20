@@ -23,17 +23,24 @@ validParams<RateCoefficientProvider>()
 {
   InputParameters params = validParams<GeneralUserObject>();
   params.addCoupledVar("reduced_field", 0, "The value of the reduced electric field [V m^2].");
-  params.addParam<FileName>("property_file", "",
-      "The file containing interpolation tables for material properties.");
-  params.addParam<std::string>("file_location", "", "The name of the file that stores the reaction rate tables.");
-  params.addParam<std::string>("sampling_format", "reduced_field",
-    "The format that the rate constant files are in. Options: reduced_field and electron_energy.");
-  params.addParam<std::string>("rate_format", "N/A", "The type of rate being implemented. Options: Constant, EEDF, Equation. Note that these ARE case-sensitive.");
-  params.addParam<Real>("rate_constant", 0.0, "The rate constant, if applicable. (Default 0 otherwise.)");
+  params.addParam<FileName>(
+      "property_file", "", "The file containing interpolation tables for material properties.");
+  params.addParam<std::string>(
+      "file_location", "", "The name of the file that stores the reaction rate tables.");
+  params.addParam<std::string>("sampling_format",
+                               "reduced_field",
+                               "The format that the rate constant files are in. Options: "
+                               "reduced_field and electron_energy.");
+  params.addParam<std::string>("rate_format",
+                               "N/A",
+                               "The type of rate being implemented. Options: Constant, EEDF, "
+                               "Equation. Note that these ARE case-sensitive.");
+  params.addParam<Real>(
+      "rate_constant", 0.0, "The rate constant, if applicable. (Default 0 otherwise.)");
   // params.addParam<FunctionName>("function", "1", "A function describing the rate coefficient.");
   // params.addParam<Real>("value", 1.0, "Value of the rate coefficient.");
   // params.addParam<Point>(
-      // "point", Point(), "A point in space to be given to the function Default: (0, 0, 0)");
+  // "point", Point(), "A point in space to be given to the function Default: (0, 0, 0)");
   // params.declareControllable("point");
   // params.addCoupledVar("v", "Additional coupled variables.");
   return params;
@@ -41,20 +48,21 @@ validParams<RateCoefficientProvider>()
 
 RateCoefficientProvider::RateCoefficientProvider(const InputParameters & parameters)
   : GeneralUserObject(parameters),
-  _sampling_format(getParam<std::string>("sampling_format")),
-  _rate_format(getParam<std::string>("rate_format")),
-  _reduced_field_value(coupledScalarValue("reduced_field"))
-  // _function(getFunction("function")),
-  // _point(getParam<Point>("point"))
-  // _reaction_rate(declareProperty<Real>("k_"+getParam<std::string>("reaction"))),
-  // _d_k_d_en(declareProperty<Real>("d_k_d_en_"+getParam<std::string>("reaction"))),
-  // _sampling_format(getParam<std::string>("sampling_format"))
+    _sampling_format(getParam<std::string>("sampling_format")),
+    _rate_format(getParam<std::string>("rate_format")),
+    _reduced_field_value(coupledScalarValue("reduced_field"))
+// _function(getFunction("function")),
+// _point(getParam<Point>("point"))
+// _reaction_rate(declareProperty<Real>("k_"+getParam<std::string>("reaction"))),
+// _d_k_d_en(declareProperty<Real>("d_k_d_en_"+getParam<std::string>("reaction"))),
+// _sampling_format(getParam<std::string>("sampling_format"))
 {
   if (_rate_format == "EEDF")
   {
     std::vector<Real> reduced_field;
     std::vector<Real> rate_coefficient;
-    std::string file_name = getParam<std::string>("file_location") + "/" + getParam<FileName>("property_file");
+    std::string file_name =
+        getParam<std::string>("file_location") + "/" + getParam<FileName>("property_file");
     MooseUtils::checkFileReadable(file_name);
     const char * charPath = file_name.c_str();
     std::ifstream myfile(charPath);
@@ -92,7 +100,7 @@ RateCoefficientProvider::RateCoefficientProvider(const InputParameters & paramet
 Real
 RateCoefficientProvider::reaction_coefficient() const
 {
-  Real reaction_rate;
+  Real reaction_rate = 0;
   if (_rate_format == "EEDF")
   {
     if (_sampling_format == "electron_energy")
@@ -109,8 +117,9 @@ RateCoefficientProvider::reaction_coefficient() const
       reaction_rate = reaction_rate * 1e6;
 
       // std::cout << reaction_rate << std::endl;
-      // _reaction_rate[_qp] = _reaction_rate[_qp] * 6.022e23; // convert from [dens]/s to [dens]/mol/s
-      // _d_k_d_en[_qp] = _coefficient_interpolation.sampleDerivative(_reduced_field[_qp]);
+      // _reaction_rate[_qp] = _reaction_rate[_qp] * 6.022e23; // convert from [dens]/s to
+      // [dens]/mol/s _d_k_d_en[_qp] =
+      // _coefficient_interpolation.sampleDerivative(_reduced_field[_qp]);
     }
   }
   else if (_rate_format == "Constant")
@@ -131,7 +140,7 @@ RateCoefficientProvider::reaction_coefficient() const
 Real
 RateCoefficientProvider::reaction_coefficient_derivative() const
 {
-  Real d_k_d_en;
+  Real d_k_d_en = 0;
 
   if (_rate_format == "EEDF")
   {
@@ -163,7 +172,8 @@ RateCoefficientProvider::electron_temperature(const Real E_N) const
 }
 
 // Real
-// RateCoefficientProvider::reduced_field(const Real reduced_field_old, const Real gas_density) const
+// RateCoefficientProvider::reduced_field(const Real reduced_field_old, const Real gas_density)
+// const
 // {
 //   Real reduced_field;
 //   // reduced_field = _voltage / ( _gap_length + _resistance * current /
@@ -176,7 +186,8 @@ RateCoefficientProvider::electron_temperature(const Real E_N) const
 void
 RateCoefficientProvider::initialize()
 {
-  // std::cout << "TESTING INITIALIZATION ROUTINE IN RATECOEFFICIENTPROVIDER USEROBJECT" << std::endl;
+  // std::cout << "TESTING INITIALIZATION ROUTINE IN RATECOEFFICIENTPROVIDER USEROBJECT" <<
+  // std::endl;
 }
 
 void

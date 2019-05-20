@@ -29,9 +29,9 @@ public:
   ProductFirstOrder(const InputParameters & parameters);
 
 protected:
-  virtual Real computeQpResidual();
-  virtual Real computeQpJacobian();
-  virtual Real computeQpOffDiagJacobian();
+  Real computeQpResidual() override;
+  Real computeQpJacobian() override;
+  Real computeQpOffDiagJacobian(unsigned int) override;
 
   const VariableValue & _v;
   unsigned int _v_id;

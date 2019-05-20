@@ -19,7 +19,7 @@ protected:
   virtual Real computeQpJacobian();
   virtual Real computeQpOffDiagJacobian(unsigned int jvar);
 
-  int _v_var;
+  unsigned int _v_var;
   const VariableValue & _v;
   const VariableValue & _rate_coefficient;
 

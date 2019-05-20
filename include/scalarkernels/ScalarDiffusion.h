@@ -15,9 +15,9 @@ public:
   ScalarDiffusion(const InputParameters & parameters);
 
 protected:
-  virtual Real computeQpResidual();
-  virtual Real computeQpJacobian();
-  virtual Real computeQpOffDiagJacobian();
+  Real computeQpResidual() override;
+  Real computeQpJacobian() override;
+  Real computeQpOffDiagJacobian(unsigned int) override;
 
   Real _rate;
 };

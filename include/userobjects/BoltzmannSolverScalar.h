@@ -61,7 +61,7 @@ protected:
   std::vector<std::vector<Real>> _rate_coefficient;
   std::vector<int> _reaction_number;
   int _num_reactions;
-  int _n_steps;
+  unsigned int _n_steps;
   Real _cutoff_time;
   Real _conversion_factor;
   // int _table_size;
@@ -78,8 +78,6 @@ protected:
   std::vector<SplineInterpolation> _coefficient_interpolation;
   SplineInterpolation _temperature_interpolation;
   SplineInterpolation _mobility_interpolation;
-
-
 };
 
 #endif /* BOLTZMANNSOLVERSCALAR_H */

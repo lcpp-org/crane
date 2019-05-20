@@ -21,7 +21,7 @@ validParams<ReactantThirdOrderLog>()
 
 ReactantThirdOrderLog::ReactantThirdOrderLog(const InputParameters & parameters)
   : Kernel(parameters),
-    _reaction_coeff(getMaterialProperty<Real>("k_"+getParam<std::string>("reaction"))),
+    _reaction_coeff(getMaterialProperty<Real>("k_" + getParam<std::string>("reaction"))),
     _v(isCoupled("v") ? coupledValue("v") : _zero),
     _w(isCoupled("w") ? coupledValue("w") : _zero),
     _v_id(coupled("v") ? coupled("v") : 0),
@@ -38,7 +38,7 @@ ReactantThirdOrderLog::ReactantThirdOrderLog(const InputParameters & parameters)
 Real
 ReactantThirdOrderLog::computeQpResidual()
 {
-  Real mult1,mult2;
+  Real mult1, mult2;
 
   if (_v_coupled)
     mult1 = std::exp(_v[_qp]);
@@ -50,22 +50,27 @@ ReactantThirdOrderLog::computeQpResidual()
   else
     mult2 = _n_gas[_qp];
 
-  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * std::exp(_u[_qp]) * mult1 * mult2;
+  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * std::exp(_u[_qp]) *
+         mult1 * mult2;
 
   // if (isCoupled("v") && isCoupled("w"))
   // {
-  //   return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * std::exp(_v[_qp]) * std::exp(_w[_qp]) * std::exp(_u[_qp]);
+  //   return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * std::exp(_v[_qp]) *
+  //   std::exp(_w[_qp]) * std::exp(_u[_qp]);
   // }
   // else if (isCoupled("v") && !isCoupled("w"))
   // {
-  //   return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * std::exp(_v[_qp]) * _n_gas[_qp] * std::exp(_u[_qp]);
+  //   return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * std::exp(_v[_qp]) *
+  //   _n_gas[_qp] * std::exp(_u[_qp]);
   // }
   // else if (!isCoupled("v") && isCoupled("w"))
   // {
-  //   return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * std::exp(_w[_qp]) * _n_gas[_qp] * std::exp(_u[_qp]);
+  //   return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * std::exp(_w[_qp]) *
+  //   _n_gas[_qp] * std::exp(_u[_qp]);
   // }
   // else
-  //   return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * _n_gas[_qp] * _n_gas[_qp] * std::exp(_u[_qp]);
+  //   return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * _n_gas[_qp] *
+  //   _n_gas[_qp] * std::exp(_u[_qp]);
 }
 
 Real
@@ -97,20 +102,23 @@ ReactantThirdOrderLog::computeQpJacobian()
   if (_w_coupled && _w_eq_u)
     power += 1;
 
-
-  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * power * u_mult * _phi[_j][_qp];
+  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * power * u_mult *
+         _phi[_j][_qp];
 
   // if (isCoupled("v") && isCoupled("w"))
-  //   return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 1.0 * std::exp(_v[_qp]) *
+  //   return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 1.0 *
+  //   std::exp(_v[_qp]) *
   //          std::exp(_w[_qp]) * _phi[_j][_qp];
   // else if (isCoupled("v") && !isCoupled("w"))
   // {
-  //   return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 1.0 * std::exp(_v[_qp]) *
+  //   return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 1.0 *
+  //   std::exp(_v[_qp]) *
   //          _n_gas[_qp] * _phi[_j][_qp];
   // }
   // else if (!isCoupled("v") && isCoupled("w"))
   // {
-  //   return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 1.0 * std::exp(_w[_qp]) *
+  //   return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 1.0 *
+  //   std::exp(_w[_qp]) *
   //          _n_gas[_qp] * _phi[_j][_qp];
   // }
   // else
@@ -119,9 +127,9 @@ ReactantThirdOrderLog::computeQpJacobian()
 }
 
 Real
-ReactantThirdOrderLog::computeQpOffDiagJacobian()
+ReactantThirdOrderLog::computeQpOffDiagJacobian(unsigned int)
 {
-  Real mult1,mult2,u_mult,power;
+  Real mult1, mult2, u_mult, power;
   if (_v_coupled)
     mult1 = std::exp(_v[_qp]);
   else
@@ -142,22 +150,26 @@ ReactantThirdOrderLog::computeQpOffDiagJacobian()
   if (_w_coupled && !_w_eq_u)
     power += 1;
 
-  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * power * u_mult * _phi[_j][_qp];
+  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * power * u_mult *
+         _phi[_j][_qp];
   // if (isCoupled("v") && isCoupled("w"))
   // {
   //   if (_v_id != _w_id)
   //   {
   //     if (jvar == _v_id)
-  //       return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 1.0 * std::exp(_u[_qp]) * std::exp(_w[_qp]) * _phi[_j][_qp];
+  //       return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 1.0 *
+  //       std::exp(_u[_qp]) * std::exp(_w[_qp]) * _phi[_j][_qp];
   //     else if (jvar == _w_id)
-  //       return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 1.0 * std::exp(_u[_qp]) * std::exp(_v[_qp]) * _phi[_j][_qp];
+  //       return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 1.0 *
+  //       std::exp(_u[_qp]) * std::exp(_v[_qp]) * _phi[_j][_qp];
   //     else
   //       return 0.0;
   //   }
   //   else
   //   {
   //     if (jvar == _v_id)
-  //       return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 1.0 * std::exp(_u[_qp]) * std::exp(_w[_qp]) * _phi[_j][_qp];
+  //       return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 1.0 *
+  //       std::exp(_u[_qp]) * std::exp(_w[_qp]) * _phi[_j][_qp];
   //     else
   //       return 0.0;
   //   }
@@ -165,14 +177,16 @@ ReactantThirdOrderLog::computeQpOffDiagJacobian()
   // else if (isCoupled("v") && !isCoupled("w"))
   // {
   //   if (jvar == _v_id)
-  //     return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 1.0 * std::exp(_u[_qp]) * _n_gas[_qp] * _phi[_j][_qp];
+  //     return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 1.0 *
+  //     std::exp(_u[_qp]) * _n_gas[_qp] * _phi[_j][_qp];
   //   else
   //     return 0.0;
   // }
   // else if (!isCoupled("v") && isCoupled("w"))
   // {
   //   if (jvar == _v_id)
-  //     return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 1.0 * std::exp(_u[_qp]) * _n_gas[_qp] * _phi[_j][_qp];
+  //     return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 1.0 *
+  //     std::exp(_u[_qp]) * _n_gas[_qp] * _phi[_j][_qp];
   //   else
   //     return 0.0;
   // }
