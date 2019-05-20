@@ -32,11 +32,12 @@ ProductFirstOrder::computeQpResidual()
 {
   if (isCoupled("v"))
   {
-    return -_test[_i][_qp] * (_stoichiometric_coeff) * _reaction_coeff[_qp] * _v[_qp];
+    return -_test[_i][_qp] * (_stoichiometric_coeff)*_reaction_coeff[_qp] * _v[_qp];
   }
   else
   {
-    return -_test[_i][_qp] * (_stoichiometric_coeff) * _reaction_coeff[_qp] * getMaterialProperty<Real>("n_gas")[_qp];
+    return -_test[_i][_qp] * (_stoichiometric_coeff)*_reaction_coeff[_qp] *
+           getMaterialProperty<Real>("n_gas")[_qp];
   }
 }
 
@@ -56,12 +57,12 @@ ProductFirstOrder::computeQpJacobian()
 }
 
 Real
-ProductFirstOrder::computeQpOffDiagJacobian()
+ProductFirstOrder::computeQpOffDiagJacobian(unsigned int)
 {
   if (isCoupled("v"))
   {
     if (!_v_eq_u)
-      return -_test[_i][_qp] * (_stoichiometric_coeff) * _reaction_coeff[_qp] * _phi[_j][_qp];
+      return -_test[_i][_qp] * (_stoichiometric_coeff)*_reaction_coeff[_qp] * _phi[_j][_qp];
     else
       return 0.0;
   }

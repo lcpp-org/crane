@@ -29,9 +29,9 @@ public:
   ReactantFirstOrderLog(const InputParameters & parameters);
 
 protected:
-  virtual Real computeQpResidual();
-  virtual Real computeQpJacobian();
-  virtual Real computeQpOffDiagJacobian();
+  Real computeQpResidual() override;
+  Real computeQpJacobian() override;
+  Real computeQpOffDiagJacobian(unsigned int) override;
 
   // The reaction coefficient
   // MooseVariable & _coupled_var_A;
@@ -39,6 +39,5 @@ protected:
   // const MaterialProperty<Real> & _diff_rate;
   // const MaterialProperty<Real> & _n_gas;
   Real _stoichiometric_coeff;
-
 };
 #endif // REACTANTFIRSTORDERLOG_H

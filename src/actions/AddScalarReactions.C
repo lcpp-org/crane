@@ -40,26 +40,49 @@ validParams<AddScalarReactions>()
   MooseEnum orders(AddVariableAction::getNonlinearVariableOrders());
 
   InputParameters params = validParams<ChemicalReactionsBase>();
-  params.addParam<std::vector<std::string>>("aux_species", "Auxiliary species that are not included in nonlinear solve.");
-  params.addParam<std::string>("boltzmann_input_file", "The name of the input file being used for Bolsig+.");
-  params.addParam<bool>("output_table", false, "Whether or not to use an output table used for Bolsig+. If false, Bolsig+ should be run every timestep.");
-  params.addParam<std::string>("cross_section_data", "The file name of the cross section data used for Bolsig+.");
-  params.addParam<std::vector<VariableName>>("reduced_field", "The name of the reduced_field variable. (Required for running Bolsig+.)");
-  params.addParam<std::vector<VariableName>>("neutral_density", "The name of the total neutral density AuxVariable. (Required for running Bolsig+.)");
-  params.addParam<std::vector<VariableName>>("ionization_fraction", "The name of the ionization fraction AuxVariable. (Not required for running Bolsig+, but may affect results negatively if not included.)");
-  params.addParam<std::vector<VariableName>>("mole_fractions", "The name of the mole fractions of the target species for Bolsig+.");
-  params.addParam<std::string>("table_variable", "The variable being used to tabulate rate and transport coefficients.");
-  params.addParam<int>("run_every", 1, "How many timesteps should pass before rerunning Bolsig+. (If output_table=false, this should be left to 1 so it runs every timestep.)");
-  params.addParam<Real>("cutoff_time", -1, "After this simulation time has been reached, Bolsig+ will no longer be run.");
-  params.addParam<Real>("conversion_factor", 1, "Convert the results by this multiplication factor. Bolsig+ calculates everything in SI units (m, m^2, m^3, etc.).");
-  params.addClassDescription("This Action automatically adds the necessary kernels and materials for a reaction network.");
+  params.addParam<std::vector<std::string>>(
+      "aux_species", "Auxiliary species that are not included in nonlinear solve.");
+  params.addParam<std::string>("boltzmann_input_file",
+                               "The name of the input file being used for Bolsig+.");
+  params.addParam<bool>("output_table",
+                        false,
+                        "Whether or not to use an output table used for Bolsig+. If false, Bolsig+ "
+                        "should be run every timestep.");
+  params.addParam<std::string>("cross_section_data",
+                               "The file name of the cross section data used for Bolsig+.");
+  params.addParam<std::vector<VariableName>>(
+      "reduced_field", "The name of the reduced_field variable. (Required for running Bolsig+.)");
+  params.addParam<std::vector<VariableName>>(
+      "neutral_density",
+      "The name of the total neutral density AuxVariable. (Required for running Bolsig+.)");
+  params.addParam<std::vector<VariableName>>(
+      "ionization_fraction",
+      "The name of the ionization fraction AuxVariable. (Not required for running Bolsig+, but may "
+      "affect results negatively if not included.)");
+  params.addParam<std::vector<VariableName>>(
+      "mole_fractions", "The name of the mole fractions of the target species for Bolsig+.");
+  params.addParam<std::string>(
+      "table_variable", "The variable being used to tabulate rate and transport coefficients.");
+  params.addParam<int>("run_every",
+                       1,
+                       "How many timesteps should pass before rerunning Bolsig+. (If "
+                       "output_table=false, this should be left to 1 so it runs every timestep.)");
+  params.addParam<Real>(
+      "cutoff_time",
+      -1,
+      "After this simulation time has been reached, Bolsig+ will no longer be run.");
+  params.addParam<Real>("conversion_factor",
+                        1,
+                        "Convert the results by this multiplication factor. Bolsig+ calculates "
+                        "everything in SI units (m, m^2, m^3, etc.).");
+  params.addClassDescription(
+      "This Action automatically adds the necessary kernels and materials for a reaction network.");
   return params;
 }
 
 AddScalarReactions::AddScalarReactions(InputParameters params)
-  : ChemicalReactionsBase(params),
-    _aux_species(getParam<std::vector<std::string>>("aux_species"))
-    // _use_bolsig(getParam<bool>("use_bolsig"))
+  : ChemicalReactionsBase(params), _aux_species(getParam<std::vector<std::string>>("aux_species"))
+// _use_bolsig(getParam<bool>("use_bolsig"))
 {
 }
 
@@ -90,7 +113,7 @@ AddScalarReactions::act()
 
   if (_current_task == "add_aux_variable")
   {
-    for (unsigned int i=0; i < _num_reactions; ++i)
+    for (unsigned int i = 0; i < _num_reactions; ++i)
     {
       _problem->addAuxScalarVariable(_aux_var_name[i], FIRST);
     }
@@ -102,14 +125,19 @@ AddScalarReactions::act()
     {
       // Here we add the UserObject controlling Bolsig+.
       InputParameters params = _factory.getValidParams("BoltzmannSolverScalar");
-      params.set<std::string>("boltzmann_input_file") = getParam<std::string>("boltzmann_input_file");
+      params.set<std::string>("boltzmann_input_file") =
+          getParam<std::string>("boltzmann_input_file");
       params.set<bool>("output_table") = getParam<bool>("output_table");
       params.set<std::string>("table_variable") = getParam<std::string>("table_variable");
       params.set<ExecFlagEnum>("execute_on") = "INITIAL TIMESTEP_BEGIN";
-      params.set<std::vector<VariableName>>("reduced_field") = getParam<std::vector<VariableName>>("reduced_field");
-      params.set<std::vector<VariableName>>("neutral_density") = getParam<std::vector<VariableName>>("neutral_density");
-      params.set<std::vector<VariableName>>("ionization_fraction") = getParam<std::vector<VariableName>>("ionization_fraction");
-      params.set<std::vector<VariableName>>("mole_fractions") = getParam<std::vector<VariableName>>("mole_fractions");
+      params.set<std::vector<VariableName>>("reduced_field") =
+          getParam<std::vector<VariableName>>("reduced_field");
+      params.set<std::vector<VariableName>>("neutral_density") =
+          getParam<std::vector<VariableName>>("neutral_density");
+      params.set<std::vector<VariableName>>("ionization_fraction") =
+          getParam<std::vector<VariableName>>("ionization_fraction");
+      params.set<std::vector<VariableName>>("mole_fractions") =
+          getParam<std::vector<VariableName>>("mole_fractions");
       params.set<std::vector<std::string>>("reaction_type") = _reaction_identifier;
       params.set<std::vector<int>>("reaction_number") = {_eedf_reaction_number};
       params.set<int>("number_reactions") = _eedf_reaction_counter;
@@ -121,7 +149,7 @@ AddScalarReactions::act()
       _problem->addUserObject("BoltzmannSolverScalar", "bolsig", params);
     }
 
-    for (unsigned int i=0; i < _num_reactions; ++i)
+    for (unsigned int i = 0; i < _num_reactions; ++i)
     {
       // If this particular reaction is not reversible, skip to the next one.
       // If it is, we add the necessary user object to calculate the 7-term
@@ -137,14 +165,15 @@ AddScalarReactions::act()
         params.set<std::vector<std::string>>("participants") = _reaction_participants[i];
         params.set<std::string>("file_location") = "PolynomialCoefficients";
         params.set<ExecFlagEnum>("execute_on") = "INITIAL";
-        _problem->addUserObject("PolynomialCoefficients", "superelastic_coeff"+std::to_string(i), params);
+        _problem->addUserObject(
+            "PolynomialCoefficients", "superelastic_coeff" + std::to_string(i), params);
       }
     }
   }
 
   if (_current_task == "add_aux_scalar_kernel")
   {
-    for (unsigned int i=0; i < _num_reactions; ++i)
+    for (unsigned int i = 0; i < _num_reactions; ++i)
     {
       if (_rate_type[i] == "EEDF" && !_superelastic_reaction[i])
       {
@@ -154,27 +183,30 @@ AddScalarReactions::act()
           params.set<UserObjectName>("rate_provider") = "bolsig";
           params.set<AuxVariableName>("variable") = {_aux_var_name[i]};
           params.set<bool>("sample_value") = true;
-          params.set<std::vector<VariableName>>("sample_variable") = {getParam<std::string>("sampling_variable")};
+          params.set<std::vector<VariableName>>("sample_variable") = {
+              getParam<std::string>("sampling_variable")};
           // params.set<int>("reaction_number") = i;
           params.set<int>("reaction_number") = _eedf_reaction_number[i];
-          _problem->addAuxScalarKernel("EEDFRateCoefficientScalar", "aux_rate"+std::to_string(i), params);
+          _problem->addAuxScalarKernel(
+              "EEDFRateCoefficientScalar", "aux_rate" + std::to_string(i), params);
         }
         else
         {
           InputParameters params = _factory.getValidParams("DataReadScalar");
           params.set<AuxVariableName>("variable") = {_aux_var_name[i]};
-          params.set<std::vector<VariableName>>("sampler") = {getParam<std::string>("sampling_variable")};
+          params.set<std::vector<VariableName>>("sampler") = {
+              getParam<std::string>("sampling_variable")};
           if (_is_identified[i])
           {
             params.set<FileName>("property_file") = _reaction_identifier[_eedf_reaction_number[i]];
           }
           else
           {
-            params.set<FileName>("property_file") = "reaction_"+_reaction[i]+".txt";
+            params.set<FileName>("property_file") = "reaction_" + _reaction[i] + ".txt";
           }
           params.set<std::string>("file_location") = getParam<std::string>("file_location");
           params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
-          _problem->addAuxScalarKernel("DataReadScalar", "aux_rate"+std::to_string(i), params);
+          _problem->addAuxScalarKernel("DataReadScalar", "aux_rate" + std::to_string(i), params);
         }
       }
       else if (_rate_type[i] == "Equation" && !_superelastic_reaction[i])
@@ -184,16 +216,18 @@ AddScalarReactions::act()
         params.set<std::string>("function") = _rate_equation_string[i];
         params.set<bool>("file_read") = true;
         // params.set<std::vector<std::string>>("file_value") = {"Te"};
-        params.set<std::vector<std::string>>("constant_names") = getParam<std::vector<std::string>>("equation_constants");
-        params.set<std::vector<std::string>>("constant_expressions") = getParam<std::vector<std::string>>("equation_values");
+        params.set<std::vector<std::string>>("constant_names") =
+            getParam<std::vector<std::string>>("equation_constants");
+        params.set<std::vector<std::string>>("constant_expressions") =
+            getParam<std::vector<std::string>>("equation_values");
         // params.set<UserObjectName>("electron_temperature") = "value_provider";
         // params.set<std::vector<VariableName>>("reduced_field") = {"reduced_field"};
         // if (getParam<bool>("gas_temperature"))
         // {
         //   params.set<bool>("gas_temperature") = true;
-        //   std::vector<NonlinearVariableName> gas_temp = getParam<std::vector<NonlinearVariableName>>("equation_variables");
-        //   std::string temp_var;
-        //   for (unsigned int m = 0; m<gas_temp.size(); ++m)
+        //   std::vector<NonlinearVariableName> gas_temp =
+        //   getParam<std::vector<NonlinearVariableName>>("equation_variables"); std::string
+        //   temp_var; for (unsigned int m = 0; m<gas_temp.size(); ++m)
         //   {
         //     if (gas_temp[m] == "Tgas")
         //       temp_var = gas_temp[m];
@@ -204,10 +238,12 @@ AddScalarReactions::act()
         //
         // }
         // params.set<std::vector<VariableName>>("args") = {"Te"};
-        params.set<std::vector<VariableName>>("args") = getParam<std::vector<VariableName>>("equation_variables");
+        params.set<std::vector<VariableName>>("args") =
+            getParam<std::vector<VariableName>>("equation_variables");
         // params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN NONLINEAR";
         params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
-        _problem->addAuxScalarKernel("ParsedScalarRateCoefficient", "aux_rate"+std::to_string(i), params);
+        _problem->addAuxScalarKernel(
+            "ParsedScalarRateCoefficient", "aux_rate" + std::to_string(i), params);
       }
       else if (_rate_type[i] == "Constant" && !_superelastic_reaction[i])
       {
@@ -215,17 +251,21 @@ AddScalarReactions::act()
         params.set<Real>("initial_condition") = _rate_coefficient[i];
         params.set<AuxVariableName>("variable") = {_aux_var_name[i]};
         params.set<ExecFlagEnum>("execute_on") = "INITIAL";
-        _problem->addAuxScalarKernel("AuxInitialConditionScalar", "aux_initialization_rxn"+std::to_string(i), params);
+        _problem->addAuxScalarKernel(
+            "AuxInitialConditionScalar", "aux_initialization_rxn" + std::to_string(i), params);
       }
       else if (_superelastic_reaction[i])
       {
         InputParameters params = _factory.getValidParams("SuperelasticRateCoefficientScalar");
         params.set<AuxVariableName>("variable") = {_aux_var_name[i]};
-        params.set<std::vector<VariableName>>("forward_coefficient") = {_aux_var_name[_superelastic_index[i]]};
+        params.set<std::vector<VariableName>>("forward_coefficient") = {
+            _aux_var_name[_superelastic_index[i]]};
         params.set<Real>("Tgas_const") = 300;
-        params.set<UserObjectName>("polynomial_provider") = "superelastic_coeff"+std::to_string(_superelastic_index[i]);
+        params.set<UserObjectName>("polynomial_provider") =
+            "superelastic_coeff" + std::to_string(_superelastic_index[i]);
         params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
-        _problem->addAuxScalarKernel("SuperelasticRateCoefficientScalar", "aux_rate"+std::to_string(i), params);
+        _problem->addAuxScalarKernel(
+            "SuperelasticRateCoefficientScalar", "aux_rate" + std::to_string(i), params);
       }
     }
   }
@@ -264,7 +304,7 @@ AddScalarReactions::act()
       if (_energy_change[i])
       {
         Real energy_sign;
-        for (unsigned int t=0; t<_energy_variable.size(); ++t)
+        for (unsigned int t = 0; t < _energy_variable.size(); ++t)
         {
           if (_rate_type[i] != "EEDF")
           {
@@ -274,15 +314,16 @@ AddScalarReactions::act()
               energy_sign = -1.0;
 
             int non_electron_index;
-            // find_other = std::find(_species.begin(), _species.end(), _reactants[i][v_index]) != _species.end();
-            // Coupled variable must be generalized to allow for 3 reactants
+            // find_other = std::find(_species.begin(), _species.end(), _reactants[i][v_index]) !=
+            // _species.end(); Coupled variable must be generalized to allow for 3 reactants
             InputParameters params = _factory.getValidParams(energy_kernel_name);
             // params.set<NonlinearVariableName>("variable") = _electron_energy[0];
             params.set<NonlinearVariableName>("variable") = _energy_variable[t];
             // params.set<std::vector<VariableName>>("em") = {"em"};
-            params.set<std::vector<VariableName>>("em") = {getParam<std::string>("electron_density")};
+            params.set<std::vector<VariableName>>("em") = {
+                getParam<std::string>("electron_density")};
             // Find the non-electron reactant
-            for (unsigned int k=0; k<_reactants[i].size(); ++k)
+            for (unsigned int k = 0; k < _reactants[i].size(); ++k)
             {
               if (_reactants[i][k] == getParam<std::string>("electron_density"))
                 continue;
@@ -290,8 +331,12 @@ AddScalarReactions::act()
                 non_electron_index = k;
             }
             // Check if value is tracked, and if so, add as coupled variable.
-            find_other = std::find(_species.begin(), _species.end(), _reactants[i][non_electron_index]) != _species.end();
-            find_aux = std::find(_aux_species.begin(), _aux_species.end(), _reactants[i][non_electron_index]) != _aux_species.end();
+            find_other =
+                std::find(_species.begin(), _species.end(), _reactants[i][non_electron_index]) !=
+                _species.end();
+            find_aux = std::find(_aux_species.begin(),
+                                 _aux_species.end(),
+                                 _reactants[i][non_electron_index]) != _aux_species.end();
             if (find_other || find_aux)
               params.set<std::vector<VariableName>>("v") = {_reactants[i][non_electron_index]};
 
@@ -299,12 +344,14 @@ AddScalarReactions::act()
             params.set<std::string>("reaction") = _reaction[i];
             params.set<Real>("threshold_energy") = energy_sign * _threshold_energy[i];
             params.set<Real>("position_units") = _r_units;
-            _problem->addKernel(energy_kernel_name, "energy_kernel"+std::to_string(i)+"_"+_reaction[i], params);
+            _problem->addKernel(energy_kernel_name,
+                                "energy_kernel" + std::to_string(i) + "_" + _reaction[i],
+                                params);
           }
         }
       }
 
-      for (int j = 0; j < _species.size(); ++j)
+      for (MooseIndex(_species) j = 0; j < _species.size(); ++j)
       {
         iter = std::find(_reactants[i].begin(), _reactants[i].end(), _species[j]);
         index = std::distance(_reactants[i].begin(), iter);
@@ -319,19 +366,22 @@ AddScalarReactions::act()
         if (iter != _reactants[i].end())
         {
           reactant_indices.resize(_reactants[i].size());
-          for (unsigned int k=0; k<_reactants[i].size(); ++k)
+          for (unsigned int k = 0; k < _reactants[i].size(); ++k)
             reactant_indices[k] = k;
           reactant_indices.erase(reactant_indices.begin() + index);
-          for (unsigned int k=0; k<reactant_indices.size(); ++k)
+          for (unsigned int k = 0; k < reactant_indices.size(); ++k)
           {
-            find_other = std::find(_species.begin(), _species.end(), _reactants[i][reactant_indices[k]]) != _species.end();
+            find_other =
+                std::find(_species.begin(), _species.end(), _reactants[i][reactant_indices[k]]) !=
+                _species.end();
             if (find_other)
               continue;
             else
               reactant_indices.erase(reactant_indices.begin() + k);
           }
           v_index = std::abs(index - 1);
-          find_other = std::find(_species.begin(), _species.end(), _reactants[i][v_index]) != _species.end();
+          find_other =
+              std::find(_species.begin(), _species.end(), _reactants[i][v_index]) != _species.end();
           if (_species_count[i][j] < 0)
           {
             InputParameters params = _factory.getValidParams(reactant_kernel_name);
@@ -342,19 +392,21 @@ AddScalarReactions::act()
             params.set<bool>("rate_constant_equation") = true;
             if (find_other)
             {
-              for (unsigned int k=0; k<reactant_indices.size(); ++k)
-                params.set<std::vector<VariableName>>(other_variables[k]) = {_reactants[i][reactant_indices[k]]};
+              for (unsigned int k = 0; k < reactant_indices.size(); ++k)
+                params.set<std::vector<VariableName>>(other_variables[k]) = {
+                    _reactants[i][reactant_indices[k]]};
             }
-            _problem->addScalarKernel(reactant_kernel_name, "kernel"+std::to_string(j)+"_"+_reaction[i], params);
-
+            _problem->addScalarKernel(
+                reactant_kernel_name, "kernel" + std::to_string(j) + "_" + _reaction[i], params);
           }
         }
 
         iter = std::find(_products[i].begin(), _products[i].end(), _species[j]);
         include_species.resize(_reactants[i].size());
-        for (unsigned int k=0; k<_reactants[i].size(); ++k)
+        for (unsigned int k = 0; k < _reactants[i].size(); ++k)
         {
-          include_species[k] = std::find(_species.begin(), _species.end(), _reactants[i][k]) != _species.end();
+          include_species[k] =
+              std::find(_species.begin(), _species.end(), _reactants[i][k]) != _species.end();
         }
         if (iter != _products[i].end())
         {
@@ -367,22 +419,22 @@ AddScalarReactions::act()
             params.set<std::vector<VariableName>>("rate_coefficient") = {_aux_var_name[i]};
             params.set<bool>("rate_constant_equation") = true;
             params.set<Real>("coefficient") = _species_count[i][j];
-            for (unsigned int k=0; k<_reactants[i].size(); ++k)
+            for (unsigned int k = 0; k < _reactants[i].size(); ++k)
             {
               if (include_species[k])
               {
                 params.set<std::vector<VariableName>>(other_variables[k]) = {_reactants[i][k]};
                 if (_species[j] == _reactants[i][k])
                 {
-                  params.set<bool>(other_variables[k]+"_eq_u") = true;
+                  params.set<bool>(other_variables[k] + "_eq_u") = true;
                 }
               }
-
             }
-            _problem->addScalarKernel(product_kernel_name, "kernel_prod"+std::to_string(j)+"_"+_reaction[i], params);
+            _problem->addScalarKernel(product_kernel_name,
+                                      "kernel_prod" + std::to_string(j) + "_" + _reaction[i],
+                                      params);
           }
         }
-
       }
     }
   }

@@ -12,8 +12,7 @@ validParams<ScalarDiffusion>()
 }
 
 ScalarDiffusion::ScalarDiffusion(const InputParameters & parameters)
-  : ODEKernel(parameters),
-    _rate(getParam<Real>("rate"))
+  : ODEKernel(parameters), _rate(getParam<Real>("rate"))
 {
 }
 
@@ -30,7 +29,7 @@ ScalarDiffusion::computeQpJacobian()
 }
 
 Real
-ScalarDiffusion::computeQpOffDiagJacobian()
+ScalarDiffusion::computeQpOffDiagJacobian(unsigned int)
 {
   return 0;
 }

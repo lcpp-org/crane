@@ -21,9 +21,9 @@ protected:
 
   Real _energy_change;
   Real _energy_scale;
-  int _v_var;
+  unsigned int _v_var;
   const VariableValue & _v;
-  int _w_var;
+  unsigned int _w_var;
   const VariableValue & _w;
   const VariableValue & _rate_coefficient;
 

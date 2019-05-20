@@ -8,11 +8,14 @@ InputParameters
 validParams<ParsedScalarReaction>()
 {
   InputParameters params = validParams<ParsedODEKernel>();
-  params.addParam<FileName>("property_file", "",
-      "The file containing interpolation tables for material properties.");
-  params.addParam<std::string>("file_location", "", "The name of the file that stores the reaction rate tables.");
-  params.addParam<std::string>("sampling_format", "reduced_field",
-    "The format that the rate constant files are in. Options: reduced_field and electron_energy.");
+  params.addParam<FileName>(
+      "property_file", "", "The file containing interpolation tables for material properties.");
+  params.addParam<std::string>(
+      "file_location", "", "The name of the file that stores the reaction rate tables.");
+  params.addParam<std::string>("sampling_format",
+                               "reduced_field",
+                               "The format that the rate constant files are in. Options: "
+                               "reduced_field and electron_energy.");
   // params.addCoupledVar("v", 0, "Coupled variable 1.");
   // params.addRequiredParam<Real>("n_gas", "The gas density.");
   // params.addRequiredParam<Real>("coefficient", "The stoichiometric coefficient.");
@@ -21,17 +24,17 @@ validParams<ParsedScalarReaction>()
 }
 
 ParsedScalarReaction::ParsedScalarReaction(const InputParameters & parameters)
-  : ParsedODEKernel(parameters),
-    _sampling_format(getParam<std::string>("sampling_format"))
-    // _v_var(isCoupledScalar("v") ? coupledScalar("v") : -1),
-    // _v(coupledScalarValue("v")),
-    // _n_gas(getParam<Real>("n_gas")),
-    // _stoichiometric_coeff(getParam<Real>("coefficient")),
-    // _v_eq_u(getParam<bool>("v_eq_u"))
+  : ParsedODEKernel(parameters), _sampling_format(getParam<std::string>("sampling_format"))
+// _v_var(isCoupledScalar("v") ? coupledScalar("v") : -1),
+// _v(coupledScalarValue("v")),
+// _n_gas(getParam<Real>("n_gas")),
+// _stoichiometric_coeff(getParam<Real>("coefficient")),
+// _v_eq_u(getParam<bool>("v_eq_u"))
 {
   std::vector<Real> reduced_field;
   std::vector<Real> electron_temperature;
-  std::string file_name = getParam<std::string>("file_location") + "/" + getParam<FileName>("property_file");
+  std::string file_name =
+      getParam<std::string>("file_location") + "/" + getParam<FileName>("property_file");
   MooseUtils::checkFileReadable(file_name);
   const char * charPath = file_name.c_str();
   std::ifstream myfile(charPath);
@@ -51,8 +54,6 @@ ParsedScalarReaction::ParsedScalarReaction(const InputParameters & parameters)
     mooseError("Unable to open file");
 
   _temperature_interpolation.setData(reduced_field, electron_temperature);
-
-
 }
 
 Real
@@ -82,12 +83,12 @@ ParsedScalarReaction::computeQpJacobian()
   //   return 0;
   // }
   // else
-    // return -_stoichiometric_coeff * _data.reaction_coefficient() * mult1;
-    return 0;
+  // return -_stoichiometric_coeff * _data.reaction_coefficient() * mult1;
+  return 0;
 }
 
 Real
-ParsedScalarReaction::computeQpOffDiagJacobian(unsigned int jvar)
+ParsedScalarReaction::computeQpOffDiagJacobian(unsigned int /*jvar*/)
 {
   // Real mult1;
   //
@@ -108,6 +109,5 @@ ParsedScalarReaction::computeQpOffDiagJacobian(unsigned int jvar)
   //     return 0.0;
   // }
   // else
-    return 0.0;
-
+  return 0.0;
 }
