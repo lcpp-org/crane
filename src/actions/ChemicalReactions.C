@@ -125,8 +125,8 @@ ChemicalReactions::ChemicalReactions(InputParameters params)
     _coefficient_format(getParam<std::string>("reaction_coefficient_format")),
     _sampling_format(getParam<std::string>("sampling_format")),
     _use_log(getParam<bool>("use_log")),
-    _scalar_problem(getParam<bool>("scalar_problem"))
-// _scalar_problem(getParam<bool>("scalar_problem"))
+    _scalar_problem(getParam<bool>("scalar_problem")),
+    _energy_change(false)
 {
   // 1) split into reactants and products
   // 2) split products into products and reaction rate
@@ -151,8 +151,6 @@ ChemicalReactions::ChemicalReactions(InputParameters params)
   while (std::getline(iss >> std::ws,
                       token)) // splits by \n character (default) and ignores leading whitespace
   {
-    // Define check for change of energy
-    bool _energy_change = false;
     pos = token.find(':'); // Looks for colon, which separates reaction and rate coefficients
 
     // Brackets enclose the energy gain/loss (if applicable)
