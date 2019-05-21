@@ -78,12 +78,7 @@ Reactant2BodyScalar::computeQpJacobian()
 Real
 Reactant2BodyScalar::computeQpOffDiagJacobian(unsigned int jvar)
 {
-  Real mult1;
   Real rate_constant;
-  if (isCoupledScalar("v"))
-    mult1 = _v[_i];
-  else
-    mult1 = _n_gas;
 
   // if (_rate_constant_equation)
   rate_constant = _rate_coefficient[_i];

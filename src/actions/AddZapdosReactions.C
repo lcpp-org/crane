@@ -88,7 +88,6 @@ AddZapdosReactions::act()
   bool find_aux;
   std::vector<bool> include_species;
   unsigned int target; // stores index of target species for electron-impact reactions
-  unsigned int aux_target;
   std::string product_kernel_name;
   std::string reactant_kernel_name;
   std::string energy_kernel_name;
@@ -164,7 +163,6 @@ AddZapdosReactions::act()
             if (_reactants[i][k] == _aux_species[j])
             {
               target_species_aux = true;
-              aux_target = k;
               break;
             }
           }
