@@ -182,7 +182,8 @@ AddZapdosReactions::act()
         params.set<std::vector<SubdomainName>>("block") =
             getParam<std::vector<SubdomainName>>("block");
         _problem->addMaterial("EEDFRateConstantTownsend",
-                              "reaction_" + std::to_string(i) + std::to_string(i),
+                              "reaction_" + std::to_string(i) + std::to_string(i) + "_" +
+                                  getParam<std::vector<SubdomainName>>("block")[0],
                               params);
       }
       else if (_rate_type[i] == "EEDF" && _coefficient_format == "rate")

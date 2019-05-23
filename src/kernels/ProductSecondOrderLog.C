@@ -33,6 +33,10 @@ ProductSecondOrderLog::ProductSecondOrderLog(const InputParameters & parameters)
     _v_coupled(isCoupled("v") ? true : false),
     _w_coupled(isCoupled("w") ? true : false)
 {
+  if (!isCoupled("v") || !isCoupled("w"))
+  {
+    mooseError("Missing coupled variable(s) in reaction {"+getParam<std::string>("reaction")+"}! \nMake sure all reactants are either nonlinear or auxiliary variables.");
+  }
 }
 
 Real
@@ -118,57 +122,4 @@ ProductSecondOrderLog::computeQpOffDiagJacobian(unsigned int jvar)
   gas_mult = mult1 * mult2;
 
   return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * gas_mult * power * _phi[_j][_qp];
-
-
-  // if (_v_coupled && _w_coupled)
-  // {
-  //   if (_v_id != _w_id)
-  //   {
-  //     if (jvar == _v_id)
-  //     {
-  //       return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] *
-  //               std::exp(_w[_qp]) * std::exp(_v[_qp]) * _phi[_j][_qp];
-  //     }
-  //     else if (jvar == _w_id)
-  //     {
-  //       return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] *
-  //               std::exp(_v[_qp]) * std::exp(_w[_qp]) * _phi[_j][_qp];
-  //     }
-  //     else
-  //       return 0.0;
-  //   }
-  //   else
-  //   {
-  //     if (jvar == _v_id)
-  //     {
-  //       return -_test[_i][_qp] * 2.0 * _stoichiometric_coeff * _reaction_coeff[_qp] *
-  //               std::exp(_v[_qp]) * std::exp(_w[_qp]) * _phi[_j][_qp];
-  //       // return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 2.0 * _phi[_j][_qp] * (std::exp(_v[_qp]) + std::exp(_w[_qp]));
-  //     }
-  //     else
-  //     {
-  //       return 0.0;
-  //     }
-  //   }
-  // }
-  // else if (isCoupled("v") && !isCoupled("w"))
-  // {
-  //   if (jvar == _v_id)
-  //     return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] *
-  //             _n_gas[_qp] * std::exp(_v[_qp]) * _phi[_j][_qp];
-  //   else
-  //     return 0.0;
-  // }
-  // else if (!isCoupled("v") && isCoupled("w"))
-  // {
-  //   if (jvar == _w_id)
-  //     return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] *
-  //           _n_gas[_qp] * std::exp(_w[_qp]) * _phi[_j][_qp];
-  //   else
-  //     return 0.0;
-  // }
-  // else
-  // {
-  //   return 0.0;
-  // }
 }
