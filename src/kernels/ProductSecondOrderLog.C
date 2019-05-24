@@ -25,7 +25,7 @@ ProductSecondOrderLog::ProductSecondOrderLog(const InputParameters & parameters)
     _w(isCoupled("w") ? coupledValue("w") : _zero),
     _v_id(isCoupled("v") ? coupled("v") : 0),
     _w_id(isCoupled("w") ? coupled("w") : 0),
-    _n_gas(getMaterialProperty<Real>("n_gas")),
+    // _n_gas(getMaterialProperty<Real>("n_gas")),
     _reaction_coeff(getMaterialProperty<Real>("k_" + getParam<std::string>("reaction"))),
     _stoichiometric_coeff(getParam<Real>("coefficient")),
     _v_eq_u(getParam<bool>("_v_eq_u")),
@@ -35,7 +35,8 @@ ProductSecondOrderLog::ProductSecondOrderLog(const InputParameters & parameters)
 {
   if (!isCoupled("v") || !isCoupled("w"))
   {
-    mooseError("Missing coupled variable(s) in reaction {"+getParam<std::string>("reaction")+"}! \nMake sure all reactants are either nonlinear or auxiliary variables.");
+    mooseError("Missing coupled variable(s) in reaction {" + getParam<std::string>("reaction") +
+               "}! \nMake sure all reactants are either nonlinear or auxiliary variables.");
   }
 }
 
@@ -43,19 +44,19 @@ Real
 ProductSecondOrderLog::computeQpResidual()
 {
   Real mult1, mult2;
-  if (_v_coupled)
-    mult1 = std::exp(_v[_qp]);
-  else
-  {
-    mult1 = _n_gas[_qp];
-  }
+  // if (_v_coupled)
+  mult1 = std::exp(_v[_qp]);
+  // else
+  //{
+  //  mult1 = _n_gas[_qp];
+  //}
 
-  if (_w_coupled)
-    mult2 = std::exp(_w[_qp]);
-  else
-  {
-    mult2 = _n_gas[_qp];
-  }
+  // if (_w_coupled)
+  mult2 = std::exp(_w[_qp]);
+  // else
+  //{
+  //  mult2 = _n_gas[_qp];
+  //}
 
   return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * mult1 * mult2;
 }
@@ -67,15 +68,15 @@ ProductSecondOrderLog::computeQpJacobian()
   power = 0.0;
   gas_mult = 1.0;
 
-  if (_v_coupled)
-    mult1 = std::exp(_v[_qp]);
-  else
-    mult1 = _n_gas[_qp];
+  // if (_v_coupled)
+  mult1 = std::exp(_v[_qp]);
+  // else
+  //  mult1 = _n_gas[_qp];
 
-  if (_w_coupled)
-    mult2 = std::exp(_w[_qp]);
-  else
-    mult2 = _n_gas[_qp];
+  // if (_w_coupled)
+  mult2 = std::exp(_w[_qp]);
+  // else
+  //  mult2 = _n_gas[_qp];
 
   if (_v_coupled && _v_eq_u)
     power += 1.0;
@@ -91,7 +92,8 @@ ProductSecondOrderLog::computeQpJacobian()
   }
   else
   {
-    return -_test[_i][_qp] * _stoichiometric_coeff * power * _reaction_coeff[_qp] * gas_mult * _phi[_j][_qp];
+    return -_test[_i][_qp] * _stoichiometric_coeff * power * _reaction_coeff[_qp] * gas_mult *
+           _phi[_j][_qp];
   }
 }
 
@@ -103,23 +105,24 @@ ProductSecondOrderLog::computeQpOffDiagJacobian(unsigned int jvar)
   // Real rate_constant;
   power = 0;
   gas_mult = 1;
-  if (_v_coupled)
-    mult1 = std::exp(_v[_qp]);
-  else
-    mult1 = _n_gas[_qp];
+  // if (_v_coupled)
+  mult1 = std::exp(_v[_qp]);
+  // else
+  //  mult1 = _n_gas[_qp];
 
-  if (_w_coupled)
-    mult2 = std::exp(_w[_qp]);
-  else
-    mult2 = _n_gas[_qp];
+  // if (_w_coupled)
+  mult2 = std::exp(_w[_qp]);
+  // else
+  //  mult2 = _n_gas[_qp];
 
-  if (_v_coupled && !_v_eq_u && jvar==_v_id)
+  if (_v_coupled && !_v_eq_u && jvar == _v_id)
     power += 1;
 
-  if (_w_coupled && !_w_eq_u && jvar==_w_id)
+  if (_w_coupled && !_w_eq_u && jvar == _w_id)
     power += 1;
 
   gas_mult = mult1 * mult2;
 
-  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * gas_mult * power * _phi[_j][_qp];
+  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * gas_mult * power *
+         _phi[_j][_qp];
 }

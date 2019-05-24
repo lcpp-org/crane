@@ -35,7 +35,7 @@ protected:
 
   const VariableValue & _v;
   unsigned int _v_id;
-  const MaterialProperty<Real> & _n_gas;
+  // const MaterialProperty<Real> & _n_gas;
 
   // The reaction coefficient
   const MaterialProperty<Real> & _reaction_coeff;
