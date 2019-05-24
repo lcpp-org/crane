@@ -47,7 +47,7 @@ protected:
   bool _v_coupled;
   bool _w_coupled;
   bool _x_coupled;
-  const MaterialProperty<Real> & _n_gas;
+  // const MaterialProperty<Real> & _n_gas;
 
   // The reaction coefficient
   const MaterialProperty<Real> & _reaction_coeff;

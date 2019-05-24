@@ -44,7 +44,7 @@ protected:
   bool _w_eq_u;
   bool _v_coupled;
   bool _w_coupled;
-  const MaterialProperty<Real> & _n_gas;
+  //  const MaterialProperty<Real> & _n_gas;
   Real _stoichiometric_coeff;
 };
 #endif // REACTANTTHIRDORDERLOG_H

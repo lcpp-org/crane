@@ -30,7 +30,7 @@ ReactantThirdOrderLog::ReactantThirdOrderLog(const InputParameters & parameters)
     _w_eq_u(getParam<bool>("_w_eq_u")),
     _v_coupled(isCoupled("v") ? true : false),
     _w_coupled(isCoupled("w") ? true : false),
-    _n_gas(getMaterialProperty<Real>("n_gas")),
+    // _n_gas(getMaterialProperty<Real>("n_gas")),
     _stoichiometric_coeff(getParam<Real>("coefficient"))
 {
 }
@@ -38,20 +38,22 @@ ReactantThirdOrderLog::ReactantThirdOrderLog(const InputParameters & parameters)
 Real
 ReactantThirdOrderLog::computeQpResidual()
 {
-  Real mult1, mult2;
+  // Real mult1, mult2;
 
-  if (_v_coupled)
-    mult1 = std::exp(_v[_qp]);
-  else
-    mult1 = _n_gas[_qp];
+  // if (_v_coupled)
+  //  mult1 = std::exp(_v[_qp]);
+  // else
+  //  mult1 = _n_gas[_qp];
 
-  if (_w_coupled)
-    mult2 = std::exp(_w[_qp]);
-  else
-    mult2 = _n_gas[_qp];
+  // if (_w_coupled)
+  //  mult2 = std::exp(_w[_qp]);
+  // else
+  //  mult2 = _n_gas[_qp];
 
   return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * std::exp(_u[_qp]) *
-         mult1 * mult2;
+         std::exp(_v[_qp]) * std::exp(_w[_qp]);
+  // return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * std::exp(_u[_qp]) *
+  //       mult1 * mult2;
 
   // if (isCoupled("v") && isCoupled("w"))
   // {
@@ -76,24 +78,24 @@ ReactantThirdOrderLog::computeQpResidual()
 Real
 ReactantThirdOrderLog::computeQpJacobian()
 {
-
-  Real mult1, mult2;
-  Real power, u_mult;
+  Real power;
+  //  Real mult1, mult2;
+  //  Real power, u_mult;
   // power = 0.0;
   // eq_u_mult = 1.0;
   // gas_mult = 1.0;
 
-  if (_v_coupled)
-    mult1 = std::exp(_v[_qp]);
-  else
-    mult1 = _n_gas[_qp];
+  // if (_v_coupled)
+  //  mult1 = std::exp(_v[_qp]);
+  // else
+  //  mult1 = _n_gas[_qp];
 
-  if (_w_coupled)
-    mult2 = std::exp(_w[_qp]);
-  else
-    mult2 = _n_gas[_qp];
+  // if (_w_coupled)
+  //  mult2 = std::exp(_w[_qp]);
+  // else
+  //  mult2 = _n_gas[_qp];
 
-  u_mult = mult1 * mult2 * std::exp(_u[_qp]);
+  // u_mult = mult1 * mult2 * std::exp(_u[_qp]);
 
   power = 1;
   if (_v_coupled && _v_eq_u)
@@ -102,8 +104,10 @@ ReactantThirdOrderLog::computeQpJacobian()
   if (_w_coupled && _w_eq_u)
     power += 1;
 
-  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * power * u_mult *
-         _phi[_j][_qp];
+  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * power *
+         std::exp(_u[_qp]) * std::exp(_v[_qp]) * std::exp(_w[_qp]) * _phi[_j][_qp];
+  // return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * power * u_mult *
+  //       _phi[_j][_qp];
 
   // if (isCoupled("v") && isCoupled("w"))
   //   return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 1.0 *
@@ -129,18 +133,19 @@ ReactantThirdOrderLog::computeQpJacobian()
 Real
 ReactantThirdOrderLog::computeQpOffDiagJacobian(unsigned int)
 {
-  Real mult1, mult2, u_mult, power;
-  if (_v_coupled)
-    mult1 = std::exp(_v[_qp]);
-  else
-    mult1 = _n_gas[_qp];
+  Real power;
+  // Real mult1, mult2, u_mult, power;
+  // if (_v_coupled)
+  //  mult1 = std::exp(_v[_qp]);
+  // else
+  //  mult1 = _n_gas[_qp];
 
-  if (_w_coupled)
-    mult2 = std::exp(_w[_qp]);
-  else
-    mult2 = _n_gas[_qp];
+  // if (_w_coupled)
+  //  mult2 = std::exp(_w[_qp]);
+  // else
+  //  mult2 = _n_gas[_qp];
 
-  u_mult = mult1 * mult2 * std::exp(_u[_qp]);
+  // u_mult = mult1 * mult2 * std::exp(_u[_qp]);
 
   power = 0;
 
@@ -150,8 +155,10 @@ ReactantThirdOrderLog::computeQpOffDiagJacobian(unsigned int)
   if (_w_coupled && !_w_eq_u)
     power += 1;
 
-  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * power * u_mult *
-         _phi[_j][_qp];
+  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * power *
+         std::exp(_u[_qp]) * std::exp(_v[_qp]) * std::exp(_w[_qp]) * _phi[_j][_qp];
+  //  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * power * u_mult *
+  //         _phi[_j][_qp];
   // if (isCoupled("v") && isCoupled("w"))
   // {
   //   if (_v_id != _w_id)
