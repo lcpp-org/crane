@@ -275,7 +275,6 @@ AddReactions::act()
     int non_electron_index;
     int index; // stores index of species in the reactant/product arrays
     std::vector<std::string>::iterator iter;
-    std::vector<std::string>::iterator iter_aux;
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
       energy_kernel_name = "EnergyTerm";
