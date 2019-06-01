@@ -33,20 +33,15 @@ protected:
   virtual Real computeQpJacobian();
   virtual Real computeQpOffDiagJacobian(unsigned int jvar);
 
-  // MooseVariable & _coupled_var_A;
-  // MooseVariable & _coupled_var_B;
   const VariableValue & _v;
   const VariableValue & _w;
   unsigned int _v_id;
   unsigned int _w_id;
-  // const MaterialProperty<Real> & _n_gas;
 
   // The reaction coefficient
   const MaterialProperty<Real> & _reaction_coeff;
   Real _stoichiometric_coeff;
   bool _v_eq_u;
   bool _w_eq_u;
-  bool _v_coupled;
-  bool _w_coupled;
 };
 #endif // PRODUCTSECONDORDERLOG_H
