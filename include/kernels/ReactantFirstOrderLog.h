@@ -33,11 +33,7 @@ protected:
   Real computeQpJacobian() override;
   Real computeQpOffDiagJacobian(unsigned int) override;
 
-  // The reaction coefficient
-  // MooseVariable & _coupled_var_A;
   const MaterialProperty<Real> & _reaction_coeff;
-  // const MaterialProperty<Real> & _diff_rate;
-  // const MaterialProperty<Real> & _n_gas;
   Real _stoichiometric_coeff;
 };
 #endif // REACTANTFIRSTORDERLOG_H

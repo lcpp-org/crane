@@ -182,7 +182,8 @@ AddZapdosReactions::act()
         params.set<std::vector<SubdomainName>>("block") =
             getParam<std::vector<SubdomainName>>("block");
         _problem->addMaterial("EEDFRateConstantTownsend",
-                              "reaction_" + std::to_string(i) + std::to_string(i),
+                              "reaction_" + std::to_string(i) + std::to_string(i) + "_" +
+                                  getParam<std::vector<SubdomainName>>("block")[0],
                               params);
       }
       else if (_rate_type[i] == "EEDF" && _coefficient_format == "rate")
@@ -396,13 +397,21 @@ AddZapdosReactions::act()
             else
             {
               InputParameters params = _factory.getValidParams(energy_kernel_name);
-              if (find_other || find_aux)
-                params.set<std::vector<VariableName>>("v") = {_reactants[i][non_electron_index]};
+              // if (find_other || find_aux)
+              //  params.set<std::vector<VariableName>>("v") = {_reactants[i][non_electron_index]};
               params.set<NonlinearVariableName>("variable") = _electron_energy[0];
               params.set<std::vector<VariableName>>("em") = {"em"};
               if (_coefficient_format == "townsend")
+              {
                 params.set<std::vector<VariableName>>("potential") =
                     getParam<std::vector<VariableName>>("potential");
+              }
+              else
+              {
+                // If rate format, the target species is needed.
+                if (find_other || find_aux)
+                  params.set<std::vector<VariableName>>("v") = {_reactants[i][non_electron_index]};
+              }
               // params.set<std::vector<VariableName>>("v") = {"Ar"};
               params.set<std::string>("reaction") = _reaction[i];
               params.set<Real>("threshold_energy") = energy_sign * _threshold_energy[i];
@@ -543,6 +552,8 @@ AddZapdosReactions::act()
               InputParameters params = _factory.getValidParams(reactant_kernel_name);
               params.set<NonlinearVariableName>("variable") = _species[j];
               params.set<Real>("coefficient") = _species_count[i][j];
+              // std::cout << getParam<std::vector<SubdomainName>>("block")[0] << ", " <<  _species_count[i][j] << std::endl;
+              // mooseError("TESTING");
               params.set<std::string>("reaction") = _reaction[i];
               if (find_other || find_aux)
               {
