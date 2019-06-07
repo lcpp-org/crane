@@ -12,37 +12,45 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef ELECTRONREACTANTSECONDORDERLOG_H
-#define ELECTRONREACTANTSECONDORDERLOG_H
+#ifndef ELECTRONIMPACTREACTIONREACTANT_H
+#define ELECTRONIMPACTREACTIONREACTANT_H
 
 #include "Kernel.h"
 
-// Forward Declaration
-class ElectronReactantSecondOrderLog;
+class ElectronImpactReactionReactant;
 
 template <>
-InputParameters validParams<ElectronReactantSecondOrderLog>();
+InputParameters validParams<ElectronImpactReactionReactant>();
 
-class ElectronReactantSecondOrderLog : public Kernel
+class ElectronImpactReactionReactant : public Kernel
 {
 public:
-  ElectronReactantSecondOrderLog(const InputParameters & parameters);
+  ElectronImpactReactionReactant(const InputParameters & parameters);
+  virtual ~ElectronImpactReactionReactant();
 
 protected:
   virtual Real computeQpResidual();
   virtual Real computeQpJacobian();
   virtual Real computeQpOffDiagJacobian(unsigned int jvar);
 
-  // The reaction coefficient
-  // MooseVariable & _coupled_var_A;
-  const MaterialProperty<Real> & _reaction_coeff;
-  const MaterialProperty<Real> & _d_k_d_en;
-  const VariableValue & _v;
-  const VariableValue & _energy;
-  unsigned int _v_id;
-  unsigned int _energy_id;
-  const MaterialProperty<Real> & _n_gas;
-  Real _stoichiometric_coeff;
-  bool _v_eq_electron;
+  Real _r_units;
+  std::string _reaction_coeff_name;
+  std::string _reaction_name;
+
+  const MaterialProperty<Real> & _diffem;
+  const MaterialProperty<Real> & _muem;
+  const MaterialProperty<Real> & _alpha;
+  const MaterialProperty<Real> & _d_iz_d_actual_mean_en;
+  const MaterialProperty<Real> & _d_muem_d_actual_mean_en;
+  const MaterialProperty<Real> & _d_diffem_d_actual_mean_en;
+
+  const VariableValue & _mean_en;
+  const VariableGradient & _grad_potential;
+  const VariableValue & _em;
+  const VariableGradient & _grad_em;
+  unsigned int _mean_en_id;
+  unsigned int _potential_id;
+  unsigned int _em_id;
 };
-#endif // ELECTRONREACTANTSECONDORDERLOG_H
+
+#endif /* ELECTRONIMPACTREACTIONREACTANT_H */

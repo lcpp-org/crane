@@ -43,7 +43,7 @@ protected:
   MaterialProperty<unsigned int> & _d_alpha_d_var_id;
   MaterialProperty<bool> & _target_coupled;
   bool _is_target_aux;
-  const MaterialProperty<Real> & _n_gas;
+  //  const MaterialProperty<Real> & _n_gas;
   const MaterialProperty<Real> & _massIncident;
   const MaterialProperty<Real> & _massTarget;
 
