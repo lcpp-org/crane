@@ -16,7 +16,8 @@ validParams<ElectronImpactReactionProduct>()
   params.addRequiredParam<Real>("position_units", "Units of position.");
   params.addRequiredParam<std::string>("reaction", "Stores the full reaction equation.");
   params.addRequiredParam<std::string>("reaction_coefficient_name",
-    "Stores the name of the reaction rate/townsend coefficient, unique to each individual reaction.");
+                                       "Stores the name of the reaction rate/townsend coefficient, "
+                                       "unique to each individual reaction.");
   return params;
 }
 
@@ -31,7 +32,7 @@ ElectronImpactReactionProduct::ElectronImpactReactionProduct(const InputParamete
     // _alpha(getMaterialProperty<Real>("alpha_iz")),
     _alpha(getMaterialProperty<Real>(_reaction_coeff_name)),
     // _d_iz_d_actual_mean_en(getMaterialProperty<Real>("d_iz_d_actual_mean_en")),
-    _d_iz_d_actual_mean_en(getMaterialProperty<Real>("d_alpha_d_en_"+_reaction_name)),
+    _d_iz_d_actual_mean_en(getMaterialProperty<Real>("d_alpha_d_en_" + _reaction_name)),
     _d_muem_d_actual_mean_en(getMaterialProperty<Real>("d_muem_d_actual_mean_en")),
     _d_diffem_d_actual_mean_en(getMaterialProperty<Real>("d_diffem_d_actual_mean_en")),
     _mean_en(coupledValue("mean_en")),
@@ -64,8 +65,8 @@ ElectronImpactReactionProduct::computeQpResidual()
   // Real iz_term = _alpha_iz[_qp] * electron_flux_mag;
   // Real iz_term = alpha * electron_flux_mag;
 
-    // return -_test[_i][_qp] * iz_term;
-    return -_test[_i][_qp] * _alpha[_qp] * electron_flux_mag;
+  // return -_test[_i][_qp] * iz_term;
+  return -_test[_i][_qp] * _alpha[_qp] * electron_flux_mag;
 }
 
 Real
@@ -93,8 +94,7 @@ ElectronImpactReactionProduct::computeQpJacobian()
     Real d_electron_flux_mag_d_em = electron_flux * d_electron_flux_d_em /
                                     (electron_flux_mag + std::numeric_limits<double>::epsilon());
 
-    Real d_iz_term_d_em =
-        (electron_flux_mag * d_iz_d_em + _alpha[_qp] * d_electron_flux_mag_d_em);
+    Real d_iz_term_d_em = (electron_flux_mag * d_iz_d_em + _alpha[_qp] * d_electron_flux_mag_d_em);
 
     return -_test[_i][_qp] * d_iz_term_d_em;
   }
@@ -144,13 +144,13 @@ ElectronImpactReactionProduct::computeQpOffDiagJacobian(unsigned int jvar)
   // Real d_iz_term_d_potential = (_alpha_iz[_qp] * d_electron_flux_mag_d_potential);
   // Real d_iz_term_d_mean_en =
   //     (electron_flux_mag * d_iz_d_mean_en + _alpha_iz[_qp] * d_electron_flux_mag_d_mean_en);
-  // Real d_iz_term_d_em = (electron_flux_mag * d_iz_d_em + _alpha_iz[_qp] * d_electron_flux_mag_d_em);
+  // Real d_iz_term_d_em = (electron_flux_mag * d_iz_d_em + _alpha_iz[_qp] *
+  // d_electron_flux_mag_d_em);
 
   Real d_iz_term_d_potential = (_alpha[_qp] * d_electron_flux_mag_d_potential);
   Real d_iz_term_d_mean_en =
       (electron_flux_mag * d_iz_d_mean_en + _alpha[_qp] * d_electron_flux_mag_d_mean_en);
   Real d_iz_term_d_em = (electron_flux_mag * d_iz_d_em + _alpha[_qp] * d_electron_flux_mag_d_em);
-
 
   if (jvar == _potential_id)
     return -_test[_i][_qp] * d_iz_term_d_potential;
@@ -175,5 +175,4 @@ ElectronImpactReactionProduct::computeQpOffDiagJacobian(unsigned int jvar)
   //
   // else
   //   return 0.0;
-
 }

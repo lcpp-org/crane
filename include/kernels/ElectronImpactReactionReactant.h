@@ -51,7 +51,6 @@ protected:
   unsigned int _mean_en_id;
   unsigned int _potential_id;
   unsigned int _em_id;
-
 };
 
 #endif /* ELECTRONIMPACTREACTIONREACTANT_H */

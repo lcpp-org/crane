@@ -13,7 +13,8 @@ validParams<ElectronProductSecondOrderLog>()
   params.addCoupledVar("electron", "The electron species variable.");
   params.addCoupledVar("target", "The target species variable.");
   params.addRequiredCoupledVar("energy",
-    "The energy variable. (Required for jacobian term. Ignore if reaction rate is a constant value.)");
+                               "The energy variable. (Required for jacobian term. Ignore if "
+                               "reaction rate is a constant value.)");
   params.addRequiredParam<std::string>("reaction", "The full reaction equation.");
   params.addRequiredParam<Real>("coefficient", "The stoichiometric coeffient.");
   params.addParam<bool>("_electron_eq_u", false, "If v == u.");
@@ -53,7 +54,8 @@ ElectronProductSecondOrderLog::computeQpResidual()
     mult2 = _n_gas[_qp];
   }
 
-  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * std::exp(_electron[_qp]) * mult2;
+  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * std::exp(_electron[_qp]) *
+         mult2;
 }
 
 Real
@@ -81,41 +83,44 @@ ElectronProductSecondOrderLog::computeQpJacobian()
     else
       d_ame_d_electron = 0.0;
 
-    return -_test[_i][_qp] * _stoichiometric_coeff * (_reaction_coeff[_qp] + (_d_k_d_en[_qp]*d_ame_d_electron)) * std::exp(_electron[_qp]) * mult2 * _phi[_j][_qp];
+    return -_test[_i][_qp] * _stoichiometric_coeff *
+           (_reaction_coeff[_qp] + (_d_k_d_en[_qp] * d_ame_d_electron)) * std::exp(_electron[_qp]) *
+           mult2 * _phi[_j][_qp];
   }
   // else
   // {
-    // power = 0.0;
-    // gas_mult = 1.0;
-    // k_deriv_mult = 0;
-    //
-    // if (_target_coupled)
-    //   mult2 = std::exp(_target[_qp]);
-    // else
-    //   mult2 = _n_gas[_qp];
-    //
-    // if (_electron_eq_u)
-    // {
-    //   power += 1.0;
-    //   actual_mean_en = std::exp(_energy[_qp] - _electron[_qp]);
-    //   d_ame_d_electron = -actual_mean_en;  // Multiplied by _phi[_j][_qp] at the end
-    // }
-    // else
-    //   d_ame_d_electron = 0.0;
-    //
-    // if (_target_coupled && _target_eq_u)
-    //   power += 1.0;
-    //
-    // gas_mult *= std::exp(_electron[_qp]) * mult2;
-    //
-    // return -_test[_i][_qp] * _stoichiometric_coeff * power * (_reaction_coeff[_qp] + (_d_k_d_en[_qp] * d_ame_d_electron)) * gas_mult * _phi[_j][_qp];
+  // power = 0.0;
+  // gas_mult = 1.0;
+  // k_deriv_mult = 0;
+  //
+  // if (_target_coupled)
+  //   mult2 = std::exp(_target[_qp]);
+  // else
+  //   mult2 = _n_gas[_qp];
+  //
+  // if (_electron_eq_u)
+  // {
+  //   power += 1.0;
+  //   actual_mean_en = std::exp(_energy[_qp] - _electron[_qp]);
+  //   d_ame_d_electron = -actual_mean_en;  // Multiplied by _phi[_j][_qp] at the end
+  // }
+  // else
+  //   d_ame_d_electron = 0.0;
+  //
+  // if (_target_coupled && _target_eq_u)
+  //   power += 1.0;
+  //
+  // gas_mult *= std::exp(_electron[_qp]) * mult2;
+  //
+  // return -_test[_i][_qp] * _stoichiometric_coeff * power * (_reaction_coeff[_qp] +
+  // (_d_k_d_en[_qp] * d_ame_d_electron)) * gas_mult * _phi[_j][_qp];
   // }
 }
 
 Real
 ElectronProductSecondOrderLog::computeQpOffDiagJacobian(unsigned int jvar)
 {
-  Real mult2,actual_mean_en,d_ame_d_electron,d_ame_d_energy;
+  Real mult2, actual_mean_en, d_ame_d_electron, d_ame_d_energy;
   // Real rate_constant;
 
   if (_target_coupled)
@@ -128,22 +133,25 @@ ElectronProductSecondOrderLog::computeQpOffDiagJacobian(unsigned int jvar)
     actual_mean_en = std::exp(_energy[_qp] - _electron[_qp]);
     d_ame_d_electron = -actual_mean_en;
 
-    return -_test[_i][_qp] * _stoichiometric_coeff * (_reaction_coeff[_qp] + (_d_k_d_en[_qp] * d_ame_d_electron)) * std::exp(_electron[_qp]) * mult2 * _phi[_j][_qp];
+    return -_test[_i][_qp] * _stoichiometric_coeff *
+           (_reaction_coeff[_qp] + (_d_k_d_en[_qp] * d_ame_d_electron)) * std::exp(_electron[_qp]) *
+           mult2 * _phi[_j][_qp];
   }
   else if (_target_coupled && !_target_eq_u && jvar == _target_id)
   {
-    return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * std::exp(_electron[_qp]) * mult2 * _phi[_j][_qp];
+    return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] *
+           std::exp(_electron[_qp]) * mult2 * _phi[_j][_qp];
   }
   else if (jvar == _energy_id)
   {
     actual_mean_en = std::exp(_energy[_qp] - _electron[_qp]);
     d_ame_d_energy = actual_mean_en;
 
-    return -_test[_i][_qp] * _stoichiometric_coeff * (_d_k_d_en[_qp] * d_ame_d_energy) * std::exp(_electron[_qp]) * mult2 * _phi[_j][_qp];
+    return -_test[_i][_qp] * _stoichiometric_coeff * (_d_k_d_en[_qp] * d_ame_d_energy) *
+           std::exp(_electron[_qp]) * mult2 * _phi[_j][_qp];
   }
   else
     return 0.0;
-
 
   // if (!_electron_eq_u && jvar==_electron_id)
   // {
@@ -161,5 +169,6 @@ ElectronProductSecondOrderLog::computeQpOffDiagJacobian(unsigned int jvar)
   // // Since these are in exponential form, the exp(dens1 + dens2) term always exists regardless!
   // gas_mult = mult1 * mult2;
   //
-  // return -_test[_i][_qp] * _stoichiometric_coeff * (_reaction_coeff[_qp] + (_d_k_d_en[_qp] * d_ame_d_electron)) * gas_mult * power * _phi[_j][_qp];
+  // return -_test[_i][_qp] * _stoichiometric_coeff * (_reaction_coeff[_qp] + (_d_k_d_en[_qp] *
+  // d_ame_d_electron)) * gas_mult * power * _phi[_j][_qp];
 }

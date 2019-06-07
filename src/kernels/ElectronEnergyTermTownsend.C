@@ -16,18 +16,19 @@ validParams<ElectronEnergyTermTownsend>()
   return params;
 }
 
-ElectronEnergyTermTownsend::ElectronEnergyTermTownsend(
-    const InputParameters & parameters)
+ElectronEnergyTermTownsend::ElectronEnergyTermTownsend(const InputParameters & parameters)
   : Kernel(parameters),
     _r_units(1. / getParam<Real>("position_units")),
     _elastic(getParam<bool>("elastic_collision")),
     _threshold_energy(getParam<Real>("threshold_energy")),
-    _elastic_energy(getMaterialProperty<Real>("energy_elastic_"+getParam<std::string>("reaction"))),
+    _elastic_energy(
+        getMaterialProperty<Real>("energy_elastic_" + getParam<std::string>("reaction"))),
     _diffem(getMaterialProperty<Real>("diffem")),
     _muem(getMaterialProperty<Real>("muem")),
-    _alpha(getMaterialProperty<Real>("alpha_"+getParam<std::string>("reaction"))),
+    _alpha(getMaterialProperty<Real>("alpha_" + getParam<std::string>("reaction"))),
     // _d_iz_d_actual_mean_en(getMaterialProperty<Real>("d_alpha_d_en_em + Ar = em + em + Arp")),
-    _d_iz_d_actual_mean_en(getMaterialProperty<Real>("d_alpha_d_en_"+getParam<std::string>("reaction"))),
+    _d_iz_d_actual_mean_en(
+        getMaterialProperty<Real>("d_alpha_d_en_" + getParam<std::string>("reaction"))),
     _d_muem_d_actual_mean_en(getMaterialProperty<Real>("d_muem_d_actual_mean_en")),
     _d_diffem_d_actual_mean_en(getMaterialProperty<Real>("d_diffem_d_actual_mean_en")),
     _grad_potential(isCoupled("potential") ? coupledGradient("potential") : _grad_zero),
@@ -37,11 +38,12 @@ ElectronEnergyTermTownsend::ElectronEnergyTermTownsend(
     _em_id(coupled("em"))
 {
   if (!_elastic && !isParamValid("threshold_energy"))
-    mooseError("ElectronEnergyTermTownsend: Elastic collision set to false, but no threshold energy for this reaction is provided!");
+    mooseError("ElectronEnergyTermTownsend: Elastic collision set to false, but no threshold "
+               "energy for this reaction is provided!");
   // else if (_elastic)
-    // _energy_change = _elastic_energy[_qp];
+  // _energy_change = _elastic_energy[_qp];
   // else
-    _energy_change = _threshold_energy;
+  _energy_change = _threshold_energy;
 }
 
 ElectronEnergyTermTownsend::~ElectronEnergyTermTownsend() {}

@@ -552,8 +552,8 @@ AddZapdosReactions::act()
               InputParameters params = _factory.getValidParams(reactant_kernel_name);
               params.set<NonlinearVariableName>("variable") = _species[j];
               params.set<Real>("coefficient") = _species_count[i][j];
-              // std::cout << getParam<std::vector<SubdomainName>>("block")[0] << ", " <<  _species_count[i][j] << std::endl;
-              // mooseError("TESTING");
+              // std::cout << getParam<std::vector<SubdomainName>>("block")[0] << ", " <<
+              // _species_count[i][j] << std::endl; mooseError("TESTING");
               params.set<std::string>("reaction") = _reaction[i];
               if (find_other || find_aux)
               {

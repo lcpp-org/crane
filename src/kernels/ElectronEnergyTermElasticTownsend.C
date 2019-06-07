@@ -27,17 +27,18 @@ validParams<ElectronEnergyTermElasticTownsend>()
   return params;
 }
 
-ElectronEnergyTermElasticTownsend::ElectronEnergyTermElasticTownsend(const InputParameters & parameters)
+ElectronEnergyTermElasticTownsend::ElectronEnergyTermElasticTownsend(
+    const InputParameters & parameters)
   : Kernel(parameters),
     _r_units(1. / getParam<Real>("position_units")),
     _diffem(getMaterialProperty<Real>("diffem")),
     _muem(getMaterialProperty<Real>("muem")),
-    _alpha(getMaterialProperty<Real>("alpha_"+getParam<std::string>("reaction"))),
+    _alpha(getMaterialProperty<Real>("alpha_" + getParam<std::string>("reaction"))),
     _d_iz_d_actual_mean_en(getMaterialProperty<Real>("d_iz_d_actual_mean_en")),
     _d_muem_d_actual_mean_en(getMaterialProperty<Real>("d_muem_d_actual_mean_en")),
     _d_diffem_d_actual_mean_en(getMaterialProperty<Real>("d_diffem_d_actual_mean_en")),
-//    _massem(getMaterialProperty<Real>("mass" + (*getVar("electron_species",0)).name())),
-    _massGas(getMaterialProperty<Real>("mass" + (*getVar("target_species",0)).name())),
+    //    _massem(getMaterialProperty<Real>("mass" + (*getVar("electron_species",0)).name())),
+    _massGas(getMaterialProperty<Real>("mass" + (*getVar("target_species", 0)).name())),
     _d_el_d_actual_mean_en(getMaterialProperty<Real>("d_el_d_actual_mean_en")),
     _grad_potential(coupledGradient("potential")),
     _em(coupledValue("electron_species")),
@@ -58,7 +59,7 @@ ElectronEnergyTermElasticTownsend::computeQpResidual()
                                .norm();
   Real Eel = -3.0 * _massem / _massGas[_qp] * 2.0 / 3 * std::exp(_u[_qp] - _em[_qp]);
   Real el_term = _alpha[_qp] * electron_flux_mag * Eel;
-  
+
   return -_test[_i][_qp] * el_term;
 }
 

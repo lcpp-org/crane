@@ -44,6 +44,5 @@ protected:
   const MaterialProperty<Real> & _n_gas;
   Real _stoichiometric_coeff;
   bool _v_eq_electron;
-
 };
 #endif // ELECTRONREACTANTSECONDORDERLOG_H
