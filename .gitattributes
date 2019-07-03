@@ -1,0 +1,5 @@
+.gitattributes export-ignore
+.gitignore export-ignore
+.clang-format export-ignore
+_config.yml export-ignore
+
