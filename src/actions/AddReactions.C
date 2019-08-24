@@ -460,6 +460,10 @@ AddReactions::act()
             find_other =
                 std::find(_species.begin(), _species.end(), _reactants[i][reactant_indices[k]]) !=
                 _species.end();
+
+            find_aux = std::find(_aux_species.begin(),
+                                 _aux_species.end(),
+                                 _reactants[i][reactant_indices[k]]) != _aux_species.end();
             if (find_other)
               continue;
             else
@@ -468,6 +472,7 @@ AddReactions::act()
           v_index = std::abs(index - 1);
           find_other =
               std::find(_species.begin(), _species.end(), _reactants[i][v_index]) != _species.end();
+
           if (_species_count[i][j] < 0)
           {
             if (_coefficient_format == "townsend")
@@ -519,6 +524,8 @@ AddReactions::act()
         {
           include_species[k] =
               std::find(_species.begin(), _species.end(), _reactants[i][k]) != _species.end();
+          if (!include_species[k])
+            include_species[k] = std::find(_aux_species.begin(), _aux_species.end(), _reactants[i][k]) != _aux_species.end();
         }
         if (iter != _products[i].end())
         {
