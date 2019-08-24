@@ -197,7 +197,10 @@ AddZapdosReactions::act()
         params.set<std::string>("sampling_format") = _sampling_variable;
         params.set<FileName>("property_file") = "reaction_" + _reaction[i] + ".txt";
         params.set<std::vector<VariableName>>("em") = {_reactants[i][_electron_index[i]]};
-        params.set<std::vector<VariableName>>("mean_en") = {_electron_energy[0]};
+        if (isParamValid("electron_energy"))
+        {
+          params.set<std::vector<VariableName>>("mean_en") = {_electron_energy[0]};
+        }
         params.set<bool>("elastic_collision") = _elastic_collision[i];
         params.set<std::vector<SubdomainName>>("block") =
             getParam<std::vector<SubdomainName>>("block");
@@ -397,8 +400,6 @@ AddZapdosReactions::act()
             else
             {
               InputParameters params = _factory.getValidParams(energy_kernel_name);
-              // if (find_other || find_aux)
-              //  params.set<std::vector<VariableName>>("v") = {_reactants[i][non_electron_index]};
               params.set<NonlinearVariableName>("variable") = _electron_energy[0];
               params.set<std::vector<VariableName>>("em") = {"em"};
               if (_coefficient_format == "townsend")
@@ -488,19 +489,21 @@ AddZapdosReactions::act()
             find_other =
                 std::find(_species.begin(), _species.end(), _reactants[i][reactant_indices[k]]) !=
                 _species.end();
-            find_aux = std::find(_aux_species.begin(),
-                                 _aux_species.end(),
-                                 _reactants[i][reactant_indices[k]]) != _aux_species.end();
+            if (!find_other)
+              find_other = std::find(_aux_species.begin(),
+                                     _aux_species.end(),
+                                     _reactants[i][reactant_indices[k]]) != _aux_species.end();
             if (find_other)
               continue;
             else
               reactant_indices.erase(reactant_indices.begin() + k);
           }
-          v_index = std::abs(index - 1);
-          find_other =
-              std::find(_species.begin(), _species.end(), _reactants[i][v_index]) != _species.end();
-          find_aux = std::find(_aux_species.begin(), _aux_species.end(), _reactants[i][v_index]) !=
-                     _aux_species.end();
+          /*v_index = std::abs(index - 1);*/
+          /*find_other =*/
+          /*std::find(_species.begin(), _species.end(), _reactants[i][v_index]) != _species.end();*/
+          /*find_aux = std::find(_aux_species.begin(), _aux_species.end(), _reactants[i][v_index])
+           * !=*/
+          /*_aux_species.end();*/
           if (_species_count[i][j] < 0)
           {
             if (_coefficient_format == "townsend" && _rate_type[i] == "EEDF")
@@ -524,12 +527,16 @@ AddZapdosReactions::act()
             // else if (_coefficient_format == "rate" || _rate_type[i] != "EEDF")
             else if (_coefficient_format == "rate" && _rate_type[i] == "EEDF")
             {
-              InputParameters params = _factory.getValidParams("Electron" + reactant_kernel_name);
+              std::cout << _species[j] << ", " << _reaction[i] << ", " << std::endl;
+              /*InputParameters params = _factory.getValidParams("Electron" +
+               * reactant_kernel_name);*/
+              InputParameters params = _factory.getValidParams(reactant_kernel_name);
               params.set<NonlinearVariableName>("variable") = _species[j];
               params.set<Real>("coefficient") = _species_count[i][j];
               params.set<std::string>("reaction") = _reaction[i];
-              params.set<std::vector<VariableName>>("energy") = {_electron_energy[0]};
-              if (find_other && !find_aux)
+              if (isParamValid("electron_energy"))
+                params.set<std::vector<VariableName>>("energy") = {_electron_energy[0]};
+              if (find_other || find_aux)
               {
                 for (unsigned int k = 0; k < reactant_indices.size(); ++k)
                 {
@@ -537,15 +544,16 @@ AddZapdosReactions::act()
                       _reactants[i][reactant_indices[k]]};
                   // If the current species does not equal the electron density, then BY DEFINITION
                   // the other species must be the electron density.
-                  if (_species[j] != getParam<std::string>("electron_density"))
-                    params.set<bool>("_" + other_variables[k] + "_eq_electron") = true;
+                  /*if (_species[j] != getParam<std::string>("electron_density"))*/
+                    /*params.set<bool>("_" + other_variables[k] + "_eq_electron") = true;*/
                 }
               }
               params.set<std::vector<SubdomainName>>("block") =
                   getParam<std::vector<SubdomainName>>("block");
-              _problem->addKernel("Electron" + reactant_kernel_name,
-                                  "kernel" + std::to_string(j) + "_" + _reaction[i],
-                                  params);
+
+              /*_problem->addKernel("Electron" + reactant_kernel_name,*/
+              _problem->addKernel(
+                  reactant_kernel_name, "kernel" + std::to_string(j) + "_" + _reaction[i], params);
             }
             else
             {
@@ -568,6 +576,7 @@ AddZapdosReactions::act()
               }
               params.set<std::vector<SubdomainName>>("block") =
                   getParam<std::vector<SubdomainName>>("block");
+
               _problem->addKernel(
                   reactant_kernel_name, "kernel" + std::to_string(j) + "_" + _reaction[i], params);
             }
@@ -619,23 +628,30 @@ AddZapdosReactions::act()
             // else if (_coefficient_format == "rate")
             else if (_coefficient_format == "rate" && _rate_type[i] == "EEDF")
             {
-              InputParameters params = _factory.getValidParams("Electron" + product_kernel_name);
+              /*InputParameters params = _factory.getValidParams("Electron" +
+               * product_kernel_name);*/
+              InputParameters params = _factory.getValidParams(product_kernel_name);
               params.set<NonlinearVariableName>("variable") = _species[j];
               params.set<std::string>("reaction") = _reaction[i];
               params.set<Real>("coefficient") = _species_count[i][j];
-              params.set<std::vector<VariableName>>("energy") =
-                  getParam<std::vector<VariableName>>("electron_energy");
+              if (isParamValid("electron_energy"))
+              {
+                params.set<std::vector<VariableName>>("energy") =
+                    getParam<std::vector<VariableName>>("electron_energy");
+              }
               for (unsigned int k = 0; k < _reactants[i].size(); ++k)
               {
-                if (_reactants[i][k] == getParam<std::string>("electron_density"))
+                /*if (_reactants[i][k] == getParam<std::string>("electron_density"))*/
+                /*{*/
+                  /*params.set<std::vector<VariableName>>("electron") = {_electron_energy[0]};*/
+                  /*if (_species[j] == _reactants[i][k])*/
+                    /*params.set<bool>("_electron_eq_u") = true;*/
+                /*}*/
+                /*else if (include_species[k])*/
+                if (include_species[k])
                 {
-                  params.set<std::vector<VariableName>>("electron") = {_electron_energy[0]};
-                  if (_species[j] == _reactants[i][k])
-                    params.set<bool>("_electron_eq_u") = true;
-                }
-                else if (include_species[k])
-                {
-                  params.set<std::vector<VariableName>>("target") = {_reactants[i][k]};
+                  params.set<std::vector<VariableName>>(other_variables[k]) = {_reactants[i][k]};
+                  /*params.set<std::vector<VariableName>>("target") = {_reactants[i][k]};*/
                   // This next if statement should never be satisfied...
                   if (_species[j] == _reactants[i][k])
                     params.set<bool>("_target_eq_u") = true;
@@ -643,7 +659,8 @@ AddZapdosReactions::act()
               }
               params.set<std::vector<SubdomainName>>("block") =
                   getParam<std::vector<SubdomainName>>("block");
-              _problem->addKernel("Electron" + product_kernel_name,
+              /*_problem->addKernel("Electron" + product_kernel_name,*/
+              _problem->addKernel(product_kernel_name,
                                   "kernel_prod" + std::to_string(j) + "_" + _reaction[i],
                                   params);
             }
