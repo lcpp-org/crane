@@ -50,6 +50,8 @@ protected:
   const VariableGradient & _grad_em;
   unsigned int _potential_id;
   unsigned int _em_id;
+  const VariableValue & _target;
+  unsigned int _target_id;
 
   Real _energy_change;
 };

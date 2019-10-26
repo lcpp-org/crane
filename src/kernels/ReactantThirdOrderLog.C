@@ -56,18 +56,37 @@ ReactantThirdOrderLog::computeQpJacobian()
 }
 
 Real
-ReactantThirdOrderLog::computeQpOffDiagJacobian(unsigned int)
+ReactantThirdOrderLog::computeQpOffDiagJacobian(unsigned int jvar)
 {
-  Real power;
+  if (_v_id == _w_id)
+  {
+    if (jvar == _v_id && !_v_eq_u)
+      return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * 2.0 *
+             std::exp(_u[_qp]) * std::exp(_v[_qp]) * std::exp(_w[_qp]) * _phi[_j][_qp];
+    else
+      return 0.0;
+  }
+  else
+  {
+    if ((jvar == _v_id && !_v_eq_u) || (jvar == _w_id && !_w_eq_u))
+      return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * std::exp(_u[_qp]) *
+             std::exp(_v[_qp]) * std::exp(_w[_qp]) * _phi[_j][_qp];
+    else
+      return 0.0;
+  }
 
-  power = 0;
+  /*
+Real power;
 
-  if (!_v_eq_u)
-    power += 1;
+power = 0;
 
-  if (!_w_eq_u)
-    power += 1;
+if (!_v_eq_u)
+  power += 1;
 
-  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * power *
-         std::exp(_u[_qp]) * std::exp(_v[_qp]) * std::exp(_w[_qp]) * _phi[_j][_qp];
+if (!_w_eq_u)
+  power += 1;
+
+return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * power *
+       std::exp(_u[_qp]) * std::exp(_v[_qp]) * std::exp(_w[_qp]) * _phi[_j][_qp];
+       */
 }
