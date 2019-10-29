@@ -14,6 +14,8 @@ validParams<ElectronImpactReactionReactant>()
   params.addRequiredCoupledVar("potential", "The potential.");
   params.addRequiredCoupledVar("em", "The electron density.");
   params.addRequiredParam<Real>("position_units", "Units of position.");
+  params.addCoupledVar("target",
+                       "The coupled target. If none, assumed to be background gas from BOLSIG+.");
   params.addRequiredParam<std::string>("reaction", "Stores the full reaction equation.");
   params.addRequiredParam<std::string>(
       "reaction_coefficient_name",
@@ -43,7 +45,9 @@ ElectronImpactReactionReactant::ElectronImpactReactionReactant(const InputParame
     _grad_em(coupledGradient("em")),
     _mean_en_id(coupled("mean_en")),
     _potential_id(coupled("potential")),
-    _em_id(coupled("em"))
+    _em_id(coupled("em")),
+    _target(isCoupled("target") ? coupledValue("target") : _zero),
+    _target_id(isCoupled("target") ? coupled("target") : 12345678)
 {
 }
 
@@ -63,7 +67,13 @@ ElectronImpactReactionReactant::computeQpResidual()
 Real
 ElectronImpactReactionReactant::computeQpJacobian()
 {
-  return 0.0;
+  Real electron_flux_mag = (-_muem[_qp] * -_grad_potential[_qp] * _r_units * std::exp(_em[_qp]) -
+                            _diffem[_qp] * std::exp(_em[_qp]) * _grad_em[_qp] * _r_units)
+                               .norm();
+  // if (isCoupled("target"))
+  return _test[_i][_qp] * _alpha[_qp] * _phi[_j][_qp] * electron_flux_mag;
+  // else
+  //  return 0.0;
 }
 
 Real
@@ -72,8 +82,6 @@ ElectronImpactReactionReactant::computeQpOffDiagJacobian(unsigned int jvar)
   // Define multiplication factor (determining if product or reactant)
 
   Real actual_mean_en = std::exp(_mean_en[_qp] - _em[_qp]);
-  Real d_actual_mean_en_d_mean_en = std::exp(_mean_en[_qp] - _em[_qp]) * _phi[_j][_qp];
-  Real d_actual_mean_en_d_em = -std::exp(_mean_en[_qp] - _em[_qp]) * _phi[_j][_qp];
 
   Real d_iz_d_mean_en = _d_iz_d_actual_mean_en[_qp] * actual_mean_en * _phi[_j][_qp];
   Real d_iz_d_em = _d_iz_d_actual_mean_en[_qp] * actual_mean_en * -_phi[_j][_qp];

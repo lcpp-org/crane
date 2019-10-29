@@ -13,6 +13,8 @@ validParams<ElectronEnergyTermTownsend>()
   params.addRequiredParam<std::string>("reaction", "The reaction that is adding/removing energy.");
   params.addParam<Real>("threshold_energy", 0.0, "Energy required for reaction to take place.");
   params.addRequiredParam<Real>("position_units", "Units of position.");
+  params.addCoupledVar("target",
+                       "The coupled target. If none, assumed to be background gas from BOLSIG+.");
   return params;
 }
 
@@ -35,7 +37,9 @@ ElectronEnergyTermTownsend::ElectronEnergyTermTownsend(const InputParameters & p
     _em(coupledValue("em")),
     _grad_em(coupledGradient("em")),
     _potential_id(coupled("potential")),
-    _em_id(coupled("em"))
+    _em_id(coupled("em")),
+    _target(isCoupled("target") ? coupledValue("target") : _zero),
+    _target_id(isCoupled("target") ? coupled("target") : 12345678)
 {
   if (!_elastic && !isParamValid("threshold_energy"))
     mooseError("ElectronEnergyTermTownsend: Elastic collision set to false, but no threshold "
@@ -62,7 +66,6 @@ ElectronEnergyTermTownsend::computeQpResidual()
 Real
 ElectronEnergyTermTownsend::computeQpJacobian()
 {
-  Real actual_mean_en = std::exp(_u[_qp] - _em[_qp]);
   Real d_actual_mean_en_d_mean_en = std::exp(_u[_qp] - _em[_qp]) * _phi[_j][_qp];
   Real d_iz_d_mean_en = _d_iz_d_actual_mean_en[_qp] * d_actual_mean_en_d_mean_en;
   Real d_muem_d_mean_en = _d_muem_d_actual_mean_en[_qp] * d_actual_mean_en_d_mean_en;
@@ -86,7 +89,6 @@ ElectronEnergyTermTownsend::computeQpJacobian()
 Real
 ElectronEnergyTermTownsend::computeQpOffDiagJacobian(unsigned int jvar)
 {
-  Real actual_mean_en = std::exp(_u[_qp] - _em[_qp]);
   Real d_actual_mean_en_d_em = -std::exp(_u[_qp] - _em[_qp]) * _phi[_j][_qp];
   Real d_iz_d_em = _d_iz_d_actual_mean_en[_qp] * d_actual_mean_en_d_em;
   Real d_muem_d_em = _d_muem_d_actual_mean_en[_qp] * d_actual_mean_en_d_em;
@@ -119,6 +121,10 @@ ElectronEnergyTermTownsend::computeQpOffDiagJacobian(unsigned int jvar)
   else if (jvar == _em_id)
   {
     return -_test[_i][_qp] * d_iz_term_d_em * _threshold_energy;
+  }
+  else if (jvar == _target_id)
+  {
+    return -_test[_i][_qp] * _alpha[_qp] * electron_flux.norm() * _phi[_j][_qp] * _threshold_energy;
   }
 
   else

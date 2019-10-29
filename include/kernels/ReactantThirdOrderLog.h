@@ -31,7 +31,7 @@ public:
 protected:
   Real computeQpResidual() override;
   Real computeQpJacobian() override;
-  Real computeQpOffDiagJacobian(unsigned int) override;
+  Real computeQpOffDiagJacobian(unsigned int jvar) override;
 
   const MaterialProperty<Real> & _reaction_coeff;
   const VariableValue & _v;
