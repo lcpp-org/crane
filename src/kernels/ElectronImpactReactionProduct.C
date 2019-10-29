@@ -78,7 +78,6 @@ ElectronImpactReactionProduct::computeQpJacobian()
   if (_var.number() == _em_id)
   {
     Real actual_mean_en = std::exp(_mean_en[_qp] - _em[_qp]);
-    Real d_actual_mean_en_d_em = -std::exp(_mean_en[_qp] - _em[_qp]) * _phi[_j][_qp];
 
     Real d_iz_d_em = _d_iz_d_actual_mean_en[_qp] * actual_mean_en * -_phi[_j][_qp];
     Real d_muem_d_em = _d_muem_d_actual_mean_en[_qp] * actual_mean_en * -_phi[_j][_qp];
@@ -111,8 +110,6 @@ ElectronImpactReactionProduct::computeQpOffDiagJacobian(unsigned int jvar)
   // Define multiplication factor (determining if product or reactant)
 
   Real actual_mean_en = std::exp(_mean_en[_qp] - _em[_qp]);
-  Real d_actual_mean_en_d_mean_en = std::exp(_mean_en[_qp] - _em[_qp]) * _phi[_j][_qp];
-  Real d_actual_mean_en_d_em = -std::exp(_mean_en[_qp] - _em[_qp]) * _phi[_j][_qp];
 
   Real d_iz_d_mean_en = _d_iz_d_actual_mean_en[_qp] * actual_mean_en * _phi[_j][_qp];
   Real d_iz_d_em = _d_iz_d_actual_mean_en[_qp] * actual_mean_en * -_phi[_j][_qp];

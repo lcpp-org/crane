@@ -72,7 +72,6 @@ AddZapdosReactions::AddZapdosReactions(InputParameters params)
 void
 AddZapdosReactions::act()
 {
-  int v_index;
   std::vector<int> other_index;
   std::vector<int> reactant_indices;
   std::vector<bool> reactant_species; // This says whether the reactant corresponding to
