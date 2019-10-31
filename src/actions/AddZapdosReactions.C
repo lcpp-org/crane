@@ -215,7 +215,7 @@ AddZapdosReactions::act()
         params.set<std::vector<SubdomainName>>("block") =
             getParam<std::vector<SubdomainName>>("block");
         _problem->addMaterial(
-            "GenericRateConstant", "reaction_" + std::to_string(i) + std::to_string(i), params);
+            "GenericRateConstant", "reaction_" + getParam<std::vector<SubdomainName>>("block")[0] + "_" + std::to_string(i) + std::to_string(i), params);
       }
       else if (_rate_type[i] == "Equation")
       {
@@ -578,7 +578,7 @@ AddZapdosReactions::act()
                   getParam<std::vector<SubdomainName>>("block");
 
               _problem->addKernel(
-                  reactant_kernel_name, "kernel" + std::to_string(j) + "_" + _reaction[i], params);
+                  reactant_kernel_name, "kernel" + std::to_string(i) + "_" + std::to_string(j) + "_" + _reaction[i], params);
             }
           }
         }
@@ -622,7 +622,7 @@ AddZapdosReactions::act()
               params.set<std::vector<SubdomainName>>("block") =
                   getParam<std::vector<SubdomainName>>("block");
               _problem->addKernel(product_kernel_name,
-                                  "kernel_prod" + std::to_string(j) + "_" + _reaction[i],
+                                  "kernel_prod" + std::to_string(i) + "_" + std::to_string(j) + "_" + _reaction[i],
                                   params);
             }
             // else if (_coefficient_format == "rate")
@@ -661,7 +661,7 @@ AddZapdosReactions::act()
                   getParam<std::vector<SubdomainName>>("block");
               /*_problem->addKernel("Electron" + product_kernel_name,*/
               _problem->addKernel(product_kernel_name,
-                                  "kernel_prod" + std::to_string(j) + "_" + _reaction[i],
+                                  "kernel_prod" + std::to_string(i) + "_" + std::to_string(j) + "_" + _reaction[i],
                                   params);
             }
             else
@@ -688,7 +688,7 @@ AddZapdosReactions::act()
               params.set<std::vector<SubdomainName>>("block") =
                   getParam<std::vector<SubdomainName>>("block");
               _problem->addKernel(product_kernel_name,
-                                  "kernel_prod" + std::to_string(j) + "_" + _reaction[i],
+                                  "kernel_prod" + std::to_string(i) + "_" + std::to_string(j) + "_" + _reaction[i],
                                   params);
             }
           }

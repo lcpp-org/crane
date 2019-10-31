@@ -146,17 +146,16 @@ EEDFRateConstantTownsend::computeQpProperties()
   //  std::cout << _townsend_coefficient[_qp] << ", " << getParam<std::string>("reaction")  <<
   //  std::endl;
   _d_alpha_d_en[_qp] = _coefficient_interpolation.sampleDerivative(actual_mean_energy);
-  /*  if (isCoupled("target_species"))
+  if (isCoupled("target_species"))
+  {
+    _townsend_coefficient[_qp] =
+        _townsend_coefficient[_qp] * std::exp(_target_species[_qp]) / 40.52422729;
+    if (!_is_target_aux)
     {
-      _townsend_coefficient[_qp] =
-          _townsend_coefficient[_qp] * std::exp(_target_species[_qp]) / _n_gas[_qp];
-      if (!_is_target_aux)
-      {
-        _d_alpha_d_en[_qp] = _d_alpha_d_en[_qp] * std::exp(_target_species[_qp]) / _n_gas[_qp];
-        _d_alpha_d_var_id[_qp] = _target_id;
-      }
+      _d_alpha_d_en[_qp] = _d_alpha_d_en[_qp] * std::exp(_target_species[_qp]) / 40.52422729;
+      _d_alpha_d_var_id[_qp] = _target_id;
     }
-    */
+  }
 
   if (_elastic_collision == true)
   {
