@@ -321,9 +321,36 @@ AddZapdosReactions::act()
         // }
       }
       // else if (_coefficient_format == "rate")
-      else
+
+      else if (_coefficient_format == "rate" && _rate_type[i] == "EEDF")
       {
         energy_kernel_name += "Rate";
+        // energy_kernel_name = "EnergyTermRate";
+        if (_reactants[i].size() == 1)
+        {
+          product_kernel_name = "ProductFirstOrder";
+          reactant_kernel_name = "ReactantFirstOrder";
+        }
+        else if (_reactants[i].size() == 2)
+        {
+          product_kernel_name = "ElectronProductSecondOrder";
+          reactant_kernel_name = "ElectronReactantSecondOrder";
+        }
+        else
+        {
+          product_kernel_name = "ProductThirdOrder";
+          reactant_kernel_name = "ReactantThirdOrder";
+        }
+        if (_use_log)
+        {
+          product_kernel_name += "Log";
+          reactant_kernel_name += "Log";
+        }
+      }
+      else
+      {
+        // energy_kernel_name += "Rate";
+        energy_kernel_name = "EnergyTermRate";
         if (_reactants[i].size() == 1)
         {
           product_kernel_name = "ProductFirstOrder";
@@ -403,10 +430,10 @@ AddZapdosReactions::act()
             else
             {
               InputParameters params = _factory.getValidParams(energy_kernel_name);
-              params.set<NonlinearVariableName>("variable") = _electron_energy[0];
-              params.set<std::vector<VariableName>>("em") = {"em"};
+              params.set<NonlinearVariableName>("variable") = {_electron_energy[0]};
               if (_coefficient_format == "townsend")
               {
+                params.set<std::vector<VariableName>>("em") = {"em"};
                 params.set<std::vector<VariableName>>("potential") =
                     getParam<std::vector<VariableName>>("potential");
                 if (find_other)
@@ -417,7 +444,23 @@ AddZapdosReactions::act()
               }
               else
               {
+                /*
+                std::string tempvar;
+                for (unsigned int val = 0; val < _reactants[i].size(); ++val)
+                {
+                  if (val == 0)
+                    tempvar = "v";
+                  else if (val == 1)
+                    tempvar = "w";
+                  else if (val == 2)
+                    tempvar = "x";
+                  else
+                    tempvar = "y";
+                  params.set<std::vector<VariableName>>(tempvar) = {_reactants[i][val]};
+                }
+                */
                 // If rate format, the target species is needed.
+                params.set<std::vector<VariableName>>("em") = {"em"};
                 if (find_other || find_aux)
                   params.set<std::vector<VariableName>>("v") = {_reactants[i][non_electron_index]};
               }
@@ -437,7 +480,7 @@ AddZapdosReactions::act()
             // find_other = std::find(_species.begin(), _species.end(), _reactants[i][v_index]) !=
             // _species.end(); Coupled variable must be generalized to allow for 3 reactants
             InputParameters params = _factory.getValidParams(energy_kernel_name);
-            params.set<NonlinearVariableName>("variable") = _electron_energy[0];
+            params.set<NonlinearVariableName>("variable") = {_electron_energy[0]};
             params.set<std::vector<VariableName>>("em") = {"em"};
             // Find the non-electron reactant
             for (unsigned int k = 0; k < _reactants[i].size(); ++k)
@@ -541,7 +584,6 @@ AddZapdosReactions::act()
             // else if (_coefficient_format == "rate" || _rate_type[i] != "EEDF")
             else if (_coefficient_format == "rate" && _rate_type[i] == "EEDF")
             {
-              std::cout << _species[j] << ", " << _reaction[i] << ", " << std::endl;
               /*InputParameters params = _factory.getValidParams("Electron" +
                * reactant_kernel_name);*/
               InputParameters params = _factory.getValidParams(reactant_kernel_name);
@@ -556,8 +598,8 @@ AddZapdosReactions::act()
                 {
                   params.set<std::vector<VariableName>>(other_variables[k]) = {
                       _reactants[i][reactant_indices[k]]};
-                  // If the current species does not equal the electron density, then BY DEFINITION
-                  // the other species must be the electron density.
+                  // If the current species does not equal the electron density, then BY
+                  // DEFINITION the other species must be the electron density.
                   /*if (_species[j] != getParam<std::string>("electron_density"))*/
                   /*params.set<bool>("_" + other_variables[k] + "_eq_electron") = true;*/
                 }
@@ -653,27 +695,38 @@ AddZapdosReactions::act()
               params.set<NonlinearVariableName>("variable") = _species[j];
               params.set<std::string>("reaction") = _reaction[i];
               params.set<Real>("coefficient") = _species_count[i][j];
+              params.set<std::vector<VariableName>>("electron") = {
+                  getParam<std::string>("electron_density")};
+
               if (isParamValid("electron_energy"))
               {
-                params.set<std::vector<VariableName>>("energy") =
-                    getParam<std::vector<VariableName>>("electron_energy");
+                params.set<std::vector<VariableName>>("energy") = {_electron_energy[0]};
+                // getParam<std::vector<VariableName>>("electron_energy");
               }
+
+              std::string other;
               for (unsigned int k = 0; k < _reactants[i].size(); ++k)
               {
-                /*if (_reactants[i][k] == getParam<std::string>("electron_density"))*/
-                /*{*/
-                /*params.set<std::vector<VariableName>>("electron") = {_electron_energy[0]};*/
-                /*if (_species[j] == _reactants[i][k])*/
-                /*params.set<bool>("_electron_eq_u") = true;*/
-                /*}*/
-                /*else if (include_species[k])*/
-                if (include_species[k])
+                if (k == 0)
+                  other = "_v_eq_u";
+                else if (k == 1)
+                  other = "_w_eq_u";
+                if (_reactants[i][k] == getParam<std::string>("electron_density"))
                 {
-                  params.set<std::vector<VariableName>>(other_variables[k]) = {_reactants[i][k]};
-                  /*params.set<std::vector<VariableName>>("target") = {_reactants[i][k]};*/
+                  // params.set<std::vector<VariableName>>("electron") = {_electron_energy[0]};
+                  if (_species[j] == _reactants[i][k])
+                    params.set<bool>("_electron_eq_u") = true;
+                }
+                // else if (include_species[k])*/
+                else if (include_species[k] &&
+                         _reactants[i][k] != getParam<std::string>("electron_density"))
+                {
+                  // params.set<std::vector<VariableName>>(other_variables[k]) = {_reactants[i][k]};
+                  params.set<std::vector<VariableName>>("target") = {_reactants[i][k]};
                   // This next if statement should never be satisfied...
                   if (_species[j] == _reactants[i][k])
-                    params.set<bool>("_target_eq_u") = true;
+                    params.set<bool>(other) = true;
+                  //                    params.set<bool>("_target_eq_u") = true;
                 }
               }
               params.set<std::vector<SubdomainName>>("block") =
