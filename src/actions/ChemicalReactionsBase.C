@@ -53,6 +53,8 @@ validParams<ChemicalReactionsBase>()
       "include_electrons", false, "Whether or not electrons are being considered.");
   params.addParam<bool>(
       "use_log", false, "Whether or not to use logarithmic densities. (N = exp(n))");
+  params.addParam<bool>(
+      "track_rates", true, "Whether or not to track production rates for each reaction");
   params.addParam<std::string>("electron_density", "The variable used for density of electrons.");
   params.addParam<std::vector<NonlinearVariableName>>(
       "electron_energy", "Electron energy, used for energy-dependent reaction rates.");
@@ -113,8 +115,9 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     _r_units(getParam<Real>("position_units")),
     _sampling_variable(getParam<std::string>("sampling_variable")),
     _use_log(getParam<bool>("use_log")),
+    _track_rates(getParam<bool>("track_rates")),
     _use_bolsig(getParam<bool>("use_bolsig"))
-// _use_moles(getParam<bool>("use_moles"))
+	// _use_moles(getParam<bool>("use_moles"))
 {
   std::istringstream iss(_input_reactions);
   std::string token;

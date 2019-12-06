@@ -44,9 +44,10 @@
     species = 'x y dummy'
     reaction_coefficient_format = 'rate'
     equation_variables = 'H2O'
-
-    reactions = 'x -> x + x  : 1.1
+    track_rates = True
+    reactions = '
                  x + y -> y  : 0.4
+                 x -> x + x  : 1.1
                  y + x -> x + y + y  : 0.1
                  y -> z  : 0.4
                  x + y -> dummy : {1e-5*H2O}'

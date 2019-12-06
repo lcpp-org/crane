@@ -47,11 +47,12 @@
     species = 'e Ar Ar+'
     file_location = 'Example5'
     sampling_variable = 'reduced_field'
-
+    track_rates = true
     # Add reactions here
-    reactions = 'e + Ar -> e + e + Ar+   : EEDF
-                 e + Ar+ + Ar -> Ar + Ar : 1e-25'
-
+    reactions = 'e + Ar -> e + e + Ar+   : EEDF 
+                 e + Ar+ + Ar -> Ar + Ar : 1e-25
+                 Ar+ -> Ar+ : 1e-14
+'
    [../]
 []
 
