@@ -397,7 +397,7 @@ AddScalarReactions::act()
                     _reactants[i][reactant_indices[k]]};
             }
             _problem->addScalarKernel(
-                reactant_kernel_name, "kernel" + std::to_string(j) + "_" + _reaction[i], params);
+                reactant_kernel_name, "kernel" + std::to_string(j) + "_" + std::to_string(i) + "_" + _reaction[i], params);
           }
         }
 
@@ -431,7 +431,7 @@ AddScalarReactions::act()
               }
             }
             _problem->addScalarKernel(product_kernel_name,
-                                      "kernel_prod" + std::to_string(j) + "_" + _reaction[i],
+                                      "kernel_prod" + std::to_string(j) + "_" + std::to_string(i) + "_" + _reaction[i],
                                       params);
           }
         }

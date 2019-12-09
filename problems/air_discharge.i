@@ -1,11 +1,5 @@
-#dom0Scale=25.4e-3
-dom0Scale=1.0
-
 [GlobalParams]
-  potential_units = kV
   use_moles = true
-  #offset = 28
-  offset = 20
 []
 
 [Mesh]
@@ -19,319 +13,581 @@ dom0Scale=1.0
 []
 
 [Variables]
-  [./e]
-    initial_condition = 1e10
-  [../]
+  # ALL VARIABLES ARE IN UNITS OF #/CM^3
+  #[./e]
+  #  family = SCALAR
+  #  order = FIRST
+  #  initial_condition = 1e10
+  #[../]
 
   [./N2v1]
+    family = SCALAR
+    order = FIRST
     initial_condition = 1
   [../]
 
   [./N2v2]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./N2v3]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./N2v4]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./N2v5]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./N2v6]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./N2v7]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./N2v8]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./N2A3]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./N2B3]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./N2a_1]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./N2C3]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./N]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./N2D]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./N2P]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./N+]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./N2+]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1 
   [../]
 
   [./N3+]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./N4+]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./O2]
-    initial_condition = 
+    # Air is N2-O2 at ratio of 4:1
+    family = SCALAR
+    order = FIRST
+    initial_condition = 6.114228819695872e18
   [../]
 
   [./O2v1]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./O2v2]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./O2v3]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./O2v4]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./O2a1]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./O2b1]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./O24_ev]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./O]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./O1D]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./O1S]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./O3]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./O+]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./O2+]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./O4+]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./O-]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./O2-]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./O3-]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./O4-]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./NO]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./N2O]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./NO2]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./NO3]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./N2O5]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./NO+]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./N2O+]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./NO2+]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./NO-]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./N2O-]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./NO2-]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
   [./NO3-]
-    initial_condition = 
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
-  [./OHpN2]
-    initial_condition = 
+  [./O2pN2]
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1
   [../]
 
 []
-[Kernels]
-  [./em_log_stabilization]
-    type = LogStabilizationMoles
-    variable = em
-    block = 0
-  [../]
-  [./Arp_log_stabilization]
-    type = LogStabilizationMoles
-    variable = Ar+
-    block = 0
-  [../]
-  [./mean_en_log_stabilization]
-    type = LogStabilizationMoles
-    variable = mean_en
-    block = 0
-    offset = 15
+
+[ScalarKernels]
+  #[./e_time_deriv]
+  #  type = ODETimeDerivative
+  #  variable = e
+  #[../]
+
+  [./N2v1_time_deriv]
+    type = ODETimeDerivative
+    variable = N2v1
   [../]
 
-  [./em_time_deriv]
-    type = ElectronTimeDerivative
-    variable = em
-    block = 0
-  [../]
-  [./em_advection]
-    type = EFieldAdvectionElectrons
-    variable = em
-    potential = potential
-    mean_en = mean_en
-    block = 0
-    position_units = ${dom0Scale}
-  [../]
-  [./em_diffusion]
-    type = CoeffDiffusionElectrons
-    variable = em
-    mean_en = mean_en
-    block = 0
-    position_units = ${dom0Scale}
+  [./N2v2_time_deriv]
+    type = ODETimeDerivative
+    variable = N2v2
   [../]
 
-  [./potential_diffusion_dom1]
-    type = CoeffDiffusionLin
-    variable = potential
-    block = 0
-    position_units = ${dom0Scale}
-  [../]
-  [./Arp_charge_source]
-    type = ChargeSourceMoles_KV
-    variable = potential
-    charged = Ar+
-    block = 0
-  [../]
-  [./em_charge_source]
-    type = ChargeSourceMoles_KV
-    variable = potential
-    charged = em
-    block = 0
+  [./N2v3_time_deriv]
+    type = ODETimeDerivative
+    variable = N2v3
   [../]
 
-  [./Arp_time_deriv]
-    type = ElectronTimeDerivative
-    variable = Ar+
-    block = 0
-  [../]
-  [./Arp_advection]
-    type = EFieldAdvection
-    variable = Ar+
-    potential = potential
-    position_units = ${dom0Scale}
-    block = 0
-  [../]
-  [./Arp_diffusion]
-    type = CoeffDiffusion
-    variable = Ar+
-    block = 0
-    position_units = ${dom0Scale}
+  [./N2v4_time_deriv]
+    type = ODETimeDerivative
+    variable = N2v4
   [../]
 
-  [./mean_en_time_deriv]
-    type = ElectronTimeDerivative
-    variable = mean_en
-    block = 0
+  [./N2v5_time_deriv]
+    type = ODETimeDerivative
+    variable = N2v5
   [../]
-  [./mean_en_advection]
-    type = EFieldAdvectionEnergy
-    variable = mean_en
-    potential = potential
-    em = em
-    block = 0
-    position_units = ${dom0Scale}
+
+  [./N2v6_time_deriv]
+    type = ODETimeDerivative
+    variable = N2v6
   [../]
-  [./mean_en_diffusion]
-    type = CoeffDiffusionEnergy
-    variable = mean_en
-    em = em
-    block = 0
-    position_units = ${dom0Scale}
+
+  [./N2v7_time_deriv]
+    type = ODETimeDerivative
+    variable = N2v7
   [../]
-  [./mean_en_joule_heating]
-    type = JouleHeating
-    variable = mean_en
-    potential = potential
-    em = em
-    block = 0
-    position_units = ${dom0Scale}
+
+  [./N2v8_time_deriv]
+    type = ODETimeDerivative
+    variable = N2v8
+  [../]
+
+  [./N2A3_time_deriv]
+    type = ODETimeDerivative
+    variable = N2A3
+  [../]
+
+  [./N2B3_time_deriv]
+    type = ODETimeDerivative
+    variable = N2B3
+  [../]
+
+  [./N2a_1_time_deriv]
+    type = ODETimeDerivative
+    variable = N2a_1
+  [../]
+
+  [./N2C3_time_deriv]
+    type = ODETimeDerivative
+    variable = N2C3
+  [../]
+
+  [./N_time_deriv]
+    type = ODETimeDerivative
+    variable = N
+  [../]
+
+  [./N2D_time_deriv]
+    type = ODETimeDerivative
+    variable = N2D
+  [../]
+
+  [./N2P_time_deriv]
+    type = ODETimeDerivative
+    variable = N2P
+  [../]
+
+  [./Np_time_deriv]
+    type = ODETimeDerivative
+    variable = N+
+  [../]
+
+  [./N2p_time_deriv]
+    type = ODETimeDerivative
+    variable = N2+
+  [../]
+
+  [./N3p_time_deriv]
+    type = ODETimeDerivative
+    variable = N3+
+  [../]
+
+  [./N4p_time_deriv]
+    type = ODETimeDerivative
+    variable = N4+
+  [../]
+
+  [./O2_time_deriv]
+    type = ODETimeDerivative
+    variable = O2
+  [../]
+
+  [./O2v1_time_deriv]
+    type = ODETimeDerivative
+    variable = O2v1
+  [../]
+
+  [./O2v2_time_deriv]
+    type = ODETimeDerivative
+    variable = O2v2
+  [../]
+
+  [./O2v3_time_deriv]
+    type = ODETimeDerivative
+    variable = O2v3
+  [../]
+
+  [./O2v4_time_deriv]
+    type = ODETimeDerivative
+    variable = O2v4
+  [../]
+
+  [./O2a1_time_deriv]
+    type = ODETimeDerivative
+    variable = O2a1
+  [../]
+
+  [./O2b1_time_deriv]
+    type = ODETimeDerivative
+    variable = O2b1
+  [../]
+
+  [./O24_ev_time_deriv]
+    type = ODETimeDerivative
+    variable = O24_ev
+  [../]
+
+  [./O_time_deriv]
+    type = ODETimeDerivative
+    variable = O
+  [../]
+
+  [./O1D_time_deriv]
+    type = ODETimeDerivative
+    variable = O1D
+  [../]
+
+  [./O1S_time_deriv]
+    type = ODETimeDerivative
+    variable = O1S
+  [../]
+
+  [./O3_time_deriv]
+    type = ODETimeDerivative
+    variable = O3
+  [../]
+
+  [./Op_time_deriv]
+    type = ODETimeDerivative
+    variable = O+
+  [../]
+
+  [./O2p_time_deriv]
+    type = ODETimeDerivative
+    variable = O2+
+  [../]
+
+  [./O4p_time_deriv]
+    type = ODETimeDerivative
+    variable = O4+
+  [../]
+
+  [./Om_time_deriv]
+    type = ODETimeDerivative
+    variable = O-
+  [../]
+
+  [./O2m_time_deriv]
+    type = ODETimeDerivative
+    variable = O2-
+  [../]
+
+  [./O3m_time_deriv]
+    type = ODETimeDerivative
+    variable = O3-
+  [../]
+
+  [./O4m_time_deriv]
+    type = ODETimeDerivative
+    variable = O4-
+  [../]
+
+  [./NO_time_deriv]
+    type = ODETimeDerivative
+    variable = NO
+  [../]
+
+  [./N2O_time_deriv]
+    type = ODETimeDerivative
+    variable = N2O
+  [../]
+
+  [./NO2_time_deriv]
+    type = ODETimeDerivative
+    variable = NO2
+  [../]
+
+  [./NO3_time_deriv]
+    type = ODETimeDerivative
+    variable = NO3
+  [../]
+
+  [./N2O5_time_deriv]
+    type = ODETimeDerivative
+    variable = N2O5
+  [../]
+
+  [./NOp_time_deriv]
+    type = ODETimeDerivative
+    variable = NO+
+  [../]
+
+  [./N2Op_time_deriv]
+    type = ODETimeDerivative
+    variable = N2O+
+  [../]
+
+  [./NO2p_time_deriv]
+    type = ODETimeDerivative
+    variable = NO2+
+  [../]
+
+  [./NOm_time_deriv]
+    type = ODETimeDerivative
+    variable = NO-
+  [../]
+
+  [./N2Om_time_deriv]
+    type = ODETimeDerivative
+    variable = N2O-
+  [../]
+
+  [./NO2m_time_deriv]
+    type = ODETimeDerivative
+    variable = NO2-
+  [../]
+
+  [./NO3m_time_deriv]
+    type = ODETimeDerivative
+    variable = NO3-
+  [../]
+
+  [./O2pN2_time_deriv]
+    type = ODETimeDerivative
+    variable = O2pN2
   [../]
 []
 
@@ -340,346 +596,91 @@ dom0Scale=1.0
 []
 
 [AuxVariables]
-  [./Te]
-    order = CONSTANT
-    family = MONOMIAL
+  [./e]
+    order = FIRST
+    family = SCALAR
+    initial_condition = 1e1
+  [../]
+  [./N2]
+    # Air is N2-O2 at ratio of 4:1
+    order = FIRST
+    family = SCALAR
+    initial_condition = 1.834268645908762e19
+  [../]
+  
+  [./NEUTRAL]
+    # For now, NEUTRAL = N2 + O2
+    order = FIRST
+    family = SCALAR
+    initial_condition = 2.445692e19
   [../]
 
-  [./x]
-    order = CONSTANT
-    family = MONOMIAL
+  [./reduced_field]
+    # Units: Td
+    order = FIRST
+    family = SCALAR
+    initial_condition = 100
   [../]
 
-  [./x_node]
+  [./TionN]
+    order = FIRST
+    family = SCALAR
+    #initial_condition = 300
+    initial_condition = 1018.383
   [../]
 
-  [./rho]
-    order = CONSTANT
-    family = MONOMIAL
+  [./TionN2]
+    order = FIRST
+    family = SCALAR
+    #initial_condition = 300
+    initial_condition = 1018.383
   [../]
 
-  [./em_lin]
-    order = CONSTANT
-    family = MONOMIAL
+  [./TionN3]
+    order = FIRST
+    family = SCALAR
+    #initial_condition = 300
+    initial_condition = 1018.383
   [../]
 
-  [./Ar+_lin]
-    order = CONSTANT
-    family = MONOMIAL
+  [./TionN4]
+    order = FIRST
+    family = SCALAR
+    #initial_condition = 300
+    initial_condition = 1018.383
   [../]
 
-  [./Ar]
+  [./TeffN]
+    order = FIRST
+    family = SCALAR
+    #initial_condition = 300
+    initial_condition = 778.875
   [../]
 
-  [./Efield]
-    order = CONSTANT
-    family = MONOMIAL
+  [./TeffN2]
+    order = FIRST
+    family = SCALAR
+    #initial_condition = 300
+    initial_condition = 659.1565
   [../]
 
-  [./Current_em]
-    order = CONSTANT
-    family = MONOMIAL
-    block = 0
+  [./TeffN3]
+    order = FIRST
+    family = SCALAR
+    #initial_condition = 300
+    initial_condition = 587.3252
   [../]
-  [./Current_Ar]
-    order = CONSTANT
-    family = MONOMIAL
-    block = 0
+
+  [./TeffN4]
+    order = FIRST
+    family = SCALAR
+    #initial_condition = 300 
+    initial_condition = 539.438
   [../]
 []
 
-[AuxKernels]
-  [./Te]
-    type = ElectronTemperature
-    variable = Te
-    electron_density = em
-    mean_en = mean_en
-    execute_on = 'initial linear nonlinear'
-  [../]
-  [./x_g]
-    type = Position
-    variable = x
-    position_units = ${dom0Scale}
-  [../]
-
-  [./x_ng]
-    type = Position
-    variable = x_node
-    position_units = ${dom0Scale}
-  [../]
-
-  [./em_lin]
-    type = DensityMoles
-    convert_moles = true
-    variable = em_lin
-    density_log = em
-  [../]
-  [./Ar+_lin]
-    type = DensityMoles
-    convert_moles = true
-    variable = Ar+_lin
-    density_log = Ar+
-  [../]
-
-  [./Ar_val]
-    type = ConstantAux
-    variable = Ar
-    # value = 3.22e22
-    #value = -2.928623
-    value = 3.704333
-    execute_on = INITIAL
-  [../]
-
-  [./Efield_calc]
-    type = Efield
-    component = 0
-    potential = potential
-    variable = Efield
-    position_units = ${dom0Scale}
-  [../]
-  [./Current_em]
-    type = Current
-    potential = potential
-    density_log = em
-    variable = Current_em
-    art_diff = false
-    block = 0
-    position_units = ${dom0Scale}
-  [../]
-  [./Current_Ar]
-    type = Current
-    potential = potential
-    density_log = Ar+
-    variable = Current_Ar
-    art_diff = false
-    block = 0
-    position_units = ${dom0Scale}
-  [../]
-[]
-
-[UserObjects]
-  [./data_provider]
-    type = ProvideMobility
-    electrode_area = 5.02e-7 # Formerly 3.14e-6
-    ballast_resist = 1e6
-    e = 1.6e-19
-    # electrode_area = 1.1
-    # ballast_resist = 1.1
-    # e = 1.1
-  [../]
-[]
-
-[BCs]
-  [./potential_left]
-    type = NeumannCircuitVoltageMoles_KV
-    variable = potential
-    boundary = left
-    function = potential_bc_func
-    ip = Ar+
-    data_provider = data_provider
-    em = em
-    mean_en = mean_en
-    r = 0
-    position_units = ${dom0Scale}
-  [../]
-  [./potential_dirichlet_right]
-    type = DirichletBC
-    variable = potential
-    boundary = right
-    value = 0
-  [../]
-  [./em_physical_right]
-    type = HagelaarElectronBC
-    variable = em
-    boundary = 'right'
-    potential = potential
-    ip = Ar+
-    mean_en = mean_en
-    #r = 0.99
-    r = 0.0
-    position_units = ${dom0Scale}
-  [../]
-  # [./em_physical_right]
-  #   type = MatchedValueLogBC
-  #   variable = em
-  #   boundary = 'master0_interface'
-  #   v = emliq
-  #   H = 1e3
-  # [../]
-  [./Arp_physical_right_diffusion]
-    type = HagelaarIonDiffusionBC
-    variable = Ar+
-    boundary = 'right'
-    r = 0
-    position_units = ${dom0Scale}
-  [../]
-  [./Arp_physical_right_advection]
-    type = HagelaarIonAdvectionBC
-    variable = Ar+
-    boundary = 'right'
-    potential = potential
-    r = 0
-    position_units = ${dom0Scale}
-  [../]
-  [./mean_en_physical_right]
-    type = HagelaarEnergyBC
-    variable = mean_en
-    boundary = 'right'
-    potential = potential
-    em = em
-    ip = 'Ar+'
-    #r = 0.99
-    r = 0.0
-    position_units = ${dom0Scale}
-  [../]
-  [./em_physical_left]
-    type = HagelaarElectronBC
-    variable = em
-    boundary = 'left'
-    potential = potential
-    ip = Ar+
-    mean_en = mean_en
-    r = 0
-    position_units = ${dom0Scale}
-  [../]
-  #[./sec_electrons_left]
-  #  type = SecondaryElectronBC
-  #  variable = em
-  #  boundary = 'left'
-  #  potential = potential
-  #  ip = Arp
-  #  mean_en = mean_en
-  #  r = 0
-  #  position_units = ${dom0Scale}
-  #[../]
-  [./Arp_physical_left_diffusion]
-    type = HagelaarIonDiffusionBC
-    variable = Ar+
-    boundary = 'left'
-    r = 0
-    position_units = ${dom0Scale}
-  [../]
-  [./Arp_physical_left_advection]
-    type = HagelaarIonAdvectionBC
-    variable = Ar+
-    boundary = 'left'
-    potential = potential
-    r = 0
-    position_units = ${dom0Scale}
-  [../]
-  [./mean_en_physical_left]
-    type = HagelaarEnergyBC
-    variable = mean_en
-    boundary = 'left'
-    potential = potential
-    em = em
-    ip = Ar+
-    r = 0
-    position_units = ${dom0Scale}
-  [../]
-[]
-
-[ICs]
-  [./em_ic]
-    type = ConstantIC
-    variable = em
-    value = -21
-    block = 0
-  [../]
-  [./Arp_ic]
-    type = ConstantIC
-    variable = Ar+
-    value = -21
-    block = 0
-  [../]
-  [./mean_en_ic]
-    type = ConstantIC
-    variable = mean_en
-    value = -20
-    block = 0
-  [../]
-  [./potential_ic]
-    type = FunctionIC
-    variable = potential
-    function = potential_ic_func
-  [../]
-[]
-
-[Functions]
-  [./potential_bc_func]
-    type = ParsedFunction
-    #value = '0.100*sin(2*3.1415926*13.56e6*t)'
-    #value = '-10*tanh(1e9*t) - 0.1'
-    #value = '1.25'
-    #vars = 'sig mu'
-    #vals = '1e-19 1e-9'
-    ##value = '1.0/((2*3.1415926*sig)^0.5) * exp(-((t-mu)^2)/(2*sig))'
-    #value = 'exp(-((t-mu)^2)/(2*sig))'
-    value = 0.3
-  [../]
-  [./potential_ic_func]
-    type = ParsedFunction
-    #value = '-1.25 * (1.0e-2 - x)'
-    #value = '-0.8 * (1.0e-2 - x)'
-    value = '-0.3 * (1.0001e-3 - x)'
-  [../]
-  #[./density_ic_func]
-  #  type = ParsedFunction
-  #  value = 'log((1e13 + 1e15 * (1-x/1)^2 * (x/1)^2)/6.022e23)'
-  #[../]
-  #[./energy_density_ic_func]
-  #  type = ParsedFunction
-  #  value = 'log(3./2.) + log((1e13 + 1e15 * (1-x/1)^2 * (x/1)^2)/6.022e23)'
-  #[../]
-[]
-
-[Materials]
-  [./GasBasics]
-    type = GasElectronMoments
-    interp_trans_coeffs = true
-    interp_elastic_coeff = true
-    ramp_trans_coeffs = false
-    #user_p_gas = 133.322
-    #user_p_gas = 101325
-    user_p_gas = 1.01e5
-    em = em
-    potential = potential
-    mean_en = mean_en
-    user_se_coeff = 0.05
-    #user_electron_mobility = 30.0
-    #user_electron_diffusion_coeff = 119.8757763975
-    #property_tables_file = Argon_reactions_paper_RateCoefficients/electron_moments.txt
-    property_tables_file = 'dc_argon_only/moments.txt'
-    position_units = ${dom0Scale}
-  [../]
-  [./gas_species_0]
-    type = HeavySpeciesMaterial
-    heavy_species_name = Ar+
-    heavy_species_mass = 6.64e-26
-    heavy_species_charge = 1.0
-    #mobility = 0.144409938
-    #diffusivity = 6.428571e-3
-  [../]
-  #[./gas_block]
-  #  type = Gas
-  #  interp_trans_coeffs = true
-  #  interp_elastic_coeff = true
-  #  ramp_trans_coeffs = false
-  #  em = em
-  #  potential = potential
-  #  ip = Arp
-  #  mean_en = mean_en
-  #  user_se_coeff = .05
-  #  block = 0
-  #  property_tables_file = td_argon_mean_en.txt
- #[../]
-  [./gas_species_2]
-    type = HeavySpeciesMaterial
-    heavy_species_name = Ar
-    heavy_species_mass = 6.64e-26
-    heavy_species_charge = 0.0
-  [../]
-[]
+#[AuxKernels]
+#[]
 
 [Preconditioning]
   active = 'smp'
@@ -687,11 +688,10 @@ dom0Scale=1.0
     type = SMP
     full = true
   [../]
-
-  [./fdp]
-    type = FDP
-    full = true
-  [../]
+  #[./fdp]
+  #  type = FDP
+  #  full = true
+  #[../]
 []
 
 [Executioner]
@@ -705,8 +705,9 @@ dom0Scale=1.0
   # petsc_options = '-snes_test_display'
   solve_type = NEWTON
   #solve_type = PJFNK
-  petsc_options_iname = '-pc_type -pc_factor_shift_type -pc_factor_shift_amount -snes_linesearch_minlambda'
-  petsc_options_value = 'lu NONZERO 1.e-10 1e-3'
+  #solve_type = LINEAR
+  #petsc_options_iname = '-pc_type -pc_factor_shift_type -pc_factor_shift_amount -snes_linesearch_minlambda'
+  #petsc_options_value = 'lu NONZERO 1.e-10 1e-3'
   # petsc_options_iname = '-pc_type -sub_pc_type'
   # petsc_options_value = 'asm lu'
   # petsc_options_iname = '-snes_type'
@@ -714,6 +715,7 @@ dom0Scale=1.0
   nl_rel_tol = 1e-8
   #nl_abs_tol = 1e-10
   dtmin = 1e-12
+  #dtmax = 1e-2
   l_max_its = 20
   #num_steps = 54
   steady_state_detection = true
@@ -723,64 +725,61 @@ dom0Scale=1.0
     dt = 1e-11
     # dt = 1.1
     growth_factor = 1.2
-   optimal_iterations = 15
+    optimal_iterations = 15
   [../]
 []
 
 [Outputs]
-  print_perf_log = true
-  [./out]
-    type = Exodus
+  csv = true
+  [./console]
+    type = Console
+    execute_scalars_on = 'none'
+    # execute_on = 'initial'
   [../]
 []
 
-[Reactions]
-  [./Air]
-    species = 'N2v1 N2v2 N2v3 N2v4 N2v5 N2v6 N2v7 N2v8 N2A3 N2B3 N2a_1 N2C3 N N2D N2P N+ N2+ N3+ N4+ O2 O2v1 O2v2 O2v3 O2v4 O2a1 O2b1 O2_4ev O O1D O1S O3 O+ O2+ O4+ O- O2- O3- O4- NO N2O NO2 NO3 N2O5 NO+ N2O+ NO2+ NO- N2O- NO2- NO3- O2pN2 e'
-    aux_species = 'N2'
-    reaction_coefficient_format = 'townsend'
-    gas_species = 'N2'
-    electron_energy = 'mean_en'
-    electron_density = 'em'
+[ChemicalReactions]
+  [./ScalarNetwork]
+    species = 'N2v1 N2v2 N2v3 N2v4 N2v5 N2v6 N2v7 N2v8 N2A3 N2B3 N2a_1 N2C3 N N2D N2P N+ N2+ N3+ N4+ O2 O2v1 O2v2 O2v3 O2v4 O2a1 O2b1 O24_ev O O1D O1S O3 O+ O2+ O4+ O- O2- O3- O4- NO N2O NO2 NO3 N2O5 NO+ N2O+ NO2+ NO- N2O- NO2- NO3- O2pN2'
+    aux_species = 'N2 NEUTRAL e'
+    reaction_coefficient_format = 'rate'
     include_electrons = true
-    #file_location = 'Argon_reactions_paper_RateCoefficients'
     file_location = 'air_test'
-    #equation_variables = 'mean_en em'
-    equation_variables = 'Te Tgas'
-    potential = 'potential'
-    use_log = true
-    position_units = ${dom0Scale}
-    block = 0
-
+    electron_density = 'e'
+    equation_variables = 'TeffN TeffN2 TeffN3 TeffN4 TionN TionN2 TionN3 TionN4'
+    equation_constants = 'Te Tgas'
+    #equation_values = '4 300'
+    equation_values = '32480 300'
+    rate_provider_var = 'reduced_field'
 
     # NOTE: rate coefficients units are cm^3 s^-1
-    reactions = 'e + N2 -> e + N2v1                 : EEDF
-                 e + N2 -> e + N2v1                 : EEDF (N2v1res) 
-                 e + N2 -> e + N2v2                 : EEDF 
-                 e + N2 -> e + N2v3                 : EEDF 
-                 e + N2 -> e + N2v4                 : EEDF 
-                 e + N2 -> e + N2v5                 : EEDF 
-                 e + N2 -> e + N2v6                 : EEDF 
-                 e + N2 -> e + N2v7                 : EEDF 
-                 e + N2 -> e + N2v8                 : EEDF 
-                 e + N2v1 -> e + N2                 : EEDF
-                 e + N2v2 -> e + N2                 : EEDF
-                 e + N2v3 -> e + N2                 : EEDF
-                 e + N2v4 -> e + N2                 : EEDF
-                 e + N2v5 -> e + N2                 : EEDF
-                 e + N2v6 -> e + N2                 : EEDF
-                 e + N2v7 -> e + N2                 : EEDF
-                 e + N2v8 -> e + N2                 : EEDF
-                 e + O2 -> e + O2v1                 : EEDF
-                 e + O2 -> e + O2v1                 : EEDF (O2v1res)
-                 e + O2 -> e + O2v2                 : EEDF
-                 e + O2 -> e + O2v2                 : EEDF (O2v2res)
-                 e + O2 -> e + O2v3                 : EEDF
-                 e + O2 -> e + O2v4                 : EEDF
-                 e + O2v1 -> e + O2                 : EEDF
-                 e + O2v2 -> e + O2                 : EEDF
-                 e + O2v3 -> e + O2                 : EEDF
-                 e + O2v4 -> e + O2                 : EEDF
+    reactions = 'e + N2 -> e + N2v1                 : EEDF (C2_N2_Excitation_0.29_eV)
+                 e + N2 -> e + N2v1                 : EEDF (C3_N2_Excitation_0.29_eV) 
+                 e + N2 -> e + N2v2                 : EEDF (C4_N2_Excitation_0.59_eV)
+                 e + N2 -> e + N2v3                 : EEDF (C5_N2_Excitation_0.88_eV)
+                 e + N2 -> e + N2v4                 : EEDF (C6_N2_Excitation_1.17_eV)
+                 e + N2 -> e + N2v5                 : EEDF (C7_N2_Excitation_1.47_eV)
+                 e + N2 -> e + N2v6                 : EEDF (C8_N2_Excitation_1.76_eV)
+                 e + N2 -> e + N2v7                 : EEDF (C9_N2_Excitation_2.06_eV)
+                 e + N2 -> e + N2v8                 : EEDF (C10_N2_Excitation_2.35_eV)
+                 e + N2v1 -> e + N2                 : EEDF (C40_N2v1_De-excitation_0.29_eV)
+                 e + N2v2 -> e + N2                 : EEDF (C41_N2v2_De-excitation_0.59_eV)
+                 e + N2v3 -> e + N2                 : EEDF (C42_N2v3_De-excitation_0.88_eV)
+                 e + N2v4 -> e + N2                 : EEDF (C43_N2v4_De-excitation_1.17_eV)
+                 e + N2v5 -> e + N2                 : EEDF (C44_N2v5_De-excitation_1.47_eV)
+                 e + N2v6 -> e + N2                 : EEDF (C45_N2v6_De-excitation_1.76_eV)
+                 e + N2v7 -> e + N2                 : EEDF (C46_N2v7_De-excitation_2.06_eV)
+                 e + N2v8 -> e + N2                 : EEDF (C47_N2v8_De-excitation_2.35_eV)
+                 e + O2 -> e + O2v1                 : EEDF (C27_O2_Excitation_0.19_eV)
+                 e + O2 -> e + O2v1                 : EEDF (C28_O2_Excitation_0.19_eV)
+                 e + O2 -> e + O2v2                 : EEDF (C29_O2_Excitation_0.38_eV)
+                 e + O2 -> e + O2v2                 : EEDF (C30_O2_Excitation_0.38_eV)
+                 e + O2 -> e + O2v3                 : EEDF (C31_O2_Excitation_0.57_eV)
+                 e + O2 -> e + O2v4                 : EEDF (C32_O2_Excitation_0.75_eV)
+                 e + O2v1 -> e + O2                 : EEDF (C51_O2v1_De-excitation_0.19_eV)
+                 e + O2v2 -> e + O2                 : EEDF (C52_O2v2_De-excitation_0.38_eV)
+                 e + O2v3 -> e + O2                 : EEDF (C53_O2v3_De-excitation_0.57_eV)
+                 e + O2v4 -> e + O2                 : EEDF (C54_O2v4_De-excitation_0.75_eV)
                  ######
                  # Vibrational-translational relaxation (Capitelli2000, page 105)
                  ######
@@ -852,45 +851,45 @@ dom0Scale=1.0
                  # excitation of electronic levels by electron impact (Bolsig+)
                  # Note that CRANE will need to be modified to allow duplicate reactions here...
                  #####
-                 e + N2 -> e + N2A3                 : EEDF (N2 -> N2A3)
-                 e + N2 -> e + N2A3                 : EEDF (N2 -> N2A3,v5-9)
-                 e + N2 -> e + N2A3                 : EEDF (N2 -> N2A3,v10-)
-                 e + N2 -> e + N2B3                 : EEDF (N2 -> N2(B3))
-                 e + N2 -> e + N2B3                 : EEDF (N2 -> N2(W3))
-                 e + N2 -> e + N2B3                 : EEDF (N2 -> N2(B'3))
-                 e + N2 -> e + N2a_1                : EEDF (N2 -> N2(a'1))
-                 e + N2 -> e + N2a_1                : EEDF (N2 -> N2(a1))
-                 e + N2 -> e + N2a_1                : EEDF (N2 -> N2(w1))
-                 e + N2 -> e + N2C3                 : EEDF (N2 -> N2(C3))
-                 e + N2 -> e + N2C3                 : EEDF (N2 -> N2(E3))
-                 e + N2 -> e + N2C3                 : EEDF (N2 -> N2(a''1))
-                 e + N2 -> e + N + N2D              : EEDF (N2 -> N2(SUM))
-                 e + O2 -> e + O2a1                 : EEDF (O2 -> O2(a1))
-                 e + O2 -> e + O2b1                 : EEDF (O2 -> O2(b1))
-                 e + O2 -> e + O2_4ev               : EEDF (O2 -> O2(4.5ev))
-                 e + O2 -> e + O + O                : EEDF (O2 -> O2(6.0ev))
-                 e + O2 -> e + O + O1D              : EEDF (O2 -> O2(8.4ev))
-                 e + O2 -> e + O + O1S              : EEDF (O2 -> O2(9.97ev))
-                 e + O2a1 -> e + O + O             : EEDF (O2(a1) -> O + O)
-                 e + O -> e + O1D                   : EEDF (O -> O(1D))
-                 e + O -> e + O1S                   : EEDF (O -> O(1S))
+                 e + N2 -> e + N2A3                 : EEDF (C11_N2_Excitation_6.17_eV)
+                 e + N2 -> e + N2A3                 : EEDF (C12_N2_Excitation_7.00_eV)
+                 e + N2 -> e + N2A3                 : EEDF (C13_N2_Excitation_7.80_eV)
+                 e + N2 -> e + N2B3                 : EEDF (C14_N2_Excitation_7.35_eV)
+                 e + N2 -> e + N2B3                 : EEDF (C15_N2_Excitation_7.36_eV)
+                 e + N2 -> e + N2B3                 : EEDF (C16_N2_Excitation_8.16_eV)
+                 e + N2 -> e + N2a_1                : EEDF (C17_N2_Excitation_8.40_eV)
+                 e + N2 -> e + N2a_1                : EEDF (C18_N2_Excitation_8.55_eV)
+                 e + N2 -> e + N2a_1                : EEDF (C19_N2_Excitation_8.89_eV)
+                 e + N2 -> e + N2C3                 : EEDF (C20_N2_Excitation_11.03_eV)
+                 e + N2 -> e + N2C3                 : EEDF (C21_N2_Excitation_11.87_eV)
+                 e + N2 -> e + N2C3                 : EEDF (C22_N2_Excitation_12.25_eV)
+                 e + N2 -> e + N + N2D              : EEDF (C23_N2_Excitation_13.00_eV)
+                 e + O2 -> e + O2a1                 : EEDF (C33_O2_Excitation_0.98_eV)
+                 e + O2 -> e + O2b1                 : EEDF (C34_O2_Excitation_1.63_eV)
+                 e + O2 -> e + O2_4ev               : EEDF (C35_O2_Excitation_4.50_eV)
+                 e + O2 -> e + O + O                : EEDF (C36_O2_Excitation_6.00_eV)
+                 e + O2 -> e + O + O1D              : EEDF (C37_O2_Excitation_8.40_eV)
+                 e + O2 -> e + O + O1S              : EEDF (C38_O2_Excitation_9.97_eV)
+                 e + O2a1 -> e + O + O              : EEDF (C58_O2a1_Excitation_6.00_eV)
+                 e + O -> e + O1D                   : EEDF (C63_O_Excitation_1.97_eV)
+                 e + O -> e + O1S                   : EEDF (C64_O_Excitation_4.19_eV)
                  ####
                  # de-excitation of electronic levels by electron impact (BOLSIG+)
                  ####
-                 e + N2A3 -> e + N2                 : EEDF (N2(A3) -> N2)
-                 e + O2a1 -> e + O2                : EEDF (O2(a1) -> O2)
+                 e + N2A3 -> e + N2                 : EEDF (C48_N2A3_De-excitation_6.17_eV)
+                 e + O2a1 -> e + O2                : EEDF (C55_O2a1_De-excitation_0.98_eV)
                  ####
                  # ionization by electron impact (BOLSIG+)
                  # note the missing data section in the inp file (4 extra reactions - not shown here)
                  ####
-                 e + N -> e + e + N+                : EEDF
-                 e + O -> e + e + O+                : EEDF
-                 e + N2 -> e + e + N2+              : EEDF
-                 e + N2A3 -> e + e + N2+            : EEDF
-                 e + O2 -> e + e + O2+              : EEDF
-                 e + O2a1 -> e + e + O2+            : EEDF
-                 e + NO -> e + e + NO+              : EEDF
-                 e + N2O -> e + e + N2O+            : EEDF
+                 e + N -> e + e + N+                : EEDF (C61_N_Ionization_14.55_eV)
+                 e + O -> e + e + O+                : EEDF (C65_O_Ionization_13.62_eV)
+                 e + N2 -> e + e + N2+              : EEDF (C24_N2_Ionization_15.60_eV)
+                 e + N2A3 -> e + e + N2+            : EEDF (C50_N2A3_Ionization_10.79_eV)
+                 e + O2 -> e + e + O2+              : EEDF (C39_O2_Ionization_12.06_eV)
+                 e + O2a1 -> e + e + O2+            : EEDF (C59_O2a1_Ionization_11.00_eV)
+                 e + NO -> e + e + NO+              : EEDF (C75_NO_Ionization_9.26_eV)
+                 e + N2O -> e + e + N2O+            : EEDF (C88_N2O_Ionization_12.89_eV)
                  ####
                  # electron-ion recombination
                  ####
@@ -914,13 +913,14 @@ dom0Scale=1.0
                  e + O+ + NEUTRAL -> O + NEUTRAL    : {6.0e-27 * (300/Te)^1.5}
                  ####
                  # electron attachment
+                 # e + O2 + O2 -> O2- + O2              : EEDF (
+                 # ^ Not sure what to do with this one. Never seen anything like it before.
                  ####
-                 e + O2 -> O- + O                     : EEDF
-                 e + NO -> O- + N                     : EEDF
-                 e + O3 -> O- + O2                    : EEDF
-                 e + O3 -> O2- + O                    : EEDF
-                 e + N2O -> NO- + N                   : EEDF
-                 e + O2 + O2 -> O2- + O2              : EEDF
+                 e + O2 -> O- + O                     : EEDF (C25_O2_Attachment)
+                 e + NO -> O- + N                     : EEDF (C66_NO_Attachment)
+                 e + O3 -> O- + O2                    : EEDF (C76_O3_Attachment)
+                 e + O3 -> O2- + O                    : EEDF (C77_O3_Attachment)
+                 e + N2O -> NO- + N                   : EEDF (C80_N2O_Attachment)
                  e + NO2 -> O- + NO                   : 1e-11
                  e + O + O2 -> O- + O2                : 1e-31
                  e + O + O2 -> O2- + O                : 1e-31
@@ -943,10 +943,10 @@ dom0Scale=1.0
                  O-  + O3 -> O2  + O2 + e             : 3.0e-10
                  O2- + O -> O3  + e                   : 1.5e-10
                  O2- + N -> NO2 + e                   : 5.0e-10
-                 O2- + O2 -> O2  + O2 + e             : {2.7e-10 * (TeffN2/300.0d0)^0.5 * exp(-5590/TeffN2)}
+                 O2- + O2 -> O2  + O2 + e             : {2.7e-10 * (TeffN2/300)^0.5 * exp(-5590/TeffN2)}
                  O2- + O2a1 -> O2  + O2 + e           : 2.0e-10
                  O2- + O2b1 -> O2  + O2 + e           : 3.6e-10
-                 O2- + N2 -> O2  + N2 + e             : {1.9e-12 * (TeffN2/300.0d0)^0.5 * exp(-4990/TeffN2)}
+                 O2- + N2 -> O2  + N2 + e             : {1.9e-12 * (TeffN2/300)^0.5 * exp(-4990/TeffN2)}
                  O2- + N2A3 -> O2  + N2 + e           : 2.1e-9
                  O2- + N2B3 -> O2  + N2 + e           : 2.5e-9
                  O3- + O -> O2  + O2 + e              : 3.0e-10
@@ -1119,20 +1119,20 @@ dom0Scale=1.0
                  NO3 + O2 -> NO2 + O3                 : {1.5e-12 * exp(-15020/Tgas)}
                  NO3 + NO3 -> O2 + NO2 + NO2          : {4.3e-12 * exp(-3850/Tgas)}
                  N + N -> N2+ + e                     : {2.7e-11 * exp(-6.74e4/Tgas)}
-                 N + O -> NO+ + e                     : {1.6e-12 * (Tgas/300)^0.5 * (0.19d0+8.6*Tgas) * exp(-32000/Tgas)}
+                 N + O -> NO+ + e                     : {1.6e-12 * (Tgas/300)^0.5 * (0.19+8.6*Tgas) * exp(-32000/Tgas)}
                  ####
                  # dissociation of nitrogen-oxygen molecules (Capitelli2000, page 169)
                  ####
-                 N2 + N2 -> N + N + N2                : {5.4e-8 * (1.0-exp(-3354/Tgas)) * exp(-113200/Tgas))
-                 O2 + N2 -> N + N + O2                : {5.4e-8 * (1.0-exp(-3354/Tgas)) * exp(-113200/Tgas))
-                 NO + N2 -> N + N + NO                : {5.4e-8 * (1.0-exp(-3354/Tgas)) * exp(-113200/Tgas))
-                 O + N2 -> N + N + O                  : {5.4e-8 * (1.0-exp(-3354/Tgas)) * exp(-113200/Tgas) * 6.6)
-                 N + N2 -> N + N + N                  : {5.4e-8 * (1.0-exp(-3354/Tgas)) * exp(-113200/Tgas) * 6.6)
-                 O2 + N2 -> O + O + N2                : {6.1e-9 * (1.0-exp(-2240/Tgas)) * exp(-59380/Tgas))
-                 O2 + O2 -> O + O + O2                : {6.1e-9 * (1.0-exp(-2240/Tgas)) * exp(-59380/Tgas) * 5.9)
-                 O2 + O -> O + O + O                  : {6.1e-9 * (1.0-exp(-2240/Tgas)) * exp(-59380/Tgas) * 21)
-                 O2 + N -> O + O + N                  : {6.1e-9 * (1.0-exp(-2240/Tgas)) * exp(-59380/Tgas))
-                 O2 + NO -> O + O + NO                : {6.1e-9 * (1.0-exp(-2240/Tgas)) * exp(-59380/Tgas))
+                 N2 + N2 -> N + N + N2                : {5.4e-8 * (1.0 - exp(-3354/Tgas)) * exp(-113200/Tgas)}
+                 O2 + N2 -> N + N + O2                : {5.4e-8 * (1.0 - exp(-3354/Tgas)) * exp(-113200/Tgas)}
+                 NO + N2 -> N + N + NO                : {5.4e-8 * (1.0 - exp(-3354/Tgas)) * exp(-113200/Tgas)}
+                 O + N2 -> N + N + O                  : {5.4e-8 * (1.0 - exp(-3354/Tgas)) * exp(-113200/Tgas) * 6.6}
+                 N + N2 -> N + N + N                  : {5.4e-8 * (1.0 - exp(-3354/Tgas)) * exp(-113200/Tgas) * 6.6}
+                 O2 + N2 -> O + O + N2                : {6.1e-9 * (1.0 - exp(-2240/Tgas)) * exp(-59380/Tgas)}
+                 O2 + O2 -> O + O + O2                : {6.1e-9 * (1.0 - exp(-2240/Tgas)) * exp(-59380/Tgas) * 5.9}
+                 O2 + O -> O + O + O                  : {6.1e-9 * (1.0 - exp(-2240/Tgas)) * exp(-59380/Tgas) * 21}
+                 O2 + N -> O + O + N                  : {6.1e-9 * (1.0 - exp(-2240/Tgas)) * exp(-59380/Tgas)}
+                 O2 + NO -> O + O + NO                : {6.1e-9 * (1.0 - exp(-2240/Tgas)) * exp(-59380/Tgas)}
                  NO + N2 -> N + O + N2                : {8.7e-9 * exp(-75994/Tgas)}
                  NO + O2 -> N + O + O2                : {8.7e-9 * exp(-75994/Tgas)}
                  NO + O -> N + O + O                  : {8.7e-9 * exp(-75994/Tgas) * 20}
@@ -1251,11 +1251,11 @@ dom0Scale=1.0
                  O2pN2 + N2 -> O2+ + N2 + N2                      : {1.1e-6 * (300/TeffN4)^5.3 * exp(-2360/TeffN4)}
                  O2pN2 + O2 -> O4+ + N2                           : 1.0e-9
                  N+ + N2 + N2 -> N3+ + N2                         : {1.7e-29 * (300/TeffN)^2.1}
-                 N+ + O + ANY_NEUTRAL -> NO+ + ANY_NEUTRAL        : 1.0e-29
-                 N+ + N + ANY_NEUTRAL -> N2+ + ANY_NEUTRAL        : 1.0e-29
-                 O+ + N2 + ANY_NEUTRAL -> NO+ + N + ANY_NEUTRAL   : {6.0e-29 * (300/TeffN)^2}
-                 O+ + O  + ANY_NEUTRAL -> O2+ + ANY_NEUTRAL       : 1.0e-29
-                 O+ + N  + ANY_NEUTRAL -> NO+ + ANY_NEUTRAL       : 1.0e-29
+                 N+ + O + NEUTRAL -> NO+ + NEUTRAL        : 1.0e-29
+                 N+ + N + NEUTRAL -> N2+ + NEUTRAL        : 1.0e-29
+                 O+ + N2 + NEUTRAL -> NO+ + N + NEUTRAL   : {6.0e-29 * (300/TeffN)^2}
+                 O+ + O  + NEUTRAL -> O2+ + NEUTRAL       : 1.0e-29
+                 O+ + N  + NEUTRAL -> NO+ + NEUTRAL       : 1.0e-29
                  N2+ + N2 + N2 -> N4+ + N2                        : {5.2e-29 * (300/TeffN2)^2.2}
                  N2+ + N  + N2 -> N3+ + N2                        : {9.0e-30 * exp(400/TeffN2)}
                  O2+ + O2 + O2 -> O4+ + O2                        : {2.4e-30 * (300/TeffN2)^3.2}
@@ -1296,9 +1296,9 @@ dom0Scale=1.0
                  O4- + O2a1 -> O2-  + O2  + O2                    : 1.0e-10
                  O4- + O2b1 -> O2-  + O2  + O2                    : 1.0e-10
                  O4- + NO -> NO3- + O2                            : 2.5e-10
-                 O-  + O2 + ANY_NEUTRAL -> O3- + ANY_NEUTRAL      : {1.1e-30 * (300.0d0/TeffN)}
-                 O-  + NO + ANY_NEUTRAL -> NO2- + ANY_NEUTRAL     : 1.0e-29
-                 O2- + O2 + ANY_NEUTRAL -> O4- + ANY_NEUTRAL      : {3.5e-31 * (300.0d0/TeffN2)}
+                 O-  + O2 + NEUTRAL -> O3- + NEUTRAL      : {1.1e-30 * (300./TeffN)}
+                 O-  + NO + NEUTRAL -> NO2- + NEUTRAL     : 1.0e-29
+                 O2- + O2 + NEUTRAL -> O4- + NEUTRAL      : {3.5e-31 * (300./TeffN2)}
                  ####
                  # ion-ion recombination (Kossyi1992)
                  ####
@@ -1484,45 +1484,5 @@ dom0Scale=1.0
                  NO3- + NO+ + NEUTRAL -> NO3 + NO + NEUTRAL           : {2e-25 * (300/TionN2)^2.5}
                  NO3- + N2O+ + NEUTRAL -> NO3 + N2O + NEUTRAL         : {2e-25 * (300/TionN2)^2.5}
                  NO3- + NO2+ + NEUTRAL -> NO3 + NO2 + NEUTRAL         : {2e-25 * (300/TionN2)^2.5}'
-
-
-
-    #reactions = 'N + O2 -> NO + O                     : {1.4995e-14 * Tgas * exp(-3.26992e3/Tgas)}
-    #             N + NO -> N2 + O                     : {1.8731e-11 * Tgas^0.14}
-    #             N + OH -> NO + H                     : 6.31e-11
-    #             NO + O + NEUTRAL -> NO2 + NEUTRAL    : {2.603e-23 * Tgas^(-2.87)*exp(-7.80494e2/Tgas)}
-    #             NO2 + H -> NO + OH                   : {2.507e-10 * exp(-1.82166e2/Tgas)}
-    #             NO2 + O -> NO + O2                   : {1.7436e-10 * Tgas^(-0.5200)}
-    #             NO + HO2 -> NO2 + OH                 : {3.487e-12 * exp(2.501e2/Tgas)}
-    #             NO2 + HO2 -> HNO2 + O2               : {3.072e-23 * Tgas^3.26 * exp(-2.50754e3/Tgas)}
-    #             NO2 + HO2 -> HNO2 + O2               : {3.1716e-24 * Tgas^3.32 * exp(-1.5318e3/Tgas)}
-    #             NO2 + NO2 -> NO3 + NO                : {1.5941e-14 * Tgas^0.73 * exp(-1.05173e4/Tgas)}
-    #             NO2 + H2 -> HNO2 + H                 : {3.9687e-22 * Tgas^3.15 * exp(-1.56328e4/Tgas)}
-    #             NO2 + H2 -> HONO + H                 : {1.9179e-24 * Tgas^3.89 * exp(-1.30736e4/Tgas)}
-    #             NO2 + NO2 -> NO + NO + O2            : {7.4724e-12 * exp(-1.38884e4/Tgas)}
-    #             NO2 + O + NEUTRAL -> NO3 + NEUTRAL   : {6.8935e-28 * Tgas^-1.5)}
-    #             NO3 + H -> NO2 + OH                  : 9.9632e-11
-    #             NO3 + O -> NO2 + O2                  : 1.6605e-11
-    #             NO3 + OH -> NO2 + HO2                : 2.3248e-11
-    #             NO3 + HO2 -> NO2 + O2 + OH           : 2.4908e-12
-    #             NO3 + NO2 -> NO + NO2 + O2           : {8.3027e-14 * exp(-1.47947e3/Tgas)}
-    #             NO + H + O2 -> HNO + O2              : {2.4908e-9 * Tgas^(-1.75) * 0.5} 
-    #             NO + H + H2 -> HNO + H2              : {2.4908e-9 * Tgas^(-1.75)}
-    #             NO + H + H2O -> HNO + H2O            : {2.4908e-9 * Tgas^(-1.75)* 9.0}
-    #             NO + H + Ar -> HNO + Ar              : {2.4908e-9 * Tgas^(-1.75)* -2.5e-1}
-    #             NO + H + NEUTRAL -> HNO + NEUTRAL    : {2.4908e-9 * Tgas^(-1.75)}
-    #             HNO + H -> NO + H2                   : {7.3064e-13 * Tgas^0.72 * exp(-3.27093e2/Tgas)}
-    #             HNO + O -> NO + OH                   : 3.8192e-11
-    #             HNO + OH -> NO + H2O                 : 5.9779e-11
-    #             HNO + NO2 -> NO + HONO               : {7.3396e-20 * Tgas^2.64 * exp(-2.03301e3/Tgas)}
-    #             HNO + HNO -> N2O + H2O               : {1.4945e-15 * exp(-1.55998e3/Tgas)}
-    #             HON + NEUTRAL -> NO + H + NEUTRAL    : {8.4687e-5 * Tgas^(-1.73) * exp(-8.07416e3/Tgas)} 
-    #             HON + H -> HNO + H                   : 3.9853e-11
-    #             HON + H -> NH + OH                   : 1.6605e-11
-    #             HON + O -> NO + OH                   : 1.1624e-10
-    #             HON + OH -> HONO + H                 : 6.6422e-11
-    #             HON + O2 -> NO2 + OH                 : {1.6605e-12 * exp(-2.5e3/Tgas)}
-    #             # HONO sub-mechanism [Zhang2017]
-    #             '
   [../]
 []

@@ -130,12 +130,17 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   size_t eq_end;
   size_t rxn_identifier_start;
   size_t rxn_identifier_end;
+  std::size_t comment_flag; // This detects if there is a line that is nothing but a comment. These
+                            // are skipped.
   int counter;
   counter = 0;
   _eedf_reaction_counter = 0;
   while (std::getline(iss >> std::ws,
                       token)) // splits by \n character (default) and ignores leading whitespace
   {
+    comment_flag = token.find('#');
+    if (comment_flag != std::string::npos)
+      continue;
     // Define check for change of energy
     // bool _energy_change = false;
     pos = token.find(':'); // Looks for colon, which separates reaction and rate coefficients
