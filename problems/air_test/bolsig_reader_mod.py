@@ -37,7 +37,8 @@ def read_bolsig(bolsigdatafile,XSdatafile): #Takes name of bolsig data file as i
             if isreac != -1:# If C is in line
                 if line[isreac+1].isdigit():#Check if C is followed by a digit. if so, this is a reaction, read its data into a file
                     #print(line.replace(" ", "_"))
-                    temp_name = line.replace(" ", "_")
+                    temp_name = line.rstrip()
+                    temp_name = temp_name.replace(" ", "_")
                     temp_name = temp_name.replace("__", "_")
                     temp_name = temp_name.replace("__", "_")
                     temp_name = temp_name.replace("(", "")
@@ -82,4 +83,5 @@ def read_bolsig(bolsigdatafile,XSdatafile): #Takes name of bolsig data file as i
     return None
 
 #read_bolsig("water_out.dat","water_cs.dat")
+#read_bolsig("bolsigdb_air_out_2.dat", "bolsigdb_air.dat")
 read_bolsig("bolsigdb_air_out.dat", "bolsigdb_air.dat")

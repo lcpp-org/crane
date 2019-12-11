@@ -19,6 +19,11 @@
   #  order = FIRST
   #  initial_condition = 1e10
   #[../]
+  [./N2]
+    family = SCALAR
+    order = FIRST
+    initial_condition = 1.834268645908762e19
+  [../]
 
   [./N2v1]
     family = SCALAR
@@ -255,67 +260,13 @@
     initial_condition = 1
   [../]
 
-  [./N2O]
-    family = SCALAR
-    order = FIRST
-    initial_condition = 1
-  [../]
-
-  [./NO2]
-    family = SCALAR
-    order = FIRST
-    initial_condition = 1
-  [../]
-
-  [./NO3]
-    family = SCALAR
-    order = FIRST
-    initial_condition = 1
-  [../]
-
-  [./N2O5]
-    family = SCALAR
-    order = FIRST
-    initial_condition = 1
-  [../]
-
   [./NO+]
     family = SCALAR
     order = FIRST
     initial_condition = 1
   [../]
 
-  [./N2O+]
-    family = SCALAR
-    order = FIRST
-    initial_condition = 1
-  [../]
-
-  [./NO2+]
-    family = SCALAR
-    order = FIRST
-    initial_condition = 1
-  [../]
-
   [./NO-]
-    family = SCALAR
-    order = FIRST
-    initial_condition = 1
-  [../]
-
-  [./N2O-]
-    family = SCALAR
-    order = FIRST
-    initial_condition = 1
-  [../]
-
-  [./NO2-]
-    family = SCALAR
-    order = FIRST
-    initial_condition = 1
-  [../]
-
-  [./NO3-]
     family = SCALAR
     order = FIRST
     initial_condition = 1
@@ -334,6 +285,10 @@
   #  type = ODETimeDerivative
   #  variable = e
   #[../]
+  [./N2_time_deriv]
+    type = ODETimeDerivative
+    variable = N2
+  [../]
 
   [./N2v1_time_deriv]
     type = ODETimeDerivative
@@ -530,59 +485,14 @@
     variable = NO
   [../]
 
-  [./N2O_time_deriv]
-    type = ODETimeDerivative
-    variable = N2O
-  [../]
-
-  [./NO2_time_deriv]
-    type = ODETimeDerivative
-    variable = NO2
-  [../]
-
-  [./NO3_time_deriv]
-    type = ODETimeDerivative
-    variable = NO3
-  [../]
-
-  [./N2O5_time_deriv]
-    type = ODETimeDerivative
-    variable = N2O5
-  [../]
-
   [./NOp_time_deriv]
     type = ODETimeDerivative
     variable = NO+
   [../]
 
-  [./N2Op_time_deriv]
-    type = ODETimeDerivative
-    variable = N2O+
-  [../]
-
-  [./NO2p_time_deriv]
-    type = ODETimeDerivative
-    variable = NO2+
-  [../]
-
   [./NOm_time_deriv]
     type = ODETimeDerivative
     variable = NO-
-  [../]
-
-  [./N2Om_time_deriv]
-    type = ODETimeDerivative
-    variable = N2O-
-  [../]
-
-  [./NO2m_time_deriv]
-    type = ODETimeDerivative
-    variable = NO2-
-  [../]
-
-  [./NO3m_time_deriv]
-    type = ODETimeDerivative
-    variable = NO3-
   [../]
 
   [./O2pN2_time_deriv]
@@ -592,34 +502,39 @@
 []
 
 [Debug]
-  show_var_residual_norms = true
+  #show_var_residual_norms = true
 []
 
 [AuxVariables]
   [./e]
     order = FIRST
     family = SCALAR
-    initial_condition = 1e1
+    initial_condition = 1e12
   [../]
-  [./N2]
-    # Air is N2-O2 at ratio of 4:1
-    order = FIRST
-    family = SCALAR
-    initial_condition = 1.834268645908762e19
-  [../]
+  #[./N2]
+  #  # Air is N2-O2 at ratio of 4:1
+  #  order = FIRST
+  #  family = SCALAR
+  #  initial_condition = 1.834268645908762e19
+  #[../]
   
   [./NEUTRAL]
     # For now, NEUTRAL = N2 + O2
     order = FIRST
     family = SCALAR
-    initial_condition = 2.445692e19
+    #initial_condition = 2.445692e19
   [../]
 
   [./reduced_field]
     # Units: Td
     order = FIRST
     family = SCALAR
-    initial_condition = 100
+    #initial_condition = 100
+  [../]
+  [./voltage]
+    order = FIRST
+    family = SCALAR
+    # for testing purposes only
   [../]
 
   [./TionN]
@@ -679,8 +594,57 @@
   [../]
 []
 
-#[AuxKernels]
-#[]
+[AuxScalarKernels]
+  #[./field_calc]
+  #  type = ParsedAuxScalar
+  #  variable = reduced_field
+  #  #constant_names = 'A d w p o'
+  #  #constant_expressions = '13.204851149149514 1486789.8154186027 50149412.89498433 -1.2796011330163444 -0.54054816147437'
+  #  #function = 'A * exp(-d*t) * sin(w*t + p) + o'
+  #  #execute_on = 'timestep_begin'
+  #  #function = '100 * exp(-t)'
+  #  function = 'voltage_time'
+  #[../]
+  [./field_calc]
+    type = FunctionScalarAux
+    variable = reduced_field
+    function = reduced_field_time
+    execute_on = 'initial timestep_begin'
+  [../]
+
+  [./voltage_calc]
+    type = FunctionScalarAux
+    variable = voltage
+    function = voltage_time
+    execute_on = 'initial timestep_begin'
+  [../]
+
+  [./neutral_sum]
+    type = VariableSum
+    variable = NEUTRAL
+    args = 'N2 O2 N2v1 N2v2 N2v3 N2v4 N2v5 N2v6 N2v7 N2v8 N2A3 N2B3 N2a_1 N2C3 N N2D N2P O2v1 O2v2 O2v3 O2v4 O2a1 O2b1 O24_ev O O1D O1S O3 NO'
+    execute_on = 'initial linear nonlinear'
+  [../]
+[]
+
+[Functions]
+  [./reduced_field_time]
+    # Voltage [kV] / gap distance [mm] * n_neutral * 1e-21 to convert to Td
+    type = ParsedFunction
+    vars = 'A d w p o'
+    vals = '13.204851149149514 1486789.8154186027 50149412.89498433 -1.2796011330163444 -0.54054816147437'
+    value = 'abs((A * exp(-d*t) * sin(w*t + p))*1e6 / 2.445692e4)' 
+    #value = 'A * exp(-d*t) * sin(w*t + p) + o' # Voltage [kV] / gap distance [mm] * n_neutral * 1e-21 to convert to Td
+  [../]
+  [./voltage_time]
+    # Voltage [kV] / gap distance [mm] * n_neutral * 1e-21 to convert to Td
+    type = ParsedFunction
+    vars = 'A d w p o'
+    vals = '13.204851149149514 1486789.8154186027 50149412.89498433 -1.2796011330163444 -0.54054816147437'
+    value = 'A * exp(-d*t) * sin(w*t + p)' 
+    #value = 'A * exp(-d*t) * sin(w*t + p) + o' # Voltage [kV] / gap distance [mm] * n_neutral * 1e-21 to convert to Td
+  [../]
+[]
 
 [Preconditioning]
   active = 'smp'
@@ -698,7 +662,7 @@
   type = Transient
   automatic_scaling = true
   compute_scaling_once = false
-  end_time = 1e-1
+  end_time = 5e-6
   line_search = 'basic'
   # end_time = 10
   petsc_options = '-snes_converged_reason -snes_linesearch_monitor'
@@ -715,14 +679,15 @@
   nl_rel_tol = 1e-8
   #nl_abs_tol = 1e-10
   dtmin = 1e-12
-  #dtmax = 1e-2
+  dtmax = 2e-9
+  #dtmax = 1e-4
   l_max_its = 20
   #num_steps = 54
   steady_state_detection = true
   [./TimeStepper]
     type = IterationAdaptiveDT
     cutback_factor = 0.4
-    dt = 1e-11
+    dt = 1e-14
     # dt = 1.1
     growth_factor = 1.2
     optimal_iterations = 15
@@ -740,8 +705,8 @@
 
 [ChemicalReactions]
   [./ScalarNetwork]
-    species = 'N2v1 N2v2 N2v3 N2v4 N2v5 N2v6 N2v7 N2v8 N2A3 N2B3 N2a_1 N2C3 N N2D N2P N+ N2+ N3+ N4+ O2 O2v1 O2v2 O2v3 O2v4 O2a1 O2b1 O24_ev O O1D O1S O3 O+ O2+ O4+ O- O2- O3- O4- NO N2O NO2 NO3 N2O5 NO+ N2O+ NO2+ NO- N2O- NO2- NO3- O2pN2'
-    aux_species = 'N2 NEUTRAL e'
+    species = 'N2 N2v1 N2v2 N2v3 N2v4 N2v5 N2v6 N2v7 N2v8 N2A3 N2B3 N2a_1 N2C3 N N2D N2P N+ N2+ N3+ N4+ O2 O2v1 O2v2 O2v3 O2v4 O2a1 O2b1 O24_ev O O1D O1S O3 O+ O2+ O4+ O- O2- O3- O4- NO N2O NO2 NO3 N2O5 NO+ N2O+ NO2+ NO- N2O- NO2- NO3- O2pN2'
+    aux_species = 'NEUTRAL e'
     reaction_coefficient_format = 'rate'
     include_electrons = true
     file_location = 'air_test'
@@ -753,7 +718,8 @@
     rate_provider_var = 'reduced_field'
 
     # NOTE: rate coefficients units are cm^3 s^-1
-    reactions = 'e + N2 -> e + N2v1                 : EEDF (C2_N2_Excitation_0.29_eV)
+    #reactions = 'e + N2 -> e + N2v1                 : EEDF (C2_N2_Excitation_0.29_eV)
+    reactions = 'e + N2 -> e + N2v1                 : EEDF (C2_N2_Excitation_0.0000_eV)
                  e + N2 -> e + N2v1                 : EEDF (C3_N2_Excitation_0.29_eV) 
                  e + N2 -> e + N2v2                 : EEDF (C4_N2_Excitation_0.59_eV)
                  e + N2 -> e + N2v3                 : EEDF (C5_N2_Excitation_0.88_eV)
@@ -889,7 +855,6 @@
                  e + O2 -> e + e + O2+              : EEDF (C39_O2_Ionization_12.06_eV)
                  e + O2a1 -> e + e + O2+            : EEDF (C59_O2a1_Ionization_11.00_eV)
                  e + NO -> e + e + NO+              : EEDF (C75_NO_Ionization_9.26_eV)
-                 e + N2O -> e + e + N2O+            : EEDF (C88_N2O_Ionization_12.89_eV)
                  ####
                  # electron-ion recombination
                  ####
@@ -903,8 +868,6 @@
                  e + NO+ -> O + N2D                 : {4.2e-7 * (300/Te)^0.85 * 0.8}
                  e + N3+ -> N2 + N                  : {2.0e-7 * (300/Te)^0.5}
                  e + N4+ -> N2 + N                  : {2.3e-6 * (300/Te)^0.53}
-                 e + N2O+ -> N2 + O                 : {2.0e-7 * (300/Te)^0.5}
-                 e + NO2+ -> NO + O                 : {2.0e-7 * (300/Te)^0.5}
                  e + O4+ -> O2 + O2                 : {1.4e-6 * (300/Te)^0.5}
                  e + O2pN2 -> O2 + N2               : {1.3e-6 * (300/Te)^0.5}
                  e + N+ -> N + e                    : {7.0e-20 * (300/Te)^4.5}
@@ -920,21 +883,16 @@
                  e + NO -> O- + N                     : EEDF (C66_NO_Attachment)
                  e + O3 -> O- + O2                    : EEDF (C76_O3_Attachment)
                  e + O3 -> O2- + O                    : EEDF (C77_O3_Attachment)
-                 e + N2O -> NO- + N                   : EEDF (C80_N2O_Attachment)
-                 e + NO2 -> O- + NO                   : 1e-11
                  e + O + O2 -> O- + O2                : 1e-31
                  e + O + O2 -> O2- + O                : 1e-31
                  e + O3 + NEUTRAL -> O3- + NEUTRAL    : 1e-31
                  e + NO + NEUTRAL -> NO- + NEUTRAL    : 1e-31
-                 e + N2O + NEUTRAL -> N2O- + NEUTRAL  : 1e-31
                  e + O2 + N2 -> O2- + N2              : {1.1e-31 * (300/Te)^2 * exp(-70/Tgas) * exp(1500*(Te-Tgas)/(Te*Tgas))}
                  ####
                  # electron detachment
                  ####
                  O-  + O -> O2  + e                   : 1.4e-10
                  O-  + N -> NO  + e                   : 2.6e-10
-                 O-  + NO -> NO2 + e                  : 2.6e-10
-                 O-  + N2 -> N2O + e                  : 5.0e-13
                  O-  + O2 -> O3  + e                  : 5.0e-15
                  O-  + O2a1 -> O3  + e                : 3.0e-10
                  O-  + O2b1 -> O   + O2 + e           : 6.9e-10
@@ -942,7 +900,6 @@
                  O-  + N2B3 -> O   + N2 + e           : 1.9e-9
                  O-  + O3 -> O2  + O2 + e             : 3.0e-10
                  O2- + O -> O3  + e                   : 1.5e-10
-                 O2- + N -> NO2 + e                   : 5.0e-10
                  O2- + O2 -> O2  + O2 + e             : {2.7e-10 * (TeffN2/300)^0.5 * exp(-5590/TeffN2)}
                  O2- + O2a1 -> O2  + O2 + e           : 2.0e-10
                  O2- + O2b1 -> O2  + O2 + e           : 3.6e-10
@@ -953,25 +910,11 @@
                  ####
                  # Detachment for O3- NO- N2O- NO2- NO3- has to be verified (from inp source file)
                  ####
-                 NO- + N -> N2O + e                   : 5e-10 
                  O3- + N -> NO + O2 + e               : 5e-10
-                 N2O- + N -> NO + N2 + e              : 5e-10
-                 NO2- + N -> NO + NO + e              : 5e-10
-                 NO3- + N -> NO + NO2 + e             : 5e-10
-                 NO- + O -> NO2 + e                   : 1.5e-10
-                 N2O- + O -> NO + NO + e              : 1.5e-10
-                 NO2- + O -> NO + O2 + e              : 1.5e-10
-                 NO3- + O -> NO + O3 + e              : 1.5e-10
                  O3- + N2A3 -> O3 + N2 + e            : 2.1e-9
                  NO- + N2A3 -> NO + N2 + e            : 2.1e-9
-                 N2O- + N2A3 -> N2O + N2 + e          : 2.1e-9
-                 NO2- + N2A3 -> NO2 + N2 + e          : 2.1e-9
-                 NO3- + N2A3 -> NO3 + N2 + e          : 2.1e-9
                  O3- + N2B3 -> O3 + N2 + e            : 2.5e-9
                  NO- + N2B3 -> NO + N2 + e            : 2.5e-9
-                 N2O- + N2B3 -> N2O + N2 + e          : 2.5e-9
-                 NO2- + N2B3 -> NO2 + N2 + e          : 2.5e-9
-                 NO3- + N2B3 -> NO3 + N2 + e          : 2.5e-9
                  ####
                  # optical transitions and predissociation (Capitelli2000, page 157)
                  ####
@@ -993,11 +936,8 @@
                  N2A3 + O2 -> N2 + O + O1D            : {2.1e-12 * (Tgas/300)^0.55}
                  N2A3 + O2 -> N2 + O2a1               : {2.0e-13 * (Tgas/300)^0.55}
                  N2A3 + O2 -> N2 + O2b1               : {2.0e-13 * (Tgas/300)^0.55}
-                 N2A3 + O2 -> N2O + O                 : {2.0e-14 * (Tgas/300)^0.55}
                  N2A3 + N2 -> N2 + N2                 : 3e-16 
                  N2A3 + NO -> N2 + NO                 : 6.9e-11
-                 N2A3 + N2O -> N2 + N + NO            : 1.0e-11
-                 N2A3 + NO2 -> N2 + O + NO            : 1.0e-12
                  N2A3 + N2A3 -> N2 + N2B3             : 3e-10
                  N2A3 + N2A3 -> N2 + N2C3             : 1.5e-10
                  N2B3 + N2 -> N2A3 + N2               : 3e-11
@@ -1027,7 +967,6 @@
                  N2D + O -> N + O1D                   : 4e-13
                  N2D + O2 -> NO + O                   : 5.2e-12
                  N2D + NO -> N2 + O                   : 1.8e-10
-                 N2D + N2O -> NO + N2                 : 3.5e-12
                  N2D + N2 -> N + N2                   : {1.0e-13 * exp(-510/Tgas)}
                  N2P + N -> N + N                     : 1.8e-12
                  N2P + O -> N + O                     : 1.0e-12
@@ -1067,8 +1006,6 @@
                  O1D + O3 -> O2 + O + O               : 1.2e-10
                  O1D + O3 -> O2 + O2                  : 1.2e-10
                  O1D + NO -> O2 + N                   : 1.7e-10
-                 O1D + N2O -> NO + NO                 : 7.2e-11
-                 O1D + N2O -> O2 + N2                 : 4.4e-11
                  O1S + O -> O1D + O                   : 5.0e-11 * exp(-300/Tgas)}
                  O1S + N -> O + N                     : 1.0e-12
                  O1S + O2 -> O1D + O2                 : {1.3e-12 * exp(-850/Tgas)}
@@ -1081,8 +1018,6 @@
                  O1S + NO -> O1D + NO                 : 5.1e-10
                  O1S + O3 -> O2 + O2                  : 2.9e-10
                  O1S + O3 -> O2 + O + O1D             : 2.9e-10
-                 O1S + N2O -> O + N2O                 : 6.3e-12
-                 O1S + N2O -> O1D + N2O               : 3.1e-12
                  ####
                  # bimolecular nitrogen-oxygen reactions (Capitelli2000, page 168)
                  # Two missing reactions: 
@@ -1091,33 +1026,10 @@
                  ####
                  N + NO -> O + N2                     : {1.8e-11 * (Tgas/300.0)^0.5}
                  N + O2 -> O + NO                     : {3.2e-12 * (Tgas/300.0) * exp(-3150/Tgas)}
-                 N + NO2 -> O + O + N2                : 9.1e-13
-                 N + NO2 -> O + N2O                   : 3.0e-12
-                 N + NO2 -> N2 + O2                   : 7.0e-13
-                 N + NO2 -> NO + NO                   : 2.3e-12
                  O + N2 -> N + NO                     : {3.0e-10 * exp(-38370/Tgas)}
                  O + NO -> N + O2                     : {7.5e-12 * (Tgas/300.0) * exp(-19500/Tgas)}
-                 O + NO -> NO2                        : 4.2e-18
-                 O + N2O -> N2 + O2                   : {8.3e-12 * exp(-14000/Tgas)}
-                 O + N2O -> NO + NO                   : {1.5e-10 * exp(-14090/Tgas)}
-                 O + NO2 -> NO + O2                   : {9.1e-12 * (Tgas/300)^0.18}
-                 O + NO3 -> O2 + NO2                  : 1.0e-11
-                 N2 + O2 -> O + N2O                   : {2.5e-10 * exp(-50390/Tgas)}
-                 NO + NO -> N + NO2                   : {3.3e-16 * (300/Tgas)^0.5 * exp(-39200/Tgas)}
-                 NO + NO -> O + N2O                   : {2.2e-12 * exp(-32100/Tgas)}
                  NO + NO -> N2 + O2                   : {5.1e-13 * exp(-33660/Tgas)}
-                 NO + O2 -> O + NO2                   : {2.8e-12 * exp(-23400/Tgas)}
-                 NO + O3 -> O2 + NO2                  : {2.5e-13 * exp(-765/Tgas)}
-                 NO + N2O -> N2 + NO2                 : {4.6e-10 * exp(-25170/Tgas)}
-                 NO + NO3 -> NO2 + NO2                : 1.7e-11
                  O2 + O2 -> O + O3                    : {2.0e-11 * exp(-49800/Tgas)}
-                 O2 + NO2 -> NO + O3                  : {2.8e-12 * exp(-25400/Tgas)}
-                 NO2 + NO2 -> NO + NO + O2            : {3.3e-12 * exp(-13500/Tgas)}
-                 NO2 + NO2 -> NO + NO3                : {4.5e-10 * exp(-18500/Tgas)}
-                 NO2 + O3 -> O2 + NO3                 : {1.2e-13 * exp(-2450/Tgas)}
-                 NO2 + NO3 -> NO + NO2 + O2           : {2.3e-13 * exp(-1600/Tgas)}
-                 NO3 + O2 -> NO2 + O3                 : {1.5e-12 * exp(-15020/Tgas)}
-                 NO3 + NO3 -> O2 + NO2 + NO2          : {4.3e-12 * exp(-3850/Tgas)}
                  N + N -> N2+ + e                     : {2.7e-11 * exp(-6.74e4/Tgas)}
                  N + O -> NO+ + e                     : {1.6e-12 * (Tgas/300)^0.5 * (0.19+8.6*Tgas) * exp(-32000/Tgas)}
                  ####
@@ -1142,25 +1054,6 @@
                  O3 + O2 -> O2 + O + O2               : {6.6e-10 * exp(-11600/Tgas) * 0.38}
                  O3 + N -> O2 + O + N                 : {6.6e-10 * exp(-11600/Tgas) * 6.3*exp(170/Tgas)}
                  O3 + O -> O2 + O + O                 : {6.6e-10 * exp(-11600/Tgas) * 6.3*exp(170/Tgas)}
-                 N2O + N2 -> N2 + O + N2              : {1.2e-8 * (300/Tgas) * exp(-29000/Tgas)}
-                 N2O + O2 -> N2 + O + O2              : {1.2e-8 * (300/Tgas) * exp(-29000/Tgas)}
-                 N2O + NO -> N2 + O + NO              : {1.2e-8 * (300/Tgas) * exp(-29000/Tgas) * 2}
-                 N2O + N2O -> N2 + O + N2O            : {1.2e-8 * (300/Tgas) * exp(-29000/Tgas) * 4}
-                 NO2 + N2 -> N2 + O + N2              : {6.8e-6 * (300/Tgas)^2 * exp(-36180/Tgas)}
-                 NO2 + O2 -> N2 + O + O2              : {6.8e-6 * (300/Tgas)^2 * exp(-36180/Tgas) * 0.78}
-                 NO2 + NO -> N2 + O + NO              : {6.8e-6 * (300/Tgas)^2 * exp(-36180/Tgas) * 7.8}
-                 NO2 + NO2 -> N2 + O + NO2            : {6.8e-6 * (300/Tgas)^2 * exp(-36180/Tgas) * 5.9}
-                 NO3 + N2 -> NO2 + O + N2             : {3.1e-5 * (300/Tgas)^2 * exp(-25000/Tgas)}
-                 NO3 + O2 -> NO2 + O + O2             : {3.1e-5 * (300/Tgas)^2 * exp(-25000/Tgas)}
-                 NO3 + NO -> NO2 + O + NO             : {3.1e-5 * (300/Tgas)^2 * exp(-25000/Tgas)}
-                 NO3 + N -> NO2 + O + N               : {3.1e-5 * (300/Tgas)^2 * exp(-25000/Tgas) * 10}
-                 NO3 + O -> NO2 + O + O               : {3.1e-5 * (300/Tgas)^2 * exp(-25000/Tgas) * 10}
-                 NO3 + N2 -> NO + O2 + N2             : {6.2e-5 * (300/Tgas)^2 * exp(-25000/Tgas)}
-                 NO3 + O2 -> NO + O2 + O2             : {6.2e-5 * (300/Tgas)^2 * exp(-25000/Tgas)}
-                 NO3 + NO -> NO + O2 + NO             : {6.2e-5 * (300/Tgas)^2 * exp(-25000/Tgas)}
-                 NO3 + N -> NO + O2 + N               : {6.2e-5 * (300/Tgas)^2 * exp(-25000/Tgas) * 12}
-                 NO3 + O -> NO + O2 + O               : {6.2e-5 * (300/Tgas)^2 * exp(-25000/Tgas) * 12}
-                 N2O5 + NEUTRAL -> NO2 + NO3 + NEUTRAL : {2.1e-11 * (300/Tgas)^4.4 * exp(-11080/Tgas)}
                  ####
                  # recombination of nitrogen-oxygen molecules (Capitelli, page 170)
                  # note "max" rate coefficients in the source file.
@@ -1186,16 +1079,6 @@
                  O + O2 + NO -> O3 + NO               : {7.6e-34 * (300/Tgas)^1.9}
                  O + O2 + N -> O3 + N                 : {3.9e-33 * (300/Tgas)^1.9}
                  O + O2 + O -> O3 + O                 : {3.9e-33 * (300/Tgas)^1.9}
-                 O + N2 + NEUTRAL -> N2O + NEUTRAL    : {3.9e-35 * exp(-10400/Tgas)}
-                 O + NO + N2 -> NO2 + N2              : {1.2e-31 * (300/Tgas)^1.8}
-                 O + NO + O2 -> NO2 + O2              : {1.2e-31 * (300/Tgas)^1.8 * 0.78}
-                 O + NO + NO -> NO2 + NO              : {1.2e-31 * (300/Tgas)^1.8 * 0.78}
-                 O + NO2 + N2 -> NO3 + N2             : {8.9e-32 * (300/Tgas)^2}
-                 O + NO2 + O2 -> NO3 + O2             : {8.9e-32 * (300/Tgas)^2}
-                 O + NO2 + N -> NO3 + N               : {8.9e-32 * (300/Tgas)^2 * 13}
-                 O + NO2 + O -> NO3 + O               : {8.9e-32 * (300/Tgas)^2 * 13}
-                 O + NO2 + NO -> NO3 + NO             : {8.9e-32 * (300/Tgas)^2 * 2.4}
-                 NO2 + NO3 + NEUTRAL -> N2O5 + NEUTRAL : {3.7e-30 * (300/Tgas)^4.1}
                  ####
                  # positive ion reactions (Capitelli, 179)
                  ####
@@ -1207,36 +1090,23 @@
                  N+ + NO  -> NO+ + N                              : 8.0e-10
                  N+ + NO  -> N2+ + O                              : 3.0e-12
                  N+ + NO  -> O+ + N2                              : 1.0e-12
-                 N+ + N2O -> NO+ + N2                             : 5.5e-10
                  O+ + N2 -> NO+ + N                               : {( 1.5 - 2.0e-3*TeffN + 9.6e-7*TeffN^2 ) * 1.0e-12}
                  O+ + O2 -> O2+ + O                               : {2.0e-11 * (300/TeffN)^0.5}
                  O+ + O3 -> O2+ + O2                              : 1.0e-10
                  O+ + NO -> NO+ + O                               : 2.4e-11
                  O+ + NO -> O2+ + N                               : 3.0e-12
                  O+ + N2D -> N+ + O                               : 1.3e-10
-                 O+ + N2O -> NO+ + NO                             : 2.3e-10
-                 O+ + N2O -> N2O+ + O                             : 2.2e-10
-                 O+ + N2O -> O2+ + N2                             : 2.0e-11
-                 O+ + NO2 -> NO2+ + O                             : 1.6e-9
                  N2+ + O2 -> O2+ + N2                             : {6.0e-11 * (300/TeffN2)^0.5}
                  N2+ + O  -> NO+ + N                              : {1.3e-10 * (300/TeffN2)^0.5}
                  N2+ + O3 -> O2+ + O + N2                         : 1.0e-10
                  N2+ + N  -> N+ + N2                              : {7.2e-13 * (TeffN2/300)}
                  N2+ + NO -> NO+ + N2                             : 3.3e-10
-                 N2+ + N2O -> N2O+ + N2                           : 5.0e-10
-                 N2+ + N2O -> NO+ + N + N2                        : 4.0e-10
                  O2+ + N2 -> NO+ + NO                             : 1.0e-17
                  O2+ + N  -> NO+ + O                              : 1.2e-10
                  O2+ + NO -> NO+ + O2                             : 6.3e-10
-                 O2+ + NO2 -> NO+ + O3                            : 1.0e-11
-                 O2+ + NO2 -> NO2+ + O2                           : 6.6e-10
                  N3+ + O2 -> O2+ + N + N2                         : 2.3e-11
-                 N3+ + O2 -> NO2+ + N2                            : 4.4e-11
                  N3+ + N  -> N2+ + N2                             : 6.6e-11
                  N3+ + NO -> NO+ + N + N2                         : 7.0e-11
-                 N3+ + NO -> N2O+ + N2                            : 7.0e-11
-                 NO2+ + NO -> NO+ + NO2                           : 2.9e-10
-                 N2O+ + NO -> NO+ + N2O                           : 2.9e-10
                  N4+ + N2 -> N2+ + N2 + N2                        : 1.0e-10
                  N4+ + O2 -> O2+ + N2 + N2                        : 2.5e-10
                  N4+ + O  -> O+ + N2 + N2                         : 2.5e-10
@@ -1268,36 +1138,17 @@
                  ####
                  O-   + O2a1 -> O2-  + O                          : 1.0e-10
                  O-   + O3 -> O3-  + O                            : 8.0e-10
-                 O-   + NO2 -> NO2- + O                           : 1.2e-9
-                 O-   + N2O -> NO-  + NO                          : 2.0e-10
-                 O-   + N2O -> N2O- + O                           : 2.0e-12
                  O2-  + O -> O-   + O2                            : 3.3e-10
                  O2-  + O3 -> O3-  + O2                           : 3.5e-10
-                 O2-  + NO2 -> NO2- + O2                          : 7.0e-10
-                 O2-  + NO3 -> NO3- + O2                          : 5.0e-10
                  O3-  + O -> O2-  + O2                            : 1.0e-11
-                 O3-  + NO -> NO3- + O                            : 1.0e-11
-                 O3-  + NO -> NO2- + O2                           : 2.6e-12
-                 O3-  + NO2 -> NO2- + O3                          : 7.0e-11
-                 O3-  + NO2 -> NO3- + O2                          : 2.0e-11
-                 O3-  + NO3 -> NO3- + O3                          : 5.0e-10
                  NO-  + O2 -> O2-  + NO                           : 5.0e-10
-                 NO-  + NO2 -> NO2- + NO                          : 7.4e-10
-                 NO-  + N2O -> NO2- + N2                          : 2.8e-14
-                 NO2- + O3 -> NO3- + O2                           : 1.8e-11
-                 NO2- + NO2 -> NO3- + NO                          : 4.0e-12
-                 NO2- + NO3 -> NO3- + NO2                         : 5.0e-10
-                 NO2- + N2O5 -> NO3- + NO2 + NO2                  : 7.0e-10
-                 NO3- + NO -> NO2- + NO2                          : 3.0e-15
                  O4- + N2 -> O2- + O2 + N2                        : {1.0e-10 * exp(-1044/TeffN4)}
                  O4- + O2 -> O2- + O2 + O2                        : {1.0e-10 * exp(-1044/TeffN4)}
                  O4- + O -> O3-  + O2                             : 4.0e-10
                  O4- + O -> O-   + O2  + O2                       : 3.0e-10
                  O4- + O2a1 -> O2-  + O2  + O2                    : 1.0e-10
                  O4- + O2b1 -> O2-  + O2  + O2                    : 1.0e-10
-                 O4- + NO -> NO3- + O2                            : 2.5e-10
                  O-  + O2 + NEUTRAL -> O3- + NEUTRAL      : {1.1e-30 * (300./TeffN)}
-                 O-  + NO + NEUTRAL -> NO2- + NEUTRAL     : 1.0e-29
                  O2- + O2 + NEUTRAL -> O4- + NEUTRAL      : {3.5e-31 * (300./TeffN2)}
                  ####
                  # ion-ion recombination (Kossyi1992)
@@ -1307,61 +1158,27 @@
                  O- + O+ -> O + O                                 : {2e-7 * (300/TionN)^0.5}
                  O- + O2+ -> O + O2                               : {2e-7 * (300/TionN)^0.5}
                  O- + NO+ -> O + NO                               : {2e-7 * (300/TionN)^0.5}
-                 O- + N2O+ -> O + N2O                             : {2e-7 * (300/TionN)^0.5}
-                 O- + NO2+ -> O + NO2                             : {2e-7 * (300/TionN)^0.5}
-
                  O2- + N+ -> O + N                                 : {2e-7 * (300/TionN)^0.5}
                  O2- + N2+ -> O + N2                               : {2e-7 * (300/TionN)^0.5}
                  O2- + O+ -> O + O                                 : {2e-7 * (300/TionN)^0.5}
                  O2- + O2+ -> O + O2                               : {2e-7 * (300/TionN)^0.5}
                  O2- + NO+ -> O + NO                               : {2e-7 * (300/TionN)^0.5}
-                 O2- + N2O+ -> O + N2O                             : {2e-7 * (300/TionN)^0.5}
-                 O2- + NO2+ -> O + NO2                             : {2e-7 * (300/TionN)^0.5}
-
                  O3- + N+ -> O + N                                 : {2e-7 * (300/TionN)^0.5}
                  O3- + N2+ -> O + N2                               : {2e-7 * (300/TionN)^0.5}
                  O3- + O+ -> O + O                                 : {2e-7 * (300/TionN)^0.5}
                  O3- + O2+ -> O + O2                               : {2e-7 * (300/TionN)^0.5}
                  O3- + NO+ -> O + NO                               : {2e-7 * (300/TionN)^0.5}
-                 O3- + N2O+ -> O + N2O                             : {2e-7 * (300/TionN)^0.5}
-                 O3- + NO2+ -> O + NO2                             : {2e-7 * (300/TionN)^0.5}
-
                  NO- + N+ -> O + N                                 : {2e-7 * (300/TionN)^0.5}
                  NO- + N2+ -> O + N2                               : {2e-7 * (300/TionN)^0.5}
                  NO- + O+ -> O + O                                 : {2e-7 * (300/TionN)^0.5}
                  NO- + O2+ -> O + O2                               : {2e-7 * (300/TionN)^0.5}
                  NO- + NO+ -> O + NO                               : {2e-7 * (300/TionN)^0.5}
-                 NO- + N2O+ -> O + N2O                             : {2e-7 * (300/TionN)^0.5}
-                 NO- + NO2+ -> O + NO2                             : {2e-7 * (300/TionN)^0.5}
-                 N2O- + N+ -> O2 + N                                 : {2e-7 * (300/TionN)^0.5}
-                 N2O- + N2+ -> O2 + N2                               : {2e-7 * (300/TionN)^0.5}
-                 N2O- + O+ -> O2 + O                                 : {2e-7 * (300/TionN)^0.5}
-                 N2O- + O2+ -> O2 + O2                               : {2e-7 * (300/TionN)^0.5}
-                 N2O- + NO+ -> O2 + NO                               : {2e-7 * (300/TionN)^0.5}
-                 N2O- + N2O+ -> O2 + N2O                             : {2e-7 * (300/TionN)^0.5}
-                 N2O- + NO2+ -> O2 + NO2                             : {2e-7 * (300/TionN)^0.5}
-                 NO2- + N+ -> O3 + N                                 : {2e-7 * (300/TionN)^0.5}
-                 NO2- + N2+ -> O3 + N2                               : {2e-7 * (300/TionN)^0.5}
-                 NO2- + O+ -> O3 + O                                 : {2e-7 * (300/TionN)^0.5}
-                 NO2- + O2+ -> O3 + O2                               : {2e-7 * (300/TionN)^0.5}
-                 NO2- + NO+ -> O3 + NO                               : {2e-7 * (300/TionN)^0.5}
-                 NO2- + N2O+ -> O3 + N2O                             : {2e-7 * (300/TionN)^0.5}
-                 NO2- + NO2+ -> O3 + NO2                             : {2e-7 * (300/TionN)^0.5}
-                 NO3- + N+ -> NO3 + N                                 : {2e-7 * (300/TionN)^0.5}
-                 NO3- + N2+ -> NO3 + N2                               : {2e-7 * (300/TionN)^0.5}
-                 NO3- + O+ -> NO3 + O                                 : {2e-7 * (300/TionN)^0.5}
-                 NO3- + O2+ -> NO3 + O2                               : {2e-7 * (300/TionN)^0.5}
-                 NO3- + NO+ -> NO3 + NO                               : {2e-7 * (300/TionN)^0.5}
-                 NO3- + N2O+ -> NO3 + N2O                             : {2e-7 * (300/TionN)^0.5}
-                 NO3- + NO2+ -> NO3 + NO2                             : {2e-7 * (300/TionN)^0.5}
                  O- + N2+ -> O + N + N                              : 1e-7
                  O- + N3+ -> O + N + N2                             : 1e-7
                  O- + N4+ -> O + N2 + N2                            : 1e-7
                  O- + O2+ -> O + O + O                              : 1e-7
                  O- + O4+ -> O + O2 + O2                            : 1e-7
                  O- + NO+ -> O + N + O                              : 1e-7
-                 O- + N2O+ -> O + N2 + O                            : 1e-7
-                 O- + NO2+ -> O + N + O2                            : 1e-7
                  O- + O2pN2 -> O + O2 + N2                          : 1e-7
                  O2- + N2+ -> O2 + N + N                              : 1e-7
                  O2- + N3+ -> O2 + N + N2                             : 1e-7
@@ -1369,8 +1186,6 @@
                  O2- + O2+ -> O2 + O + O                              : 1e-7
                  O2- + O4+ -> O2 + O2 + O2                            : 1e-7
                  O2- + NO+ -> O2 + N + O                              : 1e-7
-                 O2- + N2O+ -> O2 + N2 + O                            : 1e-7
-                 O2- + NO2+ -> O2 + N + O2                            : 1e-7
                  O2- + O2pN2 -> O2 + O2 + N2                          : 1e-7
                  O3- + N2+ -> O3 + N + N                              : 1e-7
                  O3- + N3+ -> O3 + N + N2                             : 1e-7
@@ -1378,8 +1193,6 @@
                  O3- + O2+ -> O3 + O + O                              : 1e-7
                  O3- + O4+ -> O3 + O2 + O2                            : 1e-7
                  O3- + NO+ -> O3 + N + O                              : 1e-7
-                 O3- + N2O+ -> O3 + N2 + O                            : 1e-7
-                 O3- + NO2+ -> O3 + N + O2                            : 1e-7
                  O3- + O2pN2 -> O3 + O2 + N2                          : 1e-7
                  NO- + N2+ -> NO + N + N                              : 1e-7
                  NO- + N3+ -> NO + N + N2                             : 1e-7
@@ -1387,43 +1200,12 @@
                  NO- + O2+ -> NO + O + O                              : 1e-7
                  NO- + O4+ -> NO + O2 + O2                            : 1e-7
                  NO- + NO+ -> NO + N + O                              : 1e-7
-                 NO- + N2O+ -> NO + N2 + O                            : 1e-7
-                 NO- + NO2+ -> NO + N + O2                            : 1e-7
                  NO- + O2pN2 -> NO + O2 + N2                          : 1e-7
-                 N2O- + N2+ -> N2O + N + N                            : 1e-7
-                 N2O- + N3+ -> N2O + N + N2                           : 1e-7
-                 N2O- + N4+ -> N2O + N2 + N2                          : 1e-7
-                 N2O- + O2+ -> N2O + O + O                            : 1e-7
-                 N2O- + O4+ -> N2O + O2 + O2                          : 1e-7
-                 N2O- + NO+ -> N2O + N + O                            : 1e-7
-                 N2O- + N2O+ -> N2O + N2 + O                          : 1e-7
-                 N2O- + NO2+ -> N2O + N + O2                          : 1e-7
-                 N2O- + O2pN2 -> N2O + O2 + N2                        : 1e-7
-                 NO2- + N2+ -> NO2 + N + N                            : 1e-7
-                 NO2- + N3+ -> NO2 + N + N2                           : 1e-7
-                 NO2- + N4+ -> NO2 + N2 + N2                          : 1e-7
-                 NO2- + O2+ -> NO2 + O + O                            : 1e-7
-                 NO2- + O4+ -> NO2 + O2 + O2                          : 1e-7
-                 NO2- + NO+ -> NO2 + N + O                            : 1e-7
-                 NO2- + N2O+ -> NO2 + N2 + O                          : 1e-7
-                 NO2- + NO2+ -> NO2 + N + O2                          : 1e-7
-                 NO2- + O2pN2 -> NO2 + O2 + N2                        : 1e-7
-                 NO3- + N2+ -> NO3 + N + N                            : 1e-7
-                 NO3- + N3+ -> NO3 + N + N2                           : 1e-7
-                 NO3- + N4+ -> NO3 + N2 + N2                          : 1e-7
-                 NO3- + O2+ -> NO3 + O + O                            : 1e-7
-                 NO3- + O4+ -> NO3 + O2 + O2                          : 1e-7
-                 NO3- + NO+ -> NO3 + N + O                            : 1e-7
-                 NO3- + N2O+ -> NO3 + N2 + O                          : 1e-7
-                 NO3- + NO2+ -> NO3 + N + O2                          : 1e-7
-                 NO3- + O2pN2 -> NO3 + O2 + N2                        : 1e-7
                  O4- + N+ -> O2 + O2 + N                              : 1e-7 
                  O4- + N2+ -> O2 + O2 + N2                            : 1e-7 
                  O4- + O+ -> O2 + O2 + O                              : 1e-7 
                  O4- + O2+ -> O2 + O2 + O2                            : 1e-7 
                  O4- + NO+ -> O2 + O2 + NO                            : 1e-7 
-                 O4- + N2O+ -> O2 + O2 + N2O                          : 1e-7 
-                 O4- + NO2+ -> O2 + O2 + NO2                          : 1e-7 
                  O4- + N3+ -> O2 + O2 + N2 + N                        : 1e-7 
                  O4- + N4+ -> O2 + O2 + N2 + N2                       : 1e-7 
                  O4- + O4+ -> O2 + O2 + O2 + O2                       : 1e-7 
@@ -1439,13 +1221,9 @@
                  O2- + O2+ + NEUTRAL -> O2 + O2 + NEUTRAL             : {2e-25 * (300/TionN)^2.5}
                  O2- + NO+ + NEUTRAL -> O2 + NO + NEUTRAL             : {2e-25 * (300/TionN)^2.5}
                  O- + N+ + NEUTRAL -> NO + NEUTRAL                    : {2e-25 * (300/TionN)^2.5}
-                 O- + N2+ + NEUTRAL -> N2O + NEUTRAL                  : {2e-25 * (300/TionN)^2.5}
                  O- + O+ + NEUTRAL -> O2 + NEUTRAL                    : {2e-25 * (300/TionN)^2.5}
                  O- + O2+ + NEUTRAL -> O3 + NEUTRAL                   : {2e-25 * (300/TionN)^2.5}
-                 O- + NO+ + NEUTRAL -> NO2 + NEUTRAL                  : {2e-25 * (300/TionN)^2.5}
-                 O2- + N+ + NEUTRAL -> NO2 + NEUTRAL                  : {2e-25 * (300/TionN)^2.5}
                  O2- + O+ + NEUTRAL -> O3 + NEUTRAL                   : {2e-25 * (300/TionN)^2.5}
-                 O2- + NO+ + NEUTRAL -> NO3 + NEUTRAL                 : {2e-25 * (300/TionN)^2.5}
                  ####
                  # Three-body recombination of O3- NO- N2O- NO2- NO3- has to be verified
                  ####
@@ -1454,35 +1232,11 @@
                  O3- + O+ + NEUTRAL -> O3 + O + NEUTRAL               : {2e-25 * (300/TionN2)^2.5}
                  O3- + O2+ + NEUTRAL -> O3 + O2 + NEUTRAL             : {2e-25 * (300/TionN2)^2.5}
                  O3- + NO+ + NEUTRAL -> O3 + NO + NEUTRAL             : {2e-25 * (300/TionN2)^2.5}
-                 O3- + N2O+ + NEUTRAL -> O3 + N2O + NEUTRAL           : {2e-25 * (300/TionN2)^2.5}
-                 O3- + NO2+ + NEUTRAL -> O3 + NO2 + NEUTRAL           : {2e-25 * (300/TionN2)^2.5}
                  NO- + N+ + NEUTRAL -> NO + N + NEUTRAL               : {2e-25 * (300/TionN2)^2.5}
                  NO- + N2+ + NEUTRAL -> NO + N2 + NEUTRAL             : {2e-25 * (300/TionN2)^2.5}
                  NO- + O+ + NEUTRAL -> NO + O + NEUTRAL               : {2e-25 * (300/TionN2)^2.5}
                  NO- + O2+ + NEUTRAL -> NO + O2 + NEUTRAL             : {2e-25 * (300/TionN2)^2.5}
-                 NO- + NO+ + NEUTRAL -> NO + NO + NEUTRAL             : {2e-25 * (300/TionN2)^2.5}
-                 NO- + N2O+ + NEUTRAL -> NO + N2O + NEUTRAL           : {2e-25 * (300/TionN2)^2.5}
-                 NO- + NO2+ + NEUTRAL -> NO + NO2 + NEUTRAL           : {2e-25 * (300/TionN2)^2.5}
-                 N2O- + N+ + NEUTRAL -> N2O + N + NEUTRAL             : {2e-25 * (300/TionN2)^2.5}
-                 N2O- + N2+ + NEUTRAL -> N2O + N2 + NEUTRAL           : {2e-25 * (300/TionN2)^2.5}
-                 N2O- + O+ + NEUTRAL -> N2O + O + NEUTRAL             : {2e-25 * (300/TionN2)^2.5}
-                 N2O- + O2+ + NEUTRAL -> N2O + O2 + NEUTRAL           : {2e-25 * (300/TionN2)^2.5}
-                 N2O- + NO+ + NEUTRAL -> N2O + NO + NEUTRAL           : {2e-25 * (300/TionN2)^2.5}
-                 N2O- + N2O+ + NEUTRAL -> N2O + N2O + NEUTRAL         : {2e-25 * (300/TionN2)^2.5}
-                 N2O- + NO2+ + NEUTRAL -> N2O + NO2 + NEUTRAL         : {2e-25 * (300/TionN2)^2.5}
-                 NO2- + N+ + NEUTRAL -> NO2 + N + NEUTRAL             : {2e-25 * (300/TionN2)^2.5}
-                 NO2- + N2+ + NEUTRAL -> NO2 + N2 + NEUTRAL           : {2e-25 * (300/TionN2)^2.5}
-                 NO2- + O+ + NEUTRAL -> NO2 + O + NEUTRAL             : {2e-25 * (300/TionN2)^2.5}
-                 NO2- + O2+ + NEUTRAL -> NO2 + O2 + NEUTRAL           : {2e-25 * (300/TionN2)^2.5}
-                 NO2- + NO+ + NEUTRAL -> NO2 + NO + NEUTRAL           : {2e-25 * (300/TionN2)^2.5}
-                 NO2- + N2O+ + NEUTRAL -> NO2 + N2O + NEUTRAL         : {2e-25 * (300/TionN2)^2.5}
-                 NO2- + NO2+ + NEUTRAL -> NO2 + NO2 + NEUTRAL         : {2e-25 * (300/TionN2)^2.5}
-                 NO3- + N+ + NEUTRAL -> NO3 + N + NEUTRAL             : {2e-25 * (300/TionN2)^2.5}
-                 NO3- + N2+ + NEUTRAL -> NO3 + N2 + NEUTRAL           : {2e-25 * (300/TionN2)^2.5}
-                 NO3- + O+ + NEUTRAL -> NO3 + O + NEUTRAL             : {2e-25 * (300/TionN2)^2.5}
-                 NO3- + O2+ + NEUTRAL -> NO3 + O2 + NEUTRAL           : {2e-25 * (300/TionN2)^2.5}
-                 NO3- + NO+ + NEUTRAL -> NO3 + NO + NEUTRAL           : {2e-25 * (300/TionN2)^2.5}
-                 NO3- + N2O+ + NEUTRAL -> NO3 + N2O + NEUTRAL         : {2e-25 * (300/TionN2)^2.5}
-                 NO3- + NO2+ + NEUTRAL -> NO3 + NO2 + NEUTRAL         : {2e-25 * (300/TionN2)^2.5}'
+                 NO- + NO+ + NEUTRAL -> NO + NO + NEUTRAL             : {2e-25 * (300/TionN2)^2.5}'
+                 
   [../]
 []

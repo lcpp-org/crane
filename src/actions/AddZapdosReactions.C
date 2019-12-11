@@ -575,6 +575,7 @@ AddZapdosReactions::act()
               if (find_other)
               {
                 //                  std::cout << _reaction[i] << std::endl;
+                std::cout << non_electron_index << std::endl;
                 params.set<std::vector<VariableName>>("target") = {
                     _reactants[i][non_electron_index]};
               }

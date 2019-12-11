@@ -107,12 +107,14 @@ BoltzmannSolverScalar::BoltzmannSolverScalar(const InputParameters & parameters)
 
   // Now edit the input file with cross section data
   std::string edit_command;
-  edit_command = "sed -e \"9s/.*/" + _cross_sections + " \\/ File/\" -i \'\' " + _file_name;
+  //edit_command = "sed -e \"9s/.*/" + _cross_sections + " \\/ File/\" -i \'\' " + _file_name;
+  edit_command = "sed -i \"9s/.*/" + _cross_sections + " \\/ File/\" -i \'\' " + _file_name;
   const char * command = edit_command.c_str();
   system(command);
 
   // Next the output file is named ("input_file_name_out")
-  edit_command = "sed -e \"54s/.*/" + _output_file_name + " \\/   File /\" -i \'\' " + _file_name;
+  //edit_command = "sed -e \"54s/.*/" + _output_file_name + " \\/   File /\" -i \'\' " + _file_name;
+  edit_command = "sed -i \"54s/.*/" + _output_file_name + " \\/   File /\" -i \'\' " + _file_name;
   command = edit_command.c_str();
   system(command);
 
@@ -313,7 +315,8 @@ BoltzmannSolverScalar::initialize()
     if (_timestep_number == _n_steps || _timestep_number == 0)
     {
       std::string edit_command;
-      edit_command = "sed -e \"34s/.*/";
+      //edit_command = "sed -e \"34s/.*/";
+      edit_command = "sed -i \"34s/.*/";
       // std::cout << coupledScalarValue("mole_fractions", 0) << std::endl;
       // For each variable we add both the value (converted to a string) and a following space
       // character.
@@ -345,7 +348,9 @@ BoltzmannSolverScalar::initialize()
         _field_string << (_reduced_field[0] * 1e21);
         // edit_command = "sed -e \"14s/.*/"+_field_string.str()+" \\/ Reduced field (Td)/\" -i \'\'
         // temp_in.dat";
-        edit_command = "sed -e \"14s/.*/" + _field_string.str() +
+        //edit_command = "sed -e \"14s/.*/" + _field_string.str() +
+        //               " \\/ Reduced field (Td)/\" -i \'\' " + _file_name;
+        edit_command = "sed -i \"14s/.*/" + _field_string.str() +
                        " \\/ Reduced field (Td)/\" -i \'\' " + _file_name;
         _field_string.str("");
         // std::cout << edit_command << std::endl;
@@ -357,7 +362,9 @@ BoltzmannSolverScalar::initialize()
       _field_string << std::setprecision(8) << (_ionization_fraction[0]);
       // edit_command = "sed -e \"20s/.*/"+_field_string.str()+" \\/ Ionization degree/\" -i \'\'
       // temp_in.dat";
-      edit_command = "sed -e \"20s/.*/" + _field_string.str() +
+      //edit_command = "sed -e \"20s/.*/" + _field_string.str() +
+      //               " \\/ Ionization degree/\" -i \'\' " + _file_name;
+      edit_command = "sed -i \"20s/.*/" + _field_string.str() +
                      " \\/ Ionization degree/\" -i \'\' " + _file_name;
       _field_string.str("");
       command = edit_command.c_str();
