@@ -27,6 +27,7 @@ protected:
   bool _use_log;
   // bool _use_moles;
 
+  bool _track_rates;
   std::vector<bool> _energy_change;
   // std::vector<VariableName> _potential;
   std::vector<std::vector<Real>> _species_count;

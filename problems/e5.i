@@ -47,10 +47,11 @@
     species = 'e Ar Ar+'
     file_location = 'Example5'
     sampling_variable = 'reduced_field'
-
+    track_rates = true
     # Add reactions here
     reactions = 'e + Ar -> e + e + Ar+   : EEDF
-                 e + Ar+ + Ar -> Ar + Ar : 1e-25'
+                 e + Ar+ + Ar -> Ar + Ar : 1e-25
+                 Ar+ -> Ar+               : 1e-5'
 
    [../]
 []
@@ -61,8 +62,52 @@
     family = SCALAR
     initial_condition = 50e-21
   [../]
+ [./Production0]
+    order = FIRST
+    family = SCALAR
+  [../]   
+ 
+ [./Production1]
+    order = FIRST
+    family = SCALAR
+  [../]   
+ [./Production2]
+    order = FIRST
+    family = SCALAR
+  [../]    
 []
 
+[AuxScalarKernels]
+
+  [./Prod2_Calc]
+    type = ProductionFirstOrder
+    variable = Production2
+    v = 'Ar+'
+    rate_coefficient = 'rate_constant2' 
+    coefficient = 1
+    execute_on = 'TIMESTEP_BEGIN'
+  [../]
+  [./Prod0_Calc]
+    type = ProductionSecondOrder
+    variable = Production0
+    v = 'e'
+    w = 'Ar'
+    rate_coefficient = 'rate_constant0' 
+    coefficient = 1
+    execute_on = 'TIMESTEP_BEGIN'
+  [../]
+  
+  [./Prod1_Calc]
+    type = ProductionThirdOrder
+    variable = Production1
+    v = 'e'
+    w = 'Ar'
+    z = 'Ar+'
+    rate_coefficient = 'rate_constant1'
+    coefficient = 1 
+    execute_on = 'TIMESTEP_BEGIN'
+  [../]
+[]
 
 [Executioner]
   type = Transient

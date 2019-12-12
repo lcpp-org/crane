@@ -39,7 +39,7 @@
   [./ScalarNetwork]
     species = 'x y'
     reaction_coefficient_format = 'rate'
-
+    track_rates = True
     reactions = 'x -> x + x             : 0.666667
                  x + y -> y             : 1.333333
                  y + x -> x + y + y     : 1

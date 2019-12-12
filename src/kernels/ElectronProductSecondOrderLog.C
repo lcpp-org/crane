@@ -53,7 +53,6 @@ ElectronProductSecondOrderLog::computeQpResidual()
   {
     mult2 = _n_gas[_qp];
   }
-
   return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * std::exp(_electron[_qp]) *
          mult2;
 }

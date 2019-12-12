@@ -69,6 +69,7 @@ ElectronImpactReactionProduct::computeQpResidual()
   // Real iz_term = alpha * electron_flux_mag;
 
   // return -_test[_i][_qp] * iz_term;
+ 
   return -_test[_i][_qp] * _alpha[_qp] * electron_flux_mag;
 }
 
