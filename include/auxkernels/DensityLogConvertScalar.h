@@ -1,5 +1,4 @@
-#ifndef DENSITYLOGCONVERTSCALAR_H
-#define DENSITYLOGCONVERTSCALAR_H
+#pragma once
 
 #include "AuxScalarKernel.h"
 
@@ -22,5 +21,3 @@ protected:
   bool _convert_moles;
   // const MaterialProperty<Real> & _N_A;
 };
-
-#endif // DENSITYLOGCONVERTSCALAR_H

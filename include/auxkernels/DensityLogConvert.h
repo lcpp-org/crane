@@ -1,5 +1,4 @@
-#ifndef DENSITYLOGCONVERT_H
-#define DENSITYLOGCONVERT_H
+#pragma once
 
 #include "AuxKernel.h"
 
@@ -22,5 +21,3 @@ protected:
   bool _convert_moles;
   // const MaterialProperty<Real> & _N_A;
 };
-
-#endif // DENSITYLOGCONVERT_H

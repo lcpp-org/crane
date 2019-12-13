@@ -11,8 +11,7 @@
 /*                                                              */
 /*              See COPYRIGHT for full restrictions             */
 /****************************************************************/
-#ifndef DIFFUSIONRATETEMP_H_
-#define DIFFUSIONRATETEMP_H_
+#pragma once
 
 #include "Material.h"
 #include "SplineInterpolation.h"
@@ -36,5 +35,3 @@ protected:
   const MaterialProperty<Real> & _gap_length;
   const MaterialProperty<Real> & _radius;
 };
-
-#endif // DIFFUSIONRATETEMP_H_

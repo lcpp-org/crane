@@ -1,5 +1,4 @@
-#ifndef ADDZAPDOSREACTIONS_H
-#define ADDZAPDOSREACTIONS_H
+#pragma once
 
 #include "AddVariableAction.h"
 #include "Action.h"
@@ -20,8 +19,4 @@ public:
 protected:
   std::string _coefficient_format;
   std::vector<std::string> _aux_species;
-
-
 };
-
-#endif // ADDZAPDOSREACTIONS_H

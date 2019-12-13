@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef ODETIMEDERIVATIVELOG_H
-#define ODETIMEDERIVATIVELOG_H
+#pragma once
 
 #include "ODETimeKernel.h"
 
@@ -37,5 +36,3 @@ protected:
 
   bool _lumping;
 };
-
-#endif // ODETIMEDERIVATIVELOG_H

@@ -1,5 +1,4 @@
-#ifndef ADDSCALARREACTIONS_H
-#define ADDSCALARREACTIONS_H
+#pragma once
 
 #include "AddVariableAction.h"
 #include "Action.h"
@@ -21,8 +20,4 @@ public:
 
 protected:
   std::vector<std::string> _aux_species;
-
-
 };
-
-#endif // ADDSCALARREACTIONS_H

@@ -11,8 +11,7 @@
 /*                                                              */
 /*              See COPYRIGHT for full restrictions             */
 /****************************************************************/
-#ifndef ELECTRICFIELD_H_
-#define ELECTRICFIELD_H_
+#pragma once
 
 #include "Material.h"
 #include "SplineInterpolation.h"
@@ -46,5 +45,3 @@ protected:
   const MaterialProperty<Real> & _n_gas;
 
 };
-
-#endif // ELECTRICFIELD_H_

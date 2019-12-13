@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef ValueProvider_H
-#define ValueProvider_H
+#pragma once
 
 #include "GeneralUserObject.h"
 #include "SplineInterpolation.h"
@@ -45,5 +44,3 @@ protected:
   std::string _sampling_format;
   std::string _rate_format;
 };
-
-#endif /* ValueProvider_H */

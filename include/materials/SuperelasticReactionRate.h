@@ -11,8 +11,7 @@
 /*                                                              */
 /*              See COPYRIGHT for full restrictions             */
 /****************************************************************/
-#ifndef SUPERELASTICREACTIONRATE_H_
-#define SUPERELASTICREACTIONRATE_H_
+#pragma once
 
 #include "Material.h"
 
@@ -41,5 +40,3 @@ protected:
   Real _equilibrium_constant;
 
 };
-
-#endif // SUPERELASTICREACTIONRATE_H_

@@ -111,14 +111,25 @@ AddScalarReactions::act()
   // std::vector<NonlinearVariableName> variables =
   //     getParam<std::vector<NonlinearVariableName>>("species");
 
+  /*
+   * In scalar form, rate constants are added as AuxScalarVariables.
+   *
+   * If the _track_rates option is set to true, AuxScalarKernels and AuxScalarVariables will be
+   * automatically generated to track the reaction rate for each reaction (e.g. k*n1*n2). This may
+   * incur significant computational cost to the simulation depending on the number of reactions and
+   * number of nodes.
+   */
   if (_current_task == "add_aux_variable")
   {
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
-      _problem->addAuxScalarVariable(_aux_var_name[i], FIRST);
+      auto params = _factory.getValidParams("MooseVariableScalar");
+      //_problem->addAuxScalarVariable(_aux_var_name[i], FIRST);
+      _problem->addAuxVariable("MooseVariableScalar", _aux_var_name[i], params);
       if (_track_rates == true)
       {
-      	_problem->addAuxScalarVariable("rate" + std::to_string(i), FIRST);
+        //_problem->addAuxScalarVariable("rate" + std::to_string(i), FIRST);
+        _problem->addAuxVariable("MooseVariableScalar", "rate" + std::to_string(i), params);
       }
     }
   }
@@ -271,47 +282,53 @@ AddScalarReactions::act()
         _problem->addAuxScalarKernel(
             "SuperelasticRateCoefficientScalar", "aux_rate" + std::to_string(i), params);
       }
-      
+
+      /*
+       * If the _track_rates option is set to true, AuxKernels and AuxVariables will be
+       * automatically generated to track the reaction rate for each reaction (e.g. k*n1*n2). This
+       * may incur significant computational cost to the simulation depending on the number of
+       * reactions and number of nodes.
+       */
       if (_track_rates == true)
       {
 
         if (_reactants[i].size() == 1)
-	{
-		InputParameters params = _factory.getValidParams("ProductionFirstOrder");
-		params.set<std::vector<VariableName>>("v") = {(_reactants[i][0])};
-		params.set<AuxVariableName>("variable") = {"rate" + std::to_string(i)};
-            	params.set<std::vector<VariableName>>("rate_coefficient") = {_aux_var_name[i]};
-		params.set<Real>("coefficient") = 1;//_reaction_stoichiometric_coeff[i].back();
-        	params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
-		_problem->addAuxScalarKernel(
-            "ProductionFirstOrder", "Calc_Production_Rate" + std::to_string(i), params);
-	}
-	else if (_reactants[i].size() == 2)
-	{
-		InputParameters params = _factory.getValidParams("ProductionSecondOrder");
-		params.set<std::vector<VariableName>>("v") = {(_reactants[i][0])};
-		params.set<std::vector<VariableName>>("w") = {(_reactants[i][1])};
-		params.set<AuxVariableName>("variable") = {"rate" + std::to_string(i)};
-            	params.set<std::vector<VariableName>>("rate_coefficient") = {_aux_var_name[i]};
-		params.set<Real>("coefficient") = 1;//_reaction_stoichiometric_coeff[i].back();
-        	params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
-		_problem->addAuxScalarKernel(
-            "ProductionSecondOrder", "Calc_Production_Rate" + std::to_string(i), params);
-	}
+        {
+          InputParameters params = _factory.getValidParams("ReactionRateOneBodyScalar");
+          params.set<std::vector<VariableName>>("v") = {(_reactants[i][0])};
+          params.set<AuxVariableName>("variable") = {"rate" + std::to_string(i)};
+          params.set<std::vector<VariableName>>("rate_coefficient") = {_aux_var_name[i]};
+          params.set<Real>("coefficient") = 1; //_reaction_stoichiometric_coeff[i].back();
+          params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
+          _problem->addAuxScalarKernel(
+              "ReactionRateOneBodyScalar", "Calc_Production_Rate" + std::to_string(i), params);
+        }
+        else if (_reactants[i].size() == 2)
+        {
+          InputParameters params = _factory.getValidParams("ReactionRateTwoBodyScalar");
+          params.set<std::vector<VariableName>>("v") = {(_reactants[i][0])};
+          params.set<std::vector<VariableName>>("w") = {(_reactants[i][1])};
+          params.set<AuxVariableName>("variable") = {"rate" + std::to_string(i)};
+          params.set<std::vector<VariableName>>("rate_coefficient") = {_aux_var_name[i]};
+          params.set<Real>("coefficient") = 1; //_reaction_stoichiometric_coeff[i].back();
+          params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
+          _problem->addAuxScalarKernel(
+              "ReactionRateTwoBodyScalar", "Calc_Production_Rate" + std::to_string(i), params);
+        }
 
-	else if (_reactants[i].size() == 3)
-	{
-		InputParameters params = _factory.getValidParams("ProductionThirdOrder");
-		params.set<std::vector<VariableName>>("v") = {(_reactants[i][0])};
-		params.set<std::vector<VariableName>>("w") = {(_reactants[i][1])};
-		params.set<std::vector<VariableName>>("z") = {(_reactants[i][2])};
-		params.set<AuxVariableName>("variable") = {"rate" + std::to_string(i)};
-            	params.set<std::vector<VariableName>>("rate_coefficient") = {_aux_var_name[i]};
-		params.set<Real>("coefficient") = 1;//_reaction_stoichiometric_coeff[i].back();
-        	params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
-		_problem->addAuxScalarKernel(
-            "ProductionThirdOrder", "Calc_Production_Rate" + std::to_string(i), params);
-	}
+        else if (_reactants[i].size() == 3)
+        {
+          InputParameters params = _factory.getValidParams("ReactionRateThreeBodyScalar");
+          params.set<std::vector<VariableName>>("v") = {(_reactants[i][0])};
+          params.set<std::vector<VariableName>>("w") = {(_reactants[i][1])};
+          params.set<std::vector<VariableName>>("z") = {(_reactants[i][2])};
+          params.set<AuxVariableName>("variable") = {"rate" + std::to_string(i)};
+          params.set<std::vector<VariableName>>("rate_coefficient") = {_aux_var_name[i]};
+          params.set<Real>("coefficient") = 1; //_reaction_stoichiometric_coeff[i].back();
+          params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
+          _problem->addAuxScalarKernel(
+              "ReactionRateThreeBodyScalar", "Calc_Production_Rate" + std::to_string(i), params);
+        }
       }
     }
   }
@@ -442,8 +459,10 @@ AddScalarReactions::act()
                 params.set<std::vector<VariableName>>(other_variables[k]) = {
                     _reactants[i][reactant_indices[k]]};
             }
-            _problem->addScalarKernel(
-                reactant_kernel_name, "kernel" + std::to_string(j) + "_" + _reaction[i], params);
+            _problem->addScalarKernel(reactant_kernel_name,
+                                      "kernel" + std::to_string(i) + "_" + std::to_string(j) + "_" +
+                                          _reaction[i],
+                                      params);
           }
         }
 
@@ -477,7 +496,8 @@ AddScalarReactions::act()
               }
             }
             _problem->addScalarKernel(product_kernel_name,
-                                      "kernel_prod" + std::to_string(j) + "_" + _reaction[i],
+                                      "kernel_prod" + std::to_string(i) + "_" + std::to_string(j) +
+                                          "_" + _reaction[i],
                                       params);
           }
         }

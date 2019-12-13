@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef POLYNOMIALCOEFFICIENTS_H
-#define POLYNOMIALCOEFFICIENTS_H
+#pragma once
 
 #include "GeneralUserObject.h"
 #include "SplineInterpolation.h"
@@ -47,5 +46,3 @@ protected:
   std::vector<Real> _delta_a;
   Real _power_coefficient;
 };
-
-#endif /* POLYNOMIALCOEFFICIENTS_H */

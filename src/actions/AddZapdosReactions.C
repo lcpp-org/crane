@@ -96,18 +96,27 @@ AddZapdosReactions::act()
   // getParam<std::vector<VariableName>>("electron_energy");
   // std::string electron_density = getParam<std::string>("electron_density");
 
-  // Add an aux variable for each rxn rate coeff, and a rate aux  variable for each rxn, to calc production rates later 
+  /*
+   * If the _track_rates option is set to true, AuxKernels and AuxVariables will be automatically
+   * generated to track the reaction rate for each reaction (e.g. k*n1*n2). This may incur
+   * significant computational cost to the simulation depending on the number of reactions and
+   * number of nodes.
+   */
   if (_current_task == "add_aux_variable")
   {
-    for (unsigned int i = 0; i < _num_reactions; ++i)
+    if (_track_rates == true)
     {
-      _problem->addAuxVariable(_aux_var_name[i], FIRST);
-      if (_track_rates == true)
+      for (unsigned int i = 0; i < _num_reactions; ++i)
       {
-	auto params = _factory.getValidParams("MooseVariableConstMonomial");
-	params.set<MooseEnum>("order") = "CONSTANT";
-	params.set<MooseEnum>("family") = "MONOMIAL";
-      	_problem->addAuxVariable("MooseVariableConstMonomial", "rate" + std::to_string(i), params);
+        _problem->addAuxVariable(_aux_var_name[i], FIRST);
+        if (_track_rates == true)
+        {
+          auto params = _factory.getValidParams("MooseVariableConstMonomial");
+          params.set<MooseEnum>("order") = "CONSTANT";
+          params.set<MooseEnum>("family") = "MONOMIAL";
+          _problem->addAuxVariable(
+              "MooseVariableConstMonomial", "rate" + std::to_string(i), params);
+        }
       }
     }
   }
@@ -116,70 +125,62 @@ AddZapdosReactions::act()
   {
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
-      if (_track_rates == true)// Add in next line "if (_coefficient_format == "townsend")", then add the same three blocks but with the townsend rate auxkernels
-      {// I don't believe I need to separate these based on reactants.size
-	if (_coefficient_format == "townsend")// Use townsend rate format
-	{
-		InputParameters params = _factory.getValidParams("ProcRateForRateCoeff_Townsend_Crane");
-//	      _reaction_coefficient_name[i] = "alpha_" + _reaction[i];
-// I don't think I want to define reaction_coefficient_name[i] up here b/c
-// it is defined later in add_material section
-//*
-              params.set<std::vector<VariableName>>("mean_en") = {_electron_energy[0]};
-	      if (_coefficient_format == "townsend")
-                params.set<std::vector<VariableName>>("potential") =
-                    getParam<std::vector<VariableName>>("potential");
-              params.set<std::vector<VariableName>>("em") = {
-                  getParam<std::string>("electron_density")};
-              params.set<Real>("position_units") = _r_units;
-              params.set<std::string>("reaction") = _reaction[i];
-              params.set<std::string>("reaction_coefficient_name") ={ "alpha_" + _reaction[i]};
-	      //*
-		params.set<AuxVariableName>("variable") = {"rate" + std::to_string(i)};
-        	params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
-		std::cout << "setting aux kernel for rate" + std::to_string(i) << std::endl;
-		_problem->addAuxKernel(
-            "ProcRateForRateCoeff_Townsend_Crane", "Calc_Zapdos_Production_Rate" + std::to_string(i), params);	
-	}
-	else// If not townsend rate format then use rate coeff k*n1*n2 format
-	{
-        if (_reactants[i].size() == 1)
-	{
-		InputParameters params = _factory.getValidParams("ProcRateForRateCoeff_OneBody_Crane");
-		params.set<std::vector<VariableName>>("v") = {(_reactants[i][0])};
-		params.set<AuxVariableName>("variable") = {"rate" + std::to_string(i)};
-                params.set<std::string>("reaction") = _reaction[i];
-        	params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
-		_problem->addAuxKernel(
-            "ProcRateForRateCoeff_OneBody_Crane", "Calc_Zapdos_Production_Rate" + std::to_string(i), params);
-	}
-	else if (_reactants[i].size() == 2)
-	{
-		InputParameters params = _factory.getValidParams("ProcRateForRateCoeff_Crane");
-		params.set<std::vector<VariableName>>("v") = {(_reactants[i][0])};
-		params.set<std::vector<VariableName>>("w") = {(_reactants[i][1])};
-		params.set<AuxVariableName>("variable") = {"rate" + std::to_string(i)};
-		std::cout << "Before set param reaction" << std::endl;
-                params.set<std::string>("reaction") = _reaction[i];
-		std::cout << "After set param reaction" << std::endl;
-        	params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
-		_problem->addAuxKernel(
-            "ProcRateForRateCoeff_Crane", "Calc_Zapdos_Production_Rate" + std::to_string(i), params);
-	}
 
-	else if (_reactants[i].size() == 3)
-	{
-		InputParameters params = _factory.getValidParams("ProcRateForRateCoeffThreeBody_Crane");
-		params.set<std::vector<VariableName>>("v") = {(_reactants[i][0])};
-		params.set<std::vector<VariableName>>("w") = {(_reactants[i][1])};
-		params.set<std::vector<VariableName>>("vv") = {(_reactants[i][2])};
-		params.set<AuxVariableName>("variable") = {"rate" + std::to_string(i)};
-                params.set<std::string>("reaction") = _reaction[i];
-        	params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
-		_problem->addAuxKernel(
-            "ProcRateForRateCoeffThreeBody_Crane", "Calc_Zapdos_Production_Rate" + std::to_string(i), params);
-	}
-	}
+      if (_track_rates == true)
+      {
+        if (_coefficient_format == "townsend") // Use townsend rate format
+        {
+          InputParameters params = _factory.getValidParams("ReactionRateTownsend");
+          params.set<std::vector<VariableName>>("mean_en") = {_electron_energy[0]};
+          if (_coefficient_format == "townsend")
+            params.set<std::vector<VariableName>>("potential") =
+                getParam<std::vector<VariableName>>("potential");
+          params.set<std::vector<VariableName>>("em") = {getParam<std::string>("electron_density")};
+          params.set<Real>("position_units") = _r_units;
+          params.set<std::string>("reaction") = _reaction[i];
+          params.set<std::string>("reaction_coefficient_name") = {"alpha_" + _reaction[i]};
+          params.set<AuxVariableName>("variable") = {"rate" + std::to_string(i)};
+          params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
+          _problem->addAuxKernel(
+              "ReactionRateTownsend", "Calc_Zapdos_Production_Rate" + std::to_string(i), params);
+        }
+        else
+        {
+          if (_reactants[i].size() == 1)
+          {
+            InputParameters params = _factory.getValidParams("ReactionRateOneBody");
+            params.set<std::vector<VariableName>>("v") = {(_reactants[i][0])};
+            params.set<AuxVariableName>("variable") = {"rate" + std::to_string(i)};
+            params.set<std::string>("reaction") = _reaction[i];
+            params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
+            _problem->addAuxKernel(
+                "ReactionRateOneBody", "Calc_Zapdos_Production_Rate" + std::to_string(i), params);
+          }
+          else if (_reactants[i].size() == 2)
+          {
+            InputParameters params = _factory.getValidParams("ReactionRateTwoBody");
+            params.set<std::vector<VariableName>>("v") = {(_reactants[i][0])};
+            params.set<std::vector<VariableName>>("w") = {(_reactants[i][1])};
+            params.set<AuxVariableName>("variable") = {"rate" + std::to_string(i)};
+            params.set<std::string>("reaction") = _reaction[i];
+            params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
+            _problem->addAuxKernel(
+                "ReactionRateTwoBody", "Calc_Zapdos_Production_Rate" + std::to_string(i), params);
+          }
+
+          else if (_reactants[i].size() == 3)
+          {
+            InputParameters params = _factory.getValidParams("ReactionRateThreeBody");
+            params.set<std::vector<VariableName>>("v") = {(_reactants[i][0])};
+            params.set<std::vector<VariableName>>("w") = {(_reactants[i][1])};
+            params.set<std::vector<VariableName>>("vv") = {(_reactants[i][2])};
+            params.set<AuxVariableName>("variable") = {"rate" + std::to_string(i)};
+            params.set<std::string>("reaction") = _reaction[i];
+            params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
+            _problem->addAuxKernel(
+                "ReactionRateThreeBody", "Calc_Zapdos_Production_Rate" + std::to_string(i), params);
+          }
+        }
       }
     }
   }
@@ -658,8 +659,9 @@ AddZapdosReactions::act()
                 params.set<std::vector<VariableName>>("target") = {
                     _reactants[i][non_electron_index]};
               }
-              _problem->addKernel(
-                  reactant_kernel_name, "kernel" + std::to_string(j) + "_" + _reaction[i], params);
+              _problem->addKernel(reactant_kernel_name,
+                                  "kernel" + std::to_string(i) + "_" + std::to_string(j),
+                                  params);
             }
             // else if (_coefficient_format == "rate" || _rate_type[i] != "EEDF")
             else if (_coefficient_format == "rate" && _rate_type[i] == "EEDF")
@@ -688,8 +690,9 @@ AddZapdosReactions::act()
                   getParam<std::vector<SubdomainName>>("block");
 
               /*_problem->addKernel("Electron" + reactant_kernel_name,*/
-              _problem->addKernel(
-                  reactant_kernel_name, "kernel" + std::to_string(j) + "_" + _reaction[i], params);
+              _problem->addKernel(reactant_kernel_name,
+                                  "kernel" + std::to_string(i) + "_" + std::to_string(j),
+                                  params);
             }
             else
             {
@@ -713,8 +716,9 @@ AddZapdosReactions::act()
               params.set<std::vector<SubdomainName>>("block") =
                   getParam<std::vector<SubdomainName>>("block");
 
-              _problem->addKernel(
-                  reactant_kernel_name, "kernel" + std::to_string(j) + "_" + _reaction[i], params);
+              _problem->addKernel(reactant_kernel_name,
+                                  "kernel" + std::to_string(i) + "_" + std::to_string(j),
+                                  params);
             }
           }
         }

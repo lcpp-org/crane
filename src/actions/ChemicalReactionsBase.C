@@ -117,7 +117,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     _use_log(getParam<bool>("use_log")),
     _track_rates(getParam<bool>("track_rates")),
     _use_bolsig(getParam<bool>("use_bolsig"))
-	// _use_moles(getParam<bool>("use_moles"))
+// _use_moles(getParam<bool>("use_moles"))
 {
   std::istringstream iss(_input_reactions);
   std::string token;
@@ -139,21 +139,24 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   while (std::getline(iss >> std::ws,
                       token)) // splits by \n character (default) and ignores leading whitespace
   {
-    // Define check for change of energy
-    // bool _energy_change = false;
+    // Skip commented lines
+    // (Reactions with comments attached to the end will still be read.)
+    if (token.find('#') == 0)
+    {
+      continue;
+    }
+
     pos = token.find(':'); // Looks for colon, which separates reaction and rate coefficients
 
     // Brackets enclose the energy gain/loss (if applicable)
     pos_start = token.find('[');
     pos_end = token.find(']');
 
-    // Curly braces enclose equation constants (Arrhenius form)
+    // Curly braces enclose function-based constants
     eq_start = token.find('{');
     eq_end = token.find('}');
 
     // Parentheses enclose the reaction identifier (ionization, excitation, de-excitation, etc.)
-    // Note that both [] and () will never be used, since energy changes are included in the cross
-    // section data
     rxn_identifier_start = token.find('(');
     rxn_identifier_end = token.find(')');
 
@@ -293,9 +296,13 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   _electron_index.resize(_num_reactions, 0);
   // _species_electron.resize(_num_reactions, std::vector<bool>(_species.size()));
 
-  // Split each reaction equation into reactants and products
-  int superelastic_reactions =
-      0; // stores number of superelastic reactions, which will be added to _num_reactions
+  /*
+   * Split each reaction equation into reactants and products
+   */
+
+  // superelastic_reactions stores number of superelastic reactions, which will be added to
+  // _num_reactions
+  int superelastic_reactions = 0;
   for (unsigned int i = 0; i < _num_reactions; ++i)
   {
     std::istringstream iss2(_reaction[i]);

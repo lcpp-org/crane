@@ -12,30 +12,26 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef PROCRATEFORRATECOEFF_CRANE_H
-#define PROCRATEFORRATECOEFF_CRANE_H
+#pragma once
 
 #include "AuxKernel.h"
 
-class ProcRateForRateCoeff_Crane;
+class ReactionRateOneBody;
 
 template <>
-InputParameters validParams<ProcRateForRateCoeff_Crane>();
+InputParameters validParams<ReactionRateOneBody>();
 
-class ProcRateForRateCoeff_Crane : public AuxKernel
+class ReactionRateOneBody : public AuxKernel
 {
 public:
-  ProcRateForRateCoeff_Crane(const InputParameters & parameters);
+  ReactionRateOneBody(const InputParameters & parameters);
 
-  virtual ~ProcRateForRateCoeff_Crane() {}
+  virtual ~ReactionRateOneBody() {}
   virtual Real computeValue();
 
 protected:
 
 
   const VariableValue & _v;
-  const VariableValue & _w;
   const MaterialProperty<Real> & _reaction_coeff;
 };
-
-#endif // ProcRateForRateCoeff_Crane_H

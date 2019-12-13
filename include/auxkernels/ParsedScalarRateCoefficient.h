@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef PARSEDSCALARRATECOEFFICIENT_H
-#define PARSEDSCALARRATECOEFFICIENT_H
+#pragma once
 
 #include "AuxScalarKernel.h"
 #include "FunctionParserUtils.h"
@@ -53,7 +52,4 @@ protected:
   // const ValueProvider & _data;
 
   ADFunctionPtr _func_F;
-
 };
-
-#endif // PARSEDSCALARRATECOEFFICIENT_H

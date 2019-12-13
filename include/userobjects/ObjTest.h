@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef OBJTEST_H
-#define OBJTEST_H
+#pragma once
 
 #include "GeneralUserObject.h"
 
@@ -39,5 +38,3 @@ public:
 protected:
   Real _reaction_coefficient;
 };
-
-#endif

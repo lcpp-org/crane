@@ -11,8 +11,7 @@
 /*                                                              */
 /*              See COPYRIGHT for full restrictions             */
 /****************************************************************/
-#ifndef SPECIESSUM_H_
-#define SPECIESSUM_H_
+#pragma once
 
 #include "Material.h"
 
@@ -36,5 +35,3 @@ private:
   // std::vector<const VariableGradient *> _grad_vals;
 
 };
-
-#endif // SPECIESSUM_H_

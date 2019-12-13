@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef REACTANTFIRSTORDERLOG_H
-#define REACTANTFIRSTORDERLOG_H
+#pragma once
 
 #include "Kernel.h"
 
@@ -36,4 +35,3 @@ protected:
   const MaterialProperty<Real> & _reaction_coeff;
   Real _stoichiometric_coeff;
 };
-#endif // REACTANTFIRSTORDERLOG_H

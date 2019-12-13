@@ -1,5 +1,4 @@
-#ifndef ENERGYTERMSCALAR_H
-#define ENERGYTERMSCALAR_H
+#pragma once
 
 #include "ODEKernel.h"
 // #include "RateCoefficientProvider.h"
@@ -35,5 +34,3 @@ protected:
 
   // const RateCoefficientProvider & _data;
 };
-
-#endif /* ENERGYTERMSCALAR_H */

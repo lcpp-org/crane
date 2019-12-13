@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef PRODUCTTHIRDORDERLOG_H
-#define PRODUCTTHIRDORDERLOG_H
+#pragma once
 
 #include "Kernel.h"
 
@@ -46,4 +45,3 @@ protected:
   const MaterialProperty<Real> & _reaction_coeff;
   Real _stoichiometric_coeff;
 };
-#endif // PRODUCTTHIRDORDERLOG_H

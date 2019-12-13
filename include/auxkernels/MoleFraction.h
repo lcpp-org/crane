@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef MOLEFRACTION_H
-#define MOLEFRACTION_H
+#pragma once
 
 #include "AuxScalarKernel.h"
 // #include "SplineInterpolation.h"
@@ -33,5 +32,3 @@ protected:
   const VariableValue & _neutral_density;
   const VariableValue & _species_density;
 };
-
-#endif // MOLEFRACTION_H

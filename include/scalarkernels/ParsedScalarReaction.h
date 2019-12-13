@@ -1,5 +1,4 @@
-#ifndef PARSEDSCALARREACTION_H
-#define PARSEDSCALARREACTION_H
+#pragma once
 
 #include "ParsedODEKernel.h"
 #include "ParsedScalarReaction.h"
@@ -31,5 +30,3 @@ protected:
   // bool _v_eq_u;
 
 };
-
-#endif /* PARSEDSCALARREACTION_H */

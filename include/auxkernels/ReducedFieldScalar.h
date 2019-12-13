@@ -7,8 +7,7 @@
 //* Licensed under LGPL 2.1, please see LICENSE for details
 //* https://www.gnu.org/licenses/lgpl-2.1.html
 
-#ifndef REDUCEDFIELDSCALAR_H_
-#define REDUCEDFIELDSCALAR_H_
+#pragma once
 
 #include "AuxScalarKernel.h"
 
@@ -35,5 +34,3 @@ protected:
   const VariableValue & _electron_density;
   const VariableValue & _gas_density;
 };
-
-#endif /* REDUCEDFIELDSCALAR_H_ */

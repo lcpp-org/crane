@@ -12,31 +12,27 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef PRODUCTIONFIRSTORDER_H
-#define PRODUCTIONFIRSTORDER_H
+#pragma once
 
-#include "Kernel.h"
+#include "AuxScalarKernel.h"
 
 // Forward Declaration
-class ProductionFirstOrder;
+class ReactionRateOneBodyScalar;
 
 template <>
-InputParameters validParams<ProductionFirstOrder>();
+InputParameters validParams<ReactionRateOneBodyScalar>();
 
-class ProductionFirstOrder : public AuxScalarKernel
+class ReactionRateOneBodyScalar : public AuxScalarKernel
 {
 public:
-  ProductionFirstOrder(const InputParameters & parameters);
+  ReactionRateOneBodyScalar(const InputParameters & parameters);
 
 protected:
   virtual Real computeValue();
 
-  // MooseVariable & _coupled_var_A;
-  // MooseVariable & _coupled_var_B;
   const VariableValue & _v;
 
   // The reaction coefficient
   const VariableValue & _rate_coefficient;
   Real _stoichiometric_coeff;
 };
-#endif // PRODUCTIONFIRSTORDER_H

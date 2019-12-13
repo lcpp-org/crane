@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef REACTANTFIRSTORDER_H
-#define REACTANTFIRSTORDER_H
+#pragma once
 
 #include "Kernel.h"
 
@@ -39,4 +38,3 @@ protected:
   // const MaterialProperty<Real> & _n_gas;
   Real _stoichiometric_coeff;
 };
-#endif // ReactantFirstOrder_H

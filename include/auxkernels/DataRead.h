@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef DATAREAD_H
-#define DATAREAD_H
+#pragma once
 
 #include "AuxKernel.h"
 #include "SplineInterpolation.h"
@@ -40,5 +39,3 @@ protected:
   bool _use_log;
   Real _scale_factor;
 };
-
-#endif // DATAREAD_H

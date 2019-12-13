@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef LOGSTABILIZATIONSCALAR_H
-#define LOGSTABILIZATIONSCALAR_H
+#pragma once
 
 #include "ODEKernel.h"
 
@@ -34,5 +33,3 @@ protected:
 
   Real _offset;
 };
-
-#endif /* LOGSTABILIZATIONSCALAR_H */

@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef DATAREADSCALAR_H
-#define DATAREADSCALAR_H
+#pragma once
 
 #include "AuxScalarKernel.h"
 #include "SplineInterpolation.h"
@@ -40,5 +39,3 @@ protected:
   bool _use_log;
   Real _scale_factor;
 };
-
-#endif // DATAREADSCALAR_H

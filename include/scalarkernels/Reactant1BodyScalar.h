@@ -1,5 +1,4 @@
-#ifndef REACTANT1BODYSCALAR_H
-#define REACTANT1BODYSCALAR_H
+#pragma once
 
 #include "ODEKernel.h"
 // #include "RateCoefficientProvider.h"
@@ -25,5 +24,3 @@ protected:
 
   // const RateCoefficientProvider & _data;
 };
-
-#endif /* REACTANT1BODYSCALAR_H */

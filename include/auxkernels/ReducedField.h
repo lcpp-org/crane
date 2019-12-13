@@ -1,5 +1,4 @@
-#ifndef REDUCEDFIELD_H_
-#define REDUCEDFIELD_H_
+#pragma once
 
 #include "AuxScalarKernel.h"
 #include "SplineInterpolation.h"
@@ -21,5 +20,3 @@ protected:
 
   const VariableValue & _mobility;
 };
-
-#endif /* REDUCEDFIELD_H_ */

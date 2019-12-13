@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef SUPERELASTICRATECOEFFICIENTSCALAR_H
-#define SUPERELASTICRATECOEFFICIENTSCALAR_H
+#pragma once
 
 #include "AuxScalarKernel.h"
 #include "SplineInterpolation.h"
@@ -37,5 +36,3 @@ protected:
   Real _Tgas_const;
   const PolynomialCoefficients & _polynomial;
 };
-
-#endif // SUPERELASTICRATECOEFFICIENTSCALAR_H

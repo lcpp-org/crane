@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef ELECTRONREACTANTSECONDORDERLOG_H
-#define ELECTRONREACTANTSECONDORDERLOG_H
+#pragma once
 
 #include "Kernel.h"
 
@@ -45,4 +44,3 @@ protected:
   Real _stoichiometric_coeff;
   bool _v_eq_electron;
 };
-#endif // ELECTRONREACTANTSECONDORDERLOG_H

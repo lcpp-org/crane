@@ -12,24 +12,23 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef PROCRATEFORRATECOEFF_TOWNSEND_CRANE_H
-#define PROCRATEFORRATECOEFF_TOWNSEND_CRANE_H
+#pragma once
 
 #include "AuxKernel.h"
 
-class ProcRateForRateCoeff_Townsend_Crane;
+class ReactionRateTownsend;
 
 template <>
-InputParameters validParams<ProcRateForRateCoeff_Townsend_Crane>();
+InputParameters validParams<ReactionRateTownsend>();
 
-class ProcRateForRateCoeff_Townsend_Crane : public AuxKernel
+class ReactionRateTownsend : public AuxKernel
 {
 public:
-  ProcRateForRateCoeff_Townsend_Crane(const InputParameters & parameters);
-  virtual ~ProcRateForRateCoeff_Townsend_Crane() {}
+  ReactionRateTownsend(const InputParameters & parameters);
+  virtual ~ReactionRateTownsend() {}
   virtual Real computeValue();
-protected:
 
+protected:
   Real _r_units;
   std::string _reaction_coeff_name;
   std::string _reaction_name;
@@ -51,5 +50,3 @@ protected:
   const VariableValue & _target;
   unsigned int _target_id;
 };
-
-#endif /* PROCRATEFORRATECOEFF_TOWNSEND_CRANE_H */

@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef AUXINITIALCONDITIONSCALAR_H
-#define AUXINITIALCONDITIONSCALAR_H
+#pragma once
 
 #include "AuxScalarKernel.h"
 #include "SplineInterpolation.h"
@@ -32,5 +31,3 @@ protected:
   virtual Real computeValue();
   Real _value;
 };
-
-#endif // AUXINITIALCONDITIONSCALAR_H
