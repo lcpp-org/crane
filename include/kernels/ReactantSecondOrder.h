@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef REACTANTSECONDORDER_H
-#define REACTANTSECONDORDER_H
+#pragma once
 
 #include "Kernel.h"
 
@@ -41,4 +40,3 @@ protected:
   bool _v_eq_u;
 
 };
-#endif // ReactantSecondOrder_H

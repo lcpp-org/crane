@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef RATECOEFFICIENTPROVIDER_H
-#define RATECOEFFICIENTPROVIDER_H
+#pragma once
 
 #include "GeneralUserObject.h"
 #include "SplineInterpolation.h"
@@ -55,4 +54,3 @@ protected:
   // std::string _sampling_format;
 };
 
-#endif /* RateCoefficientProvider_H */

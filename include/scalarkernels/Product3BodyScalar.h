@@ -1,5 +1,4 @@
-#ifndef PRODUCT3BODYSCALAR_H
-#define PRODUCT3BODYSCALAR_H
+#pragma once
 
 #include "ODEKernel.h"
 // #include "RateCoefficientProvider.h"
@@ -37,5 +36,3 @@ protected:
 
   // const RateCoefficientProvider & _data;
 };
-
-#endif /* PRODUCT3BODYSCALAR_H */

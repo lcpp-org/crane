@@ -12,33 +12,31 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include "ProductionSecondOrder.h"
+#include "ReactionRateOneBodyScalar.h"
 
-registerMooseObject("CraneApp", ProductionSecondOrder);
+registerMooseObject("CraneApp", ReactionRateOneBodyScalar);
 
 template <>
 InputParameters
-validParams<ProductionSecondOrder>()
+validParams<ReactionRateOneBodyScalar>()
 {
   InputParameters params = validParams<AuxScalarKernel>();
   params.addRequiredCoupledVar("v", "The first variable that is reacting to create u.");
-  params.addRequiredCoupledVar("w", "The second variable that is reacting to create u.");
   params.addCoupledVar("rate_coefficient", 0, "Coupled reaction coefficient (if equation-based).");
   params.addRequiredParam<Real>("coefficient", "The stoichiometric coeffient.");
   return params;
 }
 
-ProductionSecondOrder::ProductionSecondOrder(const InputParameters & parameters)
+ReactionRateOneBodyScalar::ReactionRateOneBodyScalar(const InputParameters & parameters)
   : AuxScalarKernel(parameters),
     _v(coupledScalarValue("v")),
-    _w(coupledScalarValue("w")),
     _rate_coefficient(coupledScalarValue("rate_coefficient")),
     _stoichiometric_coeff(getParam<Real>("coefficient"))
 {
 }
 
 Real
-ProductionSecondOrder::computeValue()
+ReactionRateOneBodyScalar::computeValue()
 {
-  return _stoichiometric_coeff * _rate_coefficient[_i] * _v[_i] * _w[_i];
+  return _stoichiometric_coeff * _rate_coefficient[_i] * _v[_i];
 }

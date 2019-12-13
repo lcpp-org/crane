@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef LOGSTABILIZATION_H
-#define LOGSTABILIZATION_H
+#pragma once
 
 #include "Kernel.h"
 
@@ -34,5 +33,3 @@ protected:
 
   Real _offset;
 };
-
-#endif /* LOGSTABILIZATION_H */

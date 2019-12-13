@@ -1,5 +1,4 @@
-#ifndef REACTANT2BODYSCALARLOG_H
-#define REACTANT2BODYSCALARLOG_H
+#pragma once
 
 #include "ODEKernel.h"
 // #include "RateCoefficientProvider.h"
@@ -31,5 +30,3 @@ protected:
 
   // const RateCoefficientProvider & _data;
 };
-
-#endif /* REACTANT2BODYSCALARLOG_H */

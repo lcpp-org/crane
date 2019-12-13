@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef TIMEDERIVATIVELOG_H
-#define TIMEDERIVATIVELOG_H
+#pragma once
 
 #include "TimeKernel.h"
 
@@ -37,5 +36,3 @@ protected:
 
   bool _lumping;
 };
-
-#endif // TIMEDERIVATIVELOG_H

@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef PRODUCTTHIRDORDER_H
-#define PRODUCTTHIRDORDER_H
+#pragma once
 
 #include "Kernel.h"
 
@@ -50,4 +49,3 @@ protected:
   bool _w_eq_u;
   bool _x_eq_u;
 };
-#endif // PRODUCTTHIRDORDER_H

@@ -8,8 +8,7 @@
 //* Licensed under LGPL 2.1, please see LICENSE for details
 //* https://www.gnu.org/licenses/lgpl-2.1.html
 
-#ifndef ELECTRONENERGYTERMELASTICTOWNSEND_H
-#define ELECTRONENERGYTERMELASTICTOWNSEND_H
+#pragma once
 
 #include "Kernel.h"
 
@@ -48,5 +47,3 @@ protected:
   unsigned int _em_id;
   Real _massem;
 };
-
-#endif /* ELECTRONENERGYLOSSFROMELASTIC_H */

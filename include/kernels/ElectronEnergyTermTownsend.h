@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef ELECTRONENERGYTERMTOWNSEND_H
-#define ELECTRONENERGYTERMTOWNSEND_H
+#pragma once
 
 #include "Kernel.h"
 
@@ -55,5 +54,3 @@ protected:
 
   Real _energy_change;
 };
-
-#endif /* ELECTRONENERGYTERMTOWNSEND_H */

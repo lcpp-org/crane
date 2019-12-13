@@ -11,8 +11,7 @@
 /*                                                              */
 /*              See COPYRIGHT for full restrictions             */
 /****************************************************************/
-#ifndef HEATCAPACITYRATIO_H_
-#define HEATCAPACITYRATIO_H_
+#pragma once
 
 // #include "Material.h"
 #include "SpeciesSum.h"
@@ -40,5 +39,3 @@ private:
   std::vector<const VariableValue *> _vals;
 
 };
-
-#endif // HEATCAPACITYRATIO_H_

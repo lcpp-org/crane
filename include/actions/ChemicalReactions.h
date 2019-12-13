@@ -1,5 +1,4 @@
-#ifndef CHEMICALREACTIONS_H
-#define CHEMICALREACTIONS_H
+#pragma once
 
 #include "AddVariableAction.h"
 #include "Action.h"
@@ -59,7 +58,4 @@ protected:
   std::vector<std::string> _rate_equation_string;
   /// Number of reactions
   unsigned int _num_reactions;
-
 };
-
-#endif // CHEMICALREACTIONS_H

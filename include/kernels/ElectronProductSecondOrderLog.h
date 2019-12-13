@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef ELECTRONPRODUCTSECONDORDERLOG_H
-#define ELECTRONPRODUCTSECONDORDERLOG_H
+#pragma once
 
 #include "Kernel.h"
 
@@ -51,4 +50,3 @@ protected:
   bool _target_eq_u;
   bool _target_coupled;
 };
-#endif // ELECTRONPRODUCTSECONDORDERLOG_H

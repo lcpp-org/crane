@@ -6,8 +6,7 @@
 //*
 //* Licensed under LGPL 2.1, please see LICENSE for details
 //* https://www.gnu.org/licenses/lgpl-2.1.html
-#ifndef CRANEAPP_H
-#define CRANEAPP_H
+#pragma once
 
 #include "MooseApp.h"
 
@@ -25,5 +24,3 @@ public:
   static void registerApps();
   static void registerAll(Factory & f, ActionFactory & af, Syntax & s);
 };
-
-#endif /* CRANEAPP_H */

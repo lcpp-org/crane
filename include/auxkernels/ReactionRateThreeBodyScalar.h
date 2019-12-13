@@ -12,31 +12,28 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef PROCRATEFORRATECOEFFTHREEBODY_CRANE_H
-#define PROCRATEFORRATECOEFFTHREEBODY_CRANE_H
+#pragma once
 
-#include "AuxKernel.h"
+#include "AuxScalarKernel.h"
 
-class ProcRateForRateCoeffThreeBody_Crane;
+// Forward Declaration
+class ReactionRateThreeBodyScalar;
 
 template <>
-InputParameters validParams<ProcRateForRateCoeffThreeBody_Crane>();
+InputParameters validParams<ReactionRateThreeBodyScalar>();
 
-class ProcRateForRateCoeffThreeBody_Crane : public AuxKernel
+class ReactionRateThreeBodyScalar : public AuxScalarKernel
 {
 public:
-  ProcRateForRateCoeffThreeBody_Crane(const InputParameters & parameters);
-
-  virtual ~ProcRateForRateCoeffThreeBody_Crane() {}
-  virtual Real computeValue();
+  ReactionRateThreeBodyScalar(const InputParameters & parameters);
 
 protected:
-
+  virtual Real computeValue();
 
   const VariableValue & _v;
   const VariableValue & _w;
-  const VariableValue & _vv;
-  const MaterialProperty<Real> & _reaction_coeff;
-};
+  const VariableValue & _z;
 
-#endif // ProcRateForRateCoeffThreeBody_Crane_H
+  const VariableValue & _rate_coefficient;
+  Real _stoichiometric_coeff;
+};

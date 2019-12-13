@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef PRODUCTSECONDORDERLOG_H
-#define PRODUCTSECONDORDERLOG_H
+#pragma once
 
 #include "Kernel.h"
 
@@ -44,4 +43,3 @@ protected:
   bool _v_eq_u;
   bool _w_eq_u;
 };
-#endif // PRODUCTSECONDORDERLOG_H

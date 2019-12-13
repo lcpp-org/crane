@@ -1,5 +1,4 @@
-#ifndef CHEMICALREACTIONSBASE_H
-#define CHEMICALREACTIONSBASE_H
+#pragma once
 
 #include "AddVariableAction.h"
 #include "Action.h"
@@ -71,5 +70,3 @@ protected:
   std::vector<NonlinearVariableName> _energy_variable;
   bool _use_bolsig;
 };
-
-#endif // CHEMICALREACTIONSBASE_H

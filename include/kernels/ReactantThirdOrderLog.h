@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef REACTANTTHIRDORDERLOG_H
-#define REACTANTTHIRDORDERLOG_H
+#pragma once
 
 #include "Kernel.h"
 
@@ -42,4 +41,3 @@ protected:
   bool _w_eq_u;
   Real _stoichiometric_coeff;
 };
-#endif // REACTANTTHIRDORDERLOG_H

@@ -1,5 +1,4 @@
-#ifndef ELECTRICFIELDCALCULATOR_H
-#define ELECTRICFIELDCALCULATOR_H
+#pragma once
 
 // MOOSE includes
 #include "GeneralPostprocessor.h"
@@ -29,5 +28,3 @@ protected:
   const VariableValue & _electron_density;
 
 };
-
-#endif // ELECTRICFIELDCALCULATOR_H

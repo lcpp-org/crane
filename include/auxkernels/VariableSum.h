@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef VARIABLESUM_H
-#define VARIABLESUM_H
+#pragma once
 
 #include "AuxScalarKernel.h"
 // #include "SplineInterpolation.h"
@@ -33,5 +32,3 @@ protected:
   unsigned int _nargs;
   std::vector<const VariableValue *> _args;
 };
-
-#endif // VARIABLESUM_H

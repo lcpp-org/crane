@@ -12,13 +12,13 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include "ProcRateForRateCoeff_Townsend_Crane.h"
+#include "ReactionRateTownsend.h"
 
-registerMooseObject("CraneApp", ProcRateForRateCoeff_Townsend_Crane);
+registerMooseObject("CraneApp", ReactionRateTownsend);
 
 template <>
 InputParameters
-validParams<ProcRateForRateCoeff_Townsend_Crane>()
+validParams<ReactionRateTownsend>()
 {
   InputParameters params = validParams<AuxKernel>();
 
@@ -34,7 +34,7 @@ validParams<ProcRateForRateCoeff_Townsend_Crane>()
   return params;
 }
 
-ProcRateForRateCoeff_Townsend_Crane::ProcRateForRateCoeff_Townsend_Crane(const InputParameters & parameters)
+ReactionRateTownsend::ReactionRateTownsend(const InputParameters & parameters)
   : AuxKernel(parameters),
 
     _r_units(1. / getParam<Real>("position_units")),
@@ -61,7 +61,7 @@ ProcRateForRateCoeff_Townsend_Crane::ProcRateForRateCoeff_Townsend_Crane(const I
 }
 
 Real
-ProcRateForRateCoeff_Townsend_Crane::computeValue()
+ReactionRateTownsend::computeValue()
 {
 
   Real electron_flux_mag = (-_muem[_qp] * -_grad_potential[_qp] * _r_units * std::exp(_em[_qp]) -

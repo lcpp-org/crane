@@ -1,5 +1,4 @@
-#ifndef ADDSPECIES_H
-#define ADDSPECIES_H
+#pragma once
 
 #include "AddVariableAction.h"
 #include "Action.h"
@@ -28,5 +27,3 @@ private:
   /// Variable scaling
   const std::vector<Real> _scale_factor;
 };
-
-#endif // ADDSPECIES_H

@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef REACTANTSECONDORDERLOG_H
-#define REACTANTSECONDORDERLOG_H
+#pragma once
 
 #include "Kernel.h"
 
@@ -42,4 +41,3 @@ protected:
   Real _stoichiometric_coeff;
   bool _v_eq_u;
 };
-#endif // REACTANTSECONDORDERLOG_H

@@ -1,5 +1,4 @@
-#ifndef SCALARDIFFUSION_H
-#define SCALARDIFFUSION_H
+#pragma once
 
 #include "ODEKernel.h"
 #include "RateCoefficientProvider.h"
@@ -21,5 +20,3 @@ protected:
 
   Real _rate;
 };
-
-#endif /* SCALARDIFFUSION_H */

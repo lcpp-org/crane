@@ -12,33 +12,27 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef PRODUCTIONTHIRDORDER_H
-#define PRODUCTIONTHIRDORDER_H
+#pragma once
 
-#include "Kernel.h"
+#include "AuxScalarKernel.h"
 
 // Forward Declaration
-class ProductionThirdOrder;
+class ReactionRateTwoBodyScalar;
 
 template <>
-InputParameters validParams<ProductionThirdOrder>();
+InputParameters validParams<ReactionRateTwoBodyScalar>();
 
-class ProductionThirdOrder : public AuxScalarKernel
+class ReactionRateTwoBodyScalar : public AuxScalarKernel
 {
 public:
-  ProductionThirdOrder(const InputParameters & parameters);
+  ReactionRateTwoBodyScalar(const InputParameters & parameters);
 
 protected:
   virtual Real computeValue();
 
-  // MooseVariable & _coupled_var_A;
-  // MooseVariable & _coupled_var_B;
   const VariableValue & _v;
   const VariableValue & _w;
-  const VariableValue & _z;
 
-  // The reaction coefficient
   const VariableValue & _rate_coefficient;
   Real _stoichiometric_coeff;
 };
-#endif // PRODUCTIONTHIRDORDER_H

@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef BOLTZMANNSOLVERSCALAR_H
-#define BOLTZMANNSOLVERSCALAR_H
+#pragma once
 
 #include "GeneralUserObject.h"
 #include "SplineInterpolation.h"
@@ -79,5 +78,3 @@ protected:
   SplineInterpolation _temperature_interpolation;
   SplineInterpolation _mobility_interpolation;
 };
-
-#endif /* BOLTZMANNSOLVERSCALAR_H */

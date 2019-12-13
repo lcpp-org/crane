@@ -11,8 +11,7 @@
 /*                                                              */
 /*              See COPYRIGHT for full restrictions             */
 /****************************************************************/
-#ifndef GENERICRATECONSTANT_H_
-#define GENERICRATECONSTANT_H_
+#pragma once
 
 #include "Material.h"
 
@@ -35,5 +34,3 @@ protected:
   Real _rate_value;
 
 };
-
-#endif // GENERICRATECONSTANT_H_

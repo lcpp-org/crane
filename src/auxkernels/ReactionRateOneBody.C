@@ -12,29 +12,32 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef PROCRATEFORRATECOEFF_ONEBODY_CRANE_H
-#define PROCRATEFORRATECOEFF_ONEBODY_CRANE_H
+#include "ReactionRateOneBody.h"
 
-#include "AuxKernel.h"
-
-class ProcRateForRateCoeff_OneBody_Crane;
+registerMooseObject("CraneApp", ReactionRateOneBody);
 
 template <>
-InputParameters validParams<ProcRateForRateCoeff_OneBody_Crane>();
-
-class ProcRateForRateCoeff_OneBody_Crane : public AuxKernel
+InputParameters
+validParams<ReactionRateOneBody>()
 {
-public:
-  ProcRateForRateCoeff_OneBody_Crane(const InputParameters & parameters);
+  InputParameters params = validParams<AuxKernel>();
 
-  virtual ~ProcRateForRateCoeff_OneBody_Crane() {}
-  virtual Real computeValue();
+  params.addCoupledVar("v", "The first variable that is reacting to create u.");
+  params.addRequiredParam<std::string>("reaction", "The full reaction equation.");
 
-protected:
+  return params;
+}
 
+ReactionRateOneBody::ReactionRateOneBody(const InputParameters & parameters)
+  : AuxKernel(parameters),
+    _v(coupledValue("v")),
+    _reaction_coeff(getMaterialProperty<Real>("k_" + getParam<std::string>("reaction")))
+{
+}
 
-  const VariableValue & _v;
-  const MaterialProperty<Real> & _reaction_coeff;
-};
+Real
+ReactionRateOneBody::computeValue()
+{
 
-#endif // ProcRateForRateCoeff_OneBody_Crane_H
+  return 6.02e23 * _reaction_coeff[_qp] * std::exp(_v[_qp]);
+}

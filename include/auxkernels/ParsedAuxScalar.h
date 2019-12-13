@@ -1,5 +1,4 @@
-#ifndef PARSEDAUXSCALAR_H
-#define PARSEDAUXSCALAR_H
+#pragma once
 
 #include "AuxScalarKernel.h"
 #include "FunctionParserUtils.h"
@@ -31,5 +30,3 @@ protected:
   /// function parser object for the resudual and on-diagonal Jacobian
   ADFunctionPtr _func_F;
 };
-
-#endif /* PARSEDAUXSCALAR_H */

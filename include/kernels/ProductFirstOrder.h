@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef PRODUCTFIRSTORDER_H
-#define PRODUCTFIRSTORDER_H
+#pragma once
 
 #include "Kernel.h"
 
@@ -41,4 +40,3 @@ protected:
   Real _stoichiometric_coeff;
   bool _v_eq_u;
 };
-#endif // ProductFirstOrder_H

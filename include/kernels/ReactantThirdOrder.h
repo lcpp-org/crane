@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef REACTANTTHIRDORDER_H
-#define REACTANTTHIRDORDER_H
+#pragma once
 
 #include "Kernel.h"
 
@@ -45,4 +44,3 @@ protected:
   bool _w_eq_u;
 
 };
-#endif // REACTANTTHIRDORDER_H

@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef BOLSIGVALUESCALAR_H
-#define BOLSIGVALUESCALAR_H
+#pragma once
 
 #include "AuxScalarKernel.h"
 #include "SplineInterpolation.h"
@@ -37,5 +36,3 @@ protected:
   bool _sample_value;
   const VariableValue & _sampler_var;
 };
-
-#endif // BOLSIGVALUESCALAR_H

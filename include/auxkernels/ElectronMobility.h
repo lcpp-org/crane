@@ -1,5 +1,4 @@
-#ifndef ELECTRONMOBILITY_H_
-#define ELECTRONMOBILITY_H_
+#pragma once
 
 #include "AuxScalarKernel.h"
 #include "SplineInterpolation.h"
@@ -23,5 +22,3 @@ protected:
 
   const VariableValue & _reduced_field;
 };
-
-#endif /* ELECTRONMOBILITY */

@@ -11,8 +11,7 @@
 /*                                                              */
 /*              See COPYRIGHT for full restrictions             */
 /****************************************************************/
-#ifndef ZAPDOSEEDFRATECONSTANT_H_
-#define ZAPDOSEEDFRATECONSTANT_H_
+#pragma once
 
 #include "Material.h"
 /* #include "LinearInterpolation.h" */
@@ -47,5 +46,3 @@ protected:
   const VariableValue & _em;
   const VariableValue & _mean_en;
 };
-
-#endif // ZAPDOSEEDFRATECONSTANT_H_

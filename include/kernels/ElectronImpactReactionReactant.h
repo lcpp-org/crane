@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef ELECTRONIMPACTREACTIONREACTANT_H
-#define ELECTRONIMPACTREACTIONREACTANT_H
+#pragma once
 
 #include "Kernel.h"
 
@@ -54,5 +53,3 @@ protected:
   const VariableValue & _target;
   unsigned int _target_id;
 };
-
-#endif /* ELECTRONIMPACTREACTIONREACTANT_H */

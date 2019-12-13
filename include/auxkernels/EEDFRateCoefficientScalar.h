@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef EEDFRATECOEFFICIENTSCALAR_H
-#define EEDFRATECOEFFICIENTSCALAR_H
+#pragma once
 
 #include "AuxScalarKernel.h"
 #include "SplineInterpolation.h"
@@ -37,5 +36,3 @@ protected:
   bool _sample_value;
   const VariableValue & _sampler_var;
 };
-
-#endif // EEDFRATECOEFFICIENTSCALAR_H

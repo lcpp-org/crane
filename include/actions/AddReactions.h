@@ -1,5 +1,4 @@
-#ifndef ADDREACTIONS_H
-#define ADDREACTIONS_H
+#pragma once
 
 #include "AddVariableAction.h"
 #include "Action.h"
@@ -23,5 +22,3 @@ protected:
   std::vector<std::string> _aux_species;
 
 };
-
-#endif // ADDREACTIONS_H

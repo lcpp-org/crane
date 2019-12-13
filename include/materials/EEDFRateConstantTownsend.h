@@ -11,8 +11,7 @@
 /*                                                              */
 /*              See COPYRIGHT for full restrictions             */
 /****************************************************************/
-#ifndef EEDFRATECONSTANTTOWNSEND_H_
-#define EEDFRATECONSTANTTOWNSEND_H_
+#pragma once
 
 #include "Material.h"
 /* #include "LinearInterpolation.h" */
@@ -55,5 +54,3 @@ protected:
 
   bool _elastic_collision;
 };
-
-#endif // EEDFRATECONSTANTTOWNSEND_H_

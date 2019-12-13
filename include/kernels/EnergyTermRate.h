@@ -12,8 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef ENERGYTERMRATE_H
-#define ENERGYTERMRATE_H
+#pragma once
 
 #include "Kernel.h"
 
@@ -44,5 +43,3 @@ protected:
   unsigned int _v_id;
   unsigned int _w_id;
 };
-
-#endif /* ENERGYTERMRATE_H */

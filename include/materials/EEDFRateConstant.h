@@ -11,8 +11,7 @@
 /*                                                              */
 /*              See COPYRIGHT for full restrictions             */
 /****************************************************************/
-#ifndef EEDFRATECONSTANT_H_
-#define EEDFRATECONSTANT_H_
+#pragma once
 
 #include "Material.h"
 /* #include "LinearInterpolation.h" */
@@ -46,5 +45,3 @@ protected:
   const VariableValue & _em;
   const VariableValue & _mean_en;
 };
-
-#endif // EEDFRATECONSTANT_H_
