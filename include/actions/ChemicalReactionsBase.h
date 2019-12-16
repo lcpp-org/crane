@@ -69,4 +69,7 @@ protected:
   std::vector<bool> _electron_energy_term;
   std::vector<NonlinearVariableName> _energy_variable;
   bool _use_bolsig;
+
+  std::vector<bool> _lumped_variable;
+  std::vector<int> _lumped_index;
 };

@@ -89,6 +89,7 @@ AddScalarReactions::AddScalarReactions(InputParameters params)
 void
 AddScalarReactions::act()
 {
+  // Some quick error checks
   int v_index;
   std::vector<int> other_index;
   std::vector<int> reactant_indices;

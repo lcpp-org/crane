@@ -81,6 +81,14 @@ validParams<ChemicalReactionsBase>()
       "equation_variables", "Any nonlinear variables that appear in the equations.");
   params.addParam<std::vector<VariableName>>(
       "rate_provider_var", "The name of the variable used to sample from BOLOS/Bolsig+ files.");
+  params.addParam<bool>("lumped_species",
+                        false,
+                        "If true, the input file parser will look for a parameter denoting lumped "
+                        "species (NEUTRAL for now...eventually arbitrary?).");
+  params.addParam<std::vector<VariableName>>("lumped",
+                                             "The neutral species that will be lumped together.");
+  params.addParam<std::string>("lumped_name",
+                               "The name of the variable that will account for multiple species.");
   params.addClassDescription(
       "This Action automatically adds the necessary kernels and materials for a reaction network.");
 
@@ -119,6 +127,9 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     _use_bolsig(getParam<bool>("use_bolsig"))
 // _use_moles(getParam<bool>("use_moles"))
 {
+  if (getParam<bool>("lumped_species") && !isParamValid("lumped"))
+    mooseError("The lumped_species parameter is set to true, but vector of neutrals (lumped = "
+               "'...') is not set.");
   std::istringstream iss(_input_reactions);
   std::string token;
   std::string token2;
@@ -294,6 +305,12 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   _products.resize(_num_reactions);
   _reversible_reaction.resize(_num_reactions);
   _electron_index.resize(_num_reactions, 0);
+
+  // lumped_variable is a vector of booleans that tells the Action whether an individual reaction
+  // includes a lumped species. If so, additional initialization steps are taken.
+  _lumped_variable.resize(_num_reactions);
+  _lumped_index.resize(_num_reactions);
+
   // _species_electron.resize(_num_reactions, std::vector<bool>(_species.size()));
 
   /*
@@ -303,6 +320,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   // superelastic_reactions stores number of superelastic reactions, which will be added to
   // _num_reactions
   int superelastic_reactions = 0;
+
   for (unsigned int i = 0; i < _num_reactions; ++i)
   {
     std::istringstream iss2(_reaction[i]);
@@ -357,6 +375,14 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
 
     for (unsigned int k = 0; k < _reactants[i].size(); ++k)
     {
+      if (getParam<bool>("lumped_species"))
+      {
+        if (_reactants[i][k] == getParam<std::string>("lumped_name"))
+        {
+          std::cout << i << ", "
+                    << "true" << std::endl;
+        }
+      }
       if (_rate_type[i] == "EEDF" && _use_bolsig)
       {
         if (!isParamValid("electron_density"))
