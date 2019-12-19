@@ -70,6 +70,8 @@ protected:
   std::vector<NonlinearVariableName> _energy_variable;
   bool _use_bolsig;
 
-  std::vector<bool> _lumped_variable;
-  std::vector<int> _lumped_index;
+  std::vector<bool> _reaction_lumped;
+  std::vector<int> _lumped_species_index;
+  std::vector<int> _lumped_reaction;
+  std::vector<std::string> _lumped_species;
 };

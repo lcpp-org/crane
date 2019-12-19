@@ -85,8 +85,8 @@ validParams<ChemicalReactionsBase>()
                         false,
                         "If true, the input file parser will look for a parameter denoting lumped "
                         "species (NEUTRAL for now...eventually arbitrary?).");
-  params.addParam<std::vector<VariableName>>("lumped",
-                                             "The neutral species that will be lumped together.");
+  params.addParam<std::vector<std::string>>("lumped",
+                                            "The neutral species that will be lumped together.");
   params.addParam<std::string>("lumped_name",
                                "The name of the variable that will account for multiple species.");
   params.addClassDescription(
@@ -124,12 +124,13 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     _sampling_variable(getParam<std::string>("sampling_variable")),
     _use_log(getParam<bool>("use_log")),
     _track_rates(getParam<bool>("track_rates")),
-    _use_bolsig(getParam<bool>("use_bolsig"))
-// _use_moles(getParam<bool>("use_moles"))
+    _use_bolsig(getParam<bool>("use_bolsig")),
+    _lumped_species(getParam<std::vector<std::string>>("lumped"))
 {
   if (getParam<bool>("lumped_species") && !isParamValid("lumped"))
     mooseError("The lumped_species parameter is set to true, but vector of neutrals (lumped = "
                "'...') is not set.");
+
   std::istringstream iss(_input_reactions);
   std::string token;
   std::string token2;
@@ -308,8 +309,8 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
 
   // lumped_variable is a vector of booleans that tells the Action whether an individual reaction
   // includes a lumped species. If so, additional initialization steps are taken.
-  _lumped_variable.resize(_num_reactions);
-  _lumped_index.resize(_num_reactions);
+  //_lumped_variable.resize(_num_reactions);
+  //_lumped_species_index.resize(_num_reactions);
 
   // _species_electron.resize(_num_reactions, std::vector<bool>(_species.size()));
 
@@ -320,6 +321,8 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   // superelastic_reactions stores number of superelastic reactions, which will be added to
   // _num_reactions
   int superelastic_reactions = 0;
+  unsigned int lumped_count = 0;
+  _reaction_lumped.resize(_num_reactions);
 
   for (unsigned int i = 0; i < _num_reactions; ++i)
   {
@@ -373,14 +376,24 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
       counter = counter + 1;
     }
 
+    // _reaction_lumped is used as a flag in the add_kernel (or add_scalar_kernel) stage. All lumped
+    // reactions are flagged as true and the real reactions with the proper reactant terms are
+    // appended to the end of the reaction list. Thus for any reaction `i`, if _reaction_lumped[i]
+    // == true it will be skipped in the kernel addition stage.
+    _reaction_lumped[i] = false;
+
+    //_lumped_species_index[i] = -1;
+
     for (unsigned int k = 0; k < _reactants[i].size(); ++k)
     {
       if (getParam<bool>("lumped_species"))
       {
         if (_reactants[i][k] == getParam<std::string>("lumped_name"))
         {
-          std::cout << i << ", "
-                    << "true" << std::endl;
+          _reaction_lumped[i] = true;
+          _lumped_reaction.push_back(i);
+          continue;
+          //_lumped_species_index[i] = k;
         }
       }
       if (_rate_type[i] == "EEDF" && _use_bolsig)
@@ -425,6 +438,71 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
         {
           _species_count[i][j] += 1;
         }
+      }
+    }
+  }
+
+  // Now we check for lumped species. For each reaction `i` involving a lumped species, this code
+  // block will:
+  //   1) Delete _reaction[i], _reactants[i], _products[i], while storing
+  //   _reactants[i][..], _products[i][..], and _rate_coefficient[i] for later use
+  //
+  //   2) Add _lumped_species.size() to _reaction, _reactants, _products, and _rate_coefficients
+  //
+  //   3) Loop through the list of _lumped_species and add each reaction accordingly
+  if (getParam<bool>("lumped_species"))
+  {
+    unsigned int old_num = _num_reactions;
+    _num_reactions += (_lumped_reaction.size() * _lumped_species.size());
+    //_reaction.resize(_num_reactions * _lumped_species.size());
+    _reaction.resize(_num_reactions);
+    _reactants.resize(_num_reactions);
+    _products.resize(_num_reactions);
+    _rate_coefficient.resize(_num_reactions);
+    _rate_type.resize(_num_reactions);
+    _rate_equation_string.resize(_num_reactions);
+    _reaction_coefficient_name.resize(_num_reactions);
+    _aux_var_name.resize(_num_reactions);
+    _superelastic_reaction.resize(_num_reactions);
+    _reversible_reaction.resize(_num_reactions);
+    _reaction_lumped.resize(_num_reactions);
+
+    unsigned int lumped_counter;
+    unsigned int lumped_index;
+    // Loop through all of the lumped reactions
+    // for (unsigned int i = 0; i < _lumped_reaction.size(); ++i)
+    for (unsigned int i = 0; i < _lumped_reaction.size(); ++i)
+    {
+
+      lumped_counter = 0;
+      while (lumped_counter < _lumped_species.size())
+      {
+
+        lumped_index = old_num + (i * _lumped_species.size()) + lumped_counter;
+        _reaction[lumped_index] = _reaction[_lumped_reaction[i]];
+        _rate_coefficient[lumped_index] = _rate_coefficient[_lumped_reaction[i]];
+        _rate_type[lumped_index] = _rate_type[_lumped_reaction[i]];
+        _rate_equation_string[lumped_index] = _rate_equation_string[_lumped_reaction[i]];
+        _reaction_coefficient_name[lumped_index] = _reaction_coefficient_name[_lumped_reaction[i]];
+        _aux_var_name[lumped_index] = "rate_constant" + std::to_string(lumped_index);
+        _superelastic_reaction[lumped_index] = _superelastic_reaction[_lumped_reaction[i]];
+        _reversible_reaction[lumped_index] = _reversible_reaction[_lumped_reaction[i]];
+        _reaction_lumped[lumped_index] = false;
+        for (unsigned int k = 0; k < _reactants[_lumped_reaction[i]].size(); ++k)
+        {
+          if (_reactants[_lumped_reaction[i]][k] == getParam<std::string>("lumped_name"))
+            _reactants[lumped_index].push_back(_lumped_species[lumped_counter]);
+          else
+            _reactants[lumped_index].push_back(_reactants[_lumped_reaction[i]][k]);
+        }
+        for (unsigned int k = 0; k < _products[_lumped_reaction[i]].size(); ++k)
+        {
+          if (_products[_lumped_reaction[i]][k] == getParam<std::string>("lumped_name"))
+            _products[lumped_index].push_back(_lumped_species[lumped_counter]);
+          else
+            _products[lumped_index].push_back(_products[_lumped_reaction[i]][k]);
+        }
+        lumped_counter += 1;
       }
     }
   }

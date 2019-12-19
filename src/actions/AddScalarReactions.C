@@ -124,6 +124,8 @@ AddScalarReactions::act()
   {
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
+      if (_reaction_lumped[i])
+        continue;
       auto params = _factory.getValidParams("MooseVariableScalar");
       //_problem->addAuxScalarVariable(_aux_var_name[i], FIRST);
       _problem->addAuxVariable("MooseVariableScalar", _aux_var_name[i], params);
@@ -167,6 +169,8 @@ AddScalarReactions::act()
 
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
+      if (_reaction_lumped[i])
+        continue;
       // If this particular reaction is not reversible, skip to the next one.
       // If it is, we add the necessary user object to calculate the 7-term
       // polynomial expansion.
@@ -191,6 +195,8 @@ AddScalarReactions::act()
   {
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
+      if (_reaction_lumped[i])
+        continue;
       if (_rate_type[i] == "EEDF" && !_superelastic_reaction[i])
       {
         if (_use_bolsig)
@@ -342,6 +348,8 @@ AddScalarReactions::act()
     std::vector<Real> rxn_coeff = getParam<std::vector<Real>>("reaction_coefficient");
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
+      if (_reaction_lumped[i])
+        continue;
       if (_reactants[i].size() == 1)
       {
         product_kernel_name = "Product1BodyScalar";
@@ -423,6 +431,7 @@ AddScalarReactions::act()
         // Find any aux variables in the species list.
         // If found, this index is skipped.
         iter_aux = std::find(_aux_species.begin(), _aux_species.end(), _species[j]);
+
         if (iter_aux != _aux_species.end())
         {
           continue;
@@ -438,14 +447,28 @@ AddScalarReactions::act()
             find_other =
                 std::find(_species.begin(), _species.end(), _reactants[i][reactant_indices[k]]) !=
                 _species.end();
+            if (!find_other)
+              find_other = std::find(_aux_species.begin(),
+                                     _aux_species.end(),
+                                     _reactants[i][reactant_indices[k]]) != _aux_species.end();
             if (find_other)
               continue;
             else
               reactant_indices.erase(reactant_indices.begin() + k);
+            /*
+            find_other =
+                std::find(_species.begin(), _species.end(), _reactants[i][reactant_indices[k]]) !=
+                _species.end();
+            if (find_other)
+              continue;
+            else
+              reactant_indices.erase(reactant_indices.begin() + k);
+            */
           }
           v_index = std::abs(index - 1);
-          find_other =
-              std::find(_species.begin(), _species.end(), _reactants[i][v_index]) != _species.end();
+          // find_other =
+          //    std::find(_species.begin(), _species.end(), _reactants[i][v_index]) !=
+          //    _species.end();
           if (_species_count[i][j] < 0)
           {
             InputParameters params = _factory.getValidParams(reactant_kernel_name);
@@ -473,6 +496,10 @@ AddScalarReactions::act()
         {
           include_species[k] =
               std::find(_species.begin(), _species.end(), _reactants[i][k]) != _species.end();
+          if (include_species[k] == false)
+            include_species[k] =
+                std::find(_aux_species.begin(), _aux_species.end(), _reactants[i][k]) !=
+                _aux_species.end();
         }
         if (iter != _products[i].end())
         {
