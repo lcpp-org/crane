@@ -466,6 +466,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     _superelastic_reaction.resize(_num_reactions);
     _reversible_reaction.resize(_num_reactions);
     _reaction_lumped.resize(_num_reactions);
+    _species_count.resize(_num_reactions);
 
     unsigned int lumped_counter;
     unsigned int lumped_index;
@@ -488,6 +489,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
         _superelastic_reaction[lumped_index] = _superelastic_reaction[_lumped_reaction[i]];
         _reversible_reaction[lumped_index] = _reversible_reaction[_lumped_reaction[i]];
         _reaction_lumped[lumped_index] = false;
+        _species_count[lumped_index] = _species_count[_lumped_reaction[i]];
         for (unsigned int k = 0; k < _reactants[_lumped_reaction[i]].size(); ++k)
         {
           if (_reactants[_lumped_reaction[i]][k] == getParam<std::string>("lumped_name"))
