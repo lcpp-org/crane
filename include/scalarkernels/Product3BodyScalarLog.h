@@ -25,7 +25,6 @@ protected:
   const VariableValue & _x;
   const VariableValue & _rate_coefficient;
 
-  Real _n_gas;
   Real _stoichiometric_coeff;
   // Real _reaction_coeff;
   bool _v_eq_u;

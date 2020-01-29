@@ -89,6 +89,18 @@ validParams<ChemicalReactionsBase>()
                                             "The neutral species that will be lumped together.");
   params.addParam<std::string>("lumped_name",
                                "The name of the variable that will account for multiple species.");
+  params.addParam<bool>(
+      "balance_check", false, "Whether or not to check that each reaction is balanced.");
+  params.addParam<bool>("charge_balance_check",
+                        false,
+                        "Whether or not to check that each reaction is balanced by charge. If not, "
+                        "equations with electrons are skipped in the balance check. "
+                        "(Electron-impact reactions break particle conservation.)");
+  params.addParam<std::vector<int>>(
+      "num_particles",
+      "A vector of values storing the number of particles in each species. Note that this vector "
+      "MUST be the same length as 'species'. For any index i, num_particles[i] will be associated "
+      "with _species[i].");
   params.addClassDescription(
       "This Action automatically adds the necessary kernels and materials for a reaction network.");
 
@@ -130,6 +142,18 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   if (getParam<bool>("lumped_species") && !isParamValid("lumped"))
     mooseError("The lumped_species parameter is set to true, but vector of neutrals (lumped = "
                "'...') is not set.");
+
+  if (getParam<bool>("balance_check") && !isParamValid("num_particles"))
+    mooseError("balance_check = true, but there is no num_particles parameter set! Please indicate "
+               "the number of atoms present in each species. For example, molecular oxygen (O_2) "
+               "has two particles. Ammonia (NH_3) has four particles (1 N, 3 H).");
+  else if (getParam<bool>("balance_check"))
+  {
+    num_particles = getParam<std::vector<int>>("num_particles");
+    if (num_particles.size() != _species.size())
+      mooseError("The size of num_particles and species is not equal! Each species must have a "
+                 "valid particle number in order to accurate check for particle balances.");
+  }
 
   std::istringstream iss(_input_reactions);
   std::string token;
@@ -746,6 +770,66 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   {
     _electron_energy_term.push_back(false);
     _energy_variable.push_back(_gas_energy[0]);
+  }
+
+  // With all reactions set up, now we check to make sure all equations are balanced. This requires
+  // the parameter balance_check = true and a vector of values corresponding to the number of
+  // particles associated with each species. TO DO: check charge balance as well
+  if (getParam<bool>("balance_check"))
+  {
+
+    int index; // stores index of species in the reactant/product arrays
+    // std::vector<std::string>::iterator iter;
+    Real r_sum;
+    Real p_sum;
+    std::vector<std::string> faulty_reaction;
+    bool unbalanced = false;
+    bool electron_reaction;
+
+    bool charge_balance = getParam<bool>("charge_balance_check");
+
+    for (auto i = 0; i < _num_reactions; ++i)
+    {
+      electron_reaction = false;
+      r_sum = 0;
+      p_sum = 0;
+      for (auto j = 0; j < _reactants[i].size(); ++j)
+      {
+        auto iter = std::find(_species.begin(), _species.end(), _reactants[i][j]);
+        index = std::distance(_species.begin(), iter);
+        if (_species[index] == getParam<std::string>("electron_density"))
+          continue;
+        else
+          r_sum += num_particles[index];
+        if (_species[index] == getParam<std::string>("electron_density"))
+          electron_reaction = true;
+      }
+      for (auto j = 0; j < _products[i].size(); ++j)
+      {
+        auto iter = std::find(_species.begin(), _species.end(), _products[i][j]);
+        index = std::distance(_species.begin(), iter);
+        if (_species[index] == getParam<std::string>("electron_density"))
+          continue;
+        else
+          p_sum += num_particles[index];
+        if (_species[index] == getParam<std::string>("electron_density"))
+          electron_reaction = true;
+      }
+      // if (r_sum != p_sum && !electron_reaction)
+      if (r_sum != p_sum)
+      {
+        unbalanced = true;
+        faulty_reaction.push_back(_reaction[i]);
+      }
+    }
+    if (unbalanced)
+    {
+      std::cout << "WARNING: The following equations are unbalanced." << std::endl;
+      for (auto i = 0; i < faulty_reaction.size(); ++i)
+        std::cout << "    " << faulty_reaction[i] << std::endl;
+
+      mooseError("Fix unbalanced reactions or particle conservation will not be enforced.");
+    }
   }
 }
 
