@@ -22,7 +22,6 @@ protected:
   const VariableValue & _v;
   const VariableValue & _rate_coefficient;
 
-  Real _n_gas;
   Real _stoichiometric_coeff;
   bool _v_eq_u;
   bool _rate_constant_equation;

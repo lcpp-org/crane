@@ -474,7 +474,6 @@ AddScalarReactions::act()
             InputParameters params = _factory.getValidParams(reactant_kernel_name);
             params.set<NonlinearVariableName>("variable") = _species[j];
             params.set<Real>("coefficient") = _species_count[i][j];
-            params.set<Real>("n_gas") = 3.219e18;
             params.set<std::vector<VariableName>>("rate_coefficient") = {_aux_var_name[i]};
             params.set<bool>("rate_constant_equation") = true;
             if (find_other)
@@ -508,7 +507,6 @@ AddScalarReactions::act()
           {
             InputParameters params = _factory.getValidParams(product_kernel_name);
             params.set<NonlinearVariableName>("variable") = _species[j];
-            params.set<Real>("n_gas") = 3.219e18;
             params.set<std::vector<VariableName>>("rate_coefficient") = {_aux_var_name[i]};
             params.set<bool>("rate_constant_equation") = true;
             params.set<Real>("coefficient") = _species_count[i][j];
