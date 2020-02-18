@@ -49,6 +49,11 @@ validParams<AddZapdosReactions>()
       "aux_species", "Auxiliary species that are not included in nonlinear solve.");
   params.addParam<std::vector<SubdomainName>>("block",
                                               "The subdomain that this action applies to.");
+  params.addParam<bool>(
+      "use_ad",
+      false,
+      "Set to true if you want to use automatic differentiation. This comes at a slight "
+      "computational cost, but Jacobians are guaranteed to be absolutely correct.");
   params.addClassDescription(
       "This Action automatically adds the necessary kernels and materials for a reaction network.");
 
@@ -58,7 +63,8 @@ validParams<AddZapdosReactions>()
 AddZapdosReactions::AddZapdosReactions(InputParameters params)
   : ChemicalReactionsBase(params),
     _coefficient_format(getParam<std::string>("reaction_coefficient_format")),
-    _aux_species(getParam<std::vector<std::string>>("aux_species"))
+    _aux_species(getParam<std::vector<std::string>>("aux_species")),
+    _use_ad(getParam<bool>("use_ad"))
 
 {
   if (_coefficient_format == "townsend" && !isParamValid("electron_density"))
@@ -285,7 +291,7 @@ AddZapdosReactions::act()
         params.set<std::vector<SubdomainName>>("block") =
             getParam<std::vector<SubdomainName>>("block");
         _problem->addMaterial(
-            "ZapdosEEDFRateConstant", "reaction_" + std::to_string(i) + std::to_string(i), params);
+            "ADZapdosEEDFRateConstant", "reaction_" + std::to_string(i) + std::to_string(i), params);
       }
       else if (_rate_type[i] == "Constant")
       {
@@ -382,7 +388,7 @@ AddZapdosReactions::act()
     std::vector<std::string>::iterator iter_aux;
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
-      energy_kernel_name = "ElectronEnergyTerm";
+      energy_kernel_name = "ADElectronEnergyTerm";
       if (_elastic_collision[i])
         energy_kernel_name += "Elastic";
       // if (!isnan(_rate_coefficient[i]) || _rate_equation[i] == true || _superelastic_reaction[i]
@@ -390,8 +396,11 @@ AddZapdosReactions::act()
       if (_coefficient_format == "townsend" && _rate_type[i] == "EEDF")
       {
         energy_kernel_name += "Townsend";
-        product_kernel_name = "ElectronImpactReactionProduct";
-        reactant_kernel_name = "ElectronImpactReactionReactant";
+        //product_kernel_name = "ElectronImpactReactionProduct";
+        //reactant_kernel_name = "ElectronImpactReactionReactant";
+
+        product_kernel_name = "ADEEDFRxnProd";
+        reactant_kernel_name = "ADEEDFRxnReac";
         // if (getParam<bool>("track_electron_energy") == true)
         // {
         //   if (_coefficient_format == "townsend")
@@ -487,7 +496,7 @@ AddZapdosReactions::act()
             {
               // First we find the correct target species to add (need species mass for elastic
               // energy change calculation)
-              InputParameters params = _factory.getValidParams(energy_kernel_name);
+              InputParameters params = _factory.getADValidParams(energy_kernel_name);
               // params.set<NonlinearVariableName>("variable") = _electron_energy[0];
               params.set<NonlinearVariableName>("variable") = _energy_variable[t];
               params.set<std::string>("reaction") = _reaction[i];
@@ -504,13 +513,13 @@ AddZapdosReactions::act()
               params.set<Real>("position_units") = _r_units;
               params.set<std::vector<SubdomainName>>("block") =
                   getParam<std::vector<SubdomainName>>("block");
-              _problem->addKernel(energy_kernel_name,
+              _problem->addADKernel(energy_kernel_name,
                                   "elastic_kernel" + std::to_string(i) + "_" + _reaction[i],
                                   params);
             }
             else
             {
-              InputParameters params = _factory.getValidParams(energy_kernel_name);
+              InputParameters params = _factory.getADValidParams(energy_kernel_name);
               params.set<NonlinearVariableName>("variable") = {_electron_energy[0]};
               if (_coefficient_format == "townsend")
               {
@@ -551,7 +560,7 @@ AddZapdosReactions::act()
               params.set<Real>("position_units") = _r_units;
               params.set<std::vector<SubdomainName>>("block") =
                   getParam<std::vector<SubdomainName>>("block");
-              _problem->addKernel(energy_kernel_name,
+              _problem->addADKernel(energy_kernel_name,
                                   "energy_kernel" + std::to_string(i) + "_" + _reaction[i],
                                   params);
             }
