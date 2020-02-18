@@ -39,5 +39,4 @@ protected:
   const ADVariableGradient & _grad_potential;
   const ADVariableValue & _em;
   const ADVariableGradient & _grad_em;
-  const ADVariableValue & _target;
 };

@@ -47,5 +47,6 @@ ADElectronEnergyTermElasticTownsend<compute_stage>::computeQpResidual()
   ADReal Eel = -3.0 * _massem / _massGas[_qp] * 2.0 / 3. * std::exp(_u[_qp] - _em[_qp]);
   ADReal el_term = _alpha[_qp] * electron_flux_mag * Eel;
 
-  return -_test[_i][_qp] * _alpha[_qp] * electron_flux_mag;
+  //return -_test[_i][_qp] * _alpha[_qp] * electron_flux_mag * Eel;
+  return -_test[_i][_qp] * el_term;
 }

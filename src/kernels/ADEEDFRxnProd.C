@@ -14,7 +14,6 @@ ADEEDFRxnProd<compute_stage>::validParams()
   params.addRequiredCoupledVar("mean_en", "The electron mean energy.");
   params.addRequiredCoupledVar("potential", "The potential.");
   params.addRequiredCoupledVar("em", "The electron density.");
-  params.addCoupledVar("target", "The coupled target. If none, assumed to be background gas from BOLSIG+.");
   params.addRequiredParam<Real>("position_units", "Units of position.");
   params.addRequiredParam<std::string>("reaction", "Stores the full reaction equation.");
   params.addRequiredParam<std::string>("reaction_coefficient_name",
@@ -35,9 +34,8 @@ ADEEDFRxnProd<compute_stage>::ADEEDFRxnProd(const InputParameters & parameters)
     _mean_en(adCoupledValue("mean_en")),
     _grad_potential(adCoupledGradient("potential")),
     _em(adCoupledValue("em")),
-    _grad_em(adCoupledGradient("em")),
-    _target(adCoupledValue("target"))
-    //_target(isCoupled("target") ? adCoupledValue("target") : _em),
+    _grad_em(adCoupledGradient("em"))
+//_target(isCoupled("target") ? adCoupledValue("target") : _em),
 {
 }
 
@@ -45,9 +43,13 @@ template <ComputeStage compute_stage>
 ADReal
 ADEEDFRxnProd<compute_stage>::computeQpResidual()
 {
-  ADReal electron_flux_mag = (-_muem[_qp] * -_grad_potential[_qp] * _r_units * std::exp(_em[_qp]) -
-                            _diffem[_qp] * std::exp(_em[_qp]) * _grad_em[_qp] * _r_units)
-                               .norm();
-
-  return -_test[_i][_qp] * _alpha[_qp] * electron_flux_mag;
+  //ADReal electron_flux_mag = (-_muem[_qp] * -_grad_potential[_qp] * _r_units * std::exp(_em[_qp]) -
+  //                            _diffem[_qp] * std::exp(_em[_qp]) * _grad_em[_qp] * _r_units)
+  //                               .norm();
+  //
+  // return -_test[_i][_qp] * _alpha[_qp] * electron_flux_mag;
+  return -_test[_i][_qp] * _alpha[_qp] *
+         (-_muem[_qp] * -_grad_potential[_qp] * _r_units * std::exp(_em[_qp]) -
+          _diffem[_qp] * std::exp(_em[_qp]) * _grad_em[_qp] * _r_units)
+             .norm();
 }

@@ -17,11 +17,11 @@
 #include "ADKernel.h"
 
 template <ComputeStage compute_stage>
-class ADElectronEnergyTermElasticTownsend : public ADKernel<compute_stage>
+class ADElectronEnergyTermTownsend : public ADKernel<compute_stage>
 {
 public:
   static InputParameters validParams();
-  ADElectronEnergyTermElasticTownsend(const InputParameters & parameters);
+  ADElectronEnergyTermTownsend(const InputParameters & parameters);
 
 protected:
   virtual ADReal computeQpResidual();
@@ -30,14 +30,16 @@ protected:
   Real _r_units;
   Real _threshold_energy;
 
-  const ADMaterialProperty(Real) & _elastic_energy;
   const ADMaterialProperty(Real) & _diffem;
   const ADMaterialProperty(Real) & _muem;
   const ADMaterialProperty(Real) & _alpha;
-  const MaterialProperty<Real> & _massGas;
 
   const ADVariableGradient & _grad_potential;
   const ADVariableValue & _em;
   const ADVariableGradient & _grad_em;
-  Real _massem;
+  const ADVariableValue & _target;
+  Real _energy_change;
+
+private:
+  ADReal _electron_flux_mag;
 };
