@@ -1,14 +1,14 @@
-#include "ADEEDFRxnProd.h"
+#include "ADEEDFRxnReac.h"
 
 // MOOSE includes
 #include "MooseUtils.h"
 #include "MooseVariable.h"
 
-registerADMooseObject("CraneApp", ADEEDFRxnProd);
+registerADMooseObject("CraneApp", ADEEDFRxnReac);
 
 template <ComputeStage compute_stage>
 InputParameters
-ADEEDFRxnProd<compute_stage>::validParams()
+ADEEDFRxnReac<compute_stage>::validParams()
 {
   InputParameters params = ADKernel<compute_stage>::validParams();
   params.addRequiredCoupledVar("mean_en", "The electron mean energy.");
@@ -23,7 +23,7 @@ ADEEDFRxnProd<compute_stage>::validParams()
 }
 
 template <ComputeStage compute_stage>
-ADEEDFRxnProd<compute_stage>::ADEEDFRxnProd(const InputParameters & parameters)
+ADEEDFRxnReac<compute_stage>::ADEEDFRxnReac(const InputParameters & parameters)
   : ADKernel<compute_stage>(parameters),
     _r_units(1. / getParam<Real>("position_units")),
     _reaction_coeff_name(getParam<std::string>("reaction_coefficient_name")),
@@ -31,7 +31,7 @@ ADEEDFRxnProd<compute_stage>::ADEEDFRxnProd(const InputParameters & parameters)
     _diffem(getADMaterialProperty<Real>("diffem")),
     _muem(getADMaterialProperty<Real>("muem")),
     _alpha(getADMaterialProperty<Real>(_reaction_coeff_name)),
-    //_mean_en(adCoupledValue("mean_en")),
+    _mean_en(adCoupledValue("mean_en")),
     _grad_potential(adCoupledGradient("potential")),
     _em(adCoupledValue("em")),
     _grad_em(adCoupledGradient("em"))
@@ -41,14 +41,14 @@ ADEEDFRxnProd<compute_stage>::ADEEDFRxnProd(const InputParameters & parameters)
 
 template <ComputeStage compute_stage>
 ADReal
-ADEEDFRxnProd<compute_stage>::computeQpResidual()
+ADEEDFRxnReac<compute_stage>::computeQpResidual()
 {
   //ADReal electron_flux_mag = (-_muem[_qp] * -_grad_potential[_qp] * _r_units * std::exp(_em[_qp]) -
   //                            _diffem[_qp] * std::exp(_em[_qp]) * _grad_em[_qp] * _r_units)
   //                               .norm();
   //
   // return -_test[_i][_qp] * _alpha[_qp] * electron_flux_mag;
-  return -_test[_i][_qp] * _alpha[_qp] *
+  return _test[_i][_qp] * _alpha[_qp] *
          (-_muem[_qp] * -_grad_potential[_qp] * _r_units * std::exp(_em[_qp]) -
           _diffem[_qp] * std::exp(_em[_qp]) * _grad_em[_qp] * _r_units)
              .norm();

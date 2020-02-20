@@ -1,4 +1,4 @@
-#include "AddZapdosReactions.h"
+#include "Zapdos2.h"
 #include "Parser.h"
 #include "FEProblem.h"
 #include "Factory.h"
@@ -26,15 +26,15 @@
 #include "libmesh/string_to_enum.h"
 #include "libmesh/fe.h"
 
-registerMooseAction("CraneApp", AddZapdosReactions, "add_aux_variable");
-registerMooseAction("CraneApp", AddZapdosReactions, "add_aux_kernel");
-registerMooseAction("CraneApp", AddZapdosReactions, "add_material");
-registerMooseAction("CraneApp", AddZapdosReactions, "add_kernel");
-registerMooseAction("CraneApp", AddZapdosReactions, "add_function");
+registerMooseAction("CraneApp", Zapdos2, "add_aux_variable");
+registerMooseAction("CraneApp", Zapdos2, "add_aux_kernel");
+registerMooseAction("CraneApp", Zapdos2, "add_material");
+registerMooseAction("CraneApp", Zapdos2, "add_kernel");
+registerMooseAction("CraneApp", Zapdos2, "add_function");
 
 template <>
 InputParameters
-validParams<AddZapdosReactions>()
+validParams<Zapdos2>()
 {
   MooseEnum families(AddVariableAction::getNonlinearVariableFamilies());
   MooseEnum orders(AddVariableAction::getNonlinearVariableOrders());
@@ -60,7 +60,7 @@ validParams<AddZapdosReactions>()
   return params;
 }
 
-AddZapdosReactions::AddZapdosReactions(InputParameters params)
+Zapdos2::Zapdos2(InputParameters params)
   : ChemicalReactionsBase(params),
     _coefficient_format(getParam<std::string>("reaction_coefficient_format")),
     _aux_species(getParam<std::vector<std::string>>("aux_species")),
@@ -76,7 +76,7 @@ AddZapdosReactions::AddZapdosReactions(InputParameters params)
 }
 
 void
-AddZapdosReactions::act()
+Zapdos2::act()
 {
   std::vector<int> other_index;
   std::vector<int> reactant_indices;
@@ -617,6 +617,7 @@ AddZapdosReactions::act()
 
       for (MooseIndex(_species) j = 0; j < _species.size(); ++j)
       {
+        addEEDFKernel();
         iter = std::find(_reactants[i].begin(), _reactants[i].end(), _species[j]);
         index = std::distance(_reactants[i].begin(), iter);
 
@@ -889,4 +890,44 @@ AddZapdosReactions::act()
       // To do: add energy kernels here
     }
   }
+}
+
+void
+Zapdos2::addEEDFKernel()
+{
+  std::cout << _use_ad << std::endl;
+  /*
+  auto params = _factory.getValidParams(product_kernel_name + "<RESIDUAL>");
+  params.set<NonlinearVariableName>("variable") = _species[j];
+  params.set<std::vector<VariableName>>("mean_en") = {_electron_energy[0]};
+  if (_coefficient_format == "townsend")
+    params.set<std::vector<VariableName>>("potential") =
+        getParam<std::vector<VariableName>>("potential");
+  params.set<std::vector<VariableName>>("em") = {getParam<std::string>("electron_density")};
+  params.set<Real>("position_units") = _r_units;
+  params.set<std::string>("reaction") = _reaction[i];
+  params.set<std::string>("reaction_coefficient_name") = _reaction_coefficient_name[i];
+  params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
+
+  _problem->addKernel(product_kernel_name + "<RESIDUAL>",
+                      "kernel_prod" + std::to_string(i) + std::to_string(j) + "_residual",
+                      params);
+  _problem->addKernel(product_kernel_name + "<JACOBIAN>",
+                      "kernel_prod" + std::to_string(i) + std::to_string(j) + "_jacobian" +
+                          _reaction[i],
+                      params);
+  _problem->haveADObjects(true);
+  */
+  /*
+  if (find_other)
+  {
+    params.set<std::vector<VariableName>>("target") = {
+        _reactants[i][non_electron_index]};
+  }
+  */
+  /*
+  _problem->addADKernel(product_kernel_name,
+                      "kernel_prod" + std::to_string(j) + "_" + _reaction[i],
+                      params);
+  */
 }

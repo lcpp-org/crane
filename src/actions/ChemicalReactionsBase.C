@@ -101,6 +101,11 @@ validParams<ChemicalReactionsBase>()
       "A vector of values storing the number of particles in each species. Note that this vector "
       "MUST be the same length as 'species'. For any index i, num_particles[i] will be associated "
       "with _species[i].");
+  params.addParam<bool>("use_ad",
+                        false,
+                        "Whether or not to use automatic differentiation. Recommended for systems "
+                        "that use equation-based rate coefficients, mixture-averaged diffusion, or "
+                        "large simulations in general.");
   params.addClassDescription(
       "This Action automatically adds the necessary kernels and materials for a reaction network.");
 
@@ -137,7 +142,8 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     _use_log(getParam<bool>("use_log")),
     _track_rates(getParam<bool>("track_rates")),
     _use_bolsig(getParam<bool>("use_bolsig")),
-    _lumped_species(getParam<std::vector<std::string>>("lumped"))
+    _lumped_species(getParam<std::vector<std::string>>("lumped")),
+    _use_ad(getParam<bool>("use_ad"))
 {
   if (getParam<bool>("lumped_species") && !isParamValid("lumped"))
     mooseError("The lumped_species parameter is set to true, but vector of neutrals (lumped = "

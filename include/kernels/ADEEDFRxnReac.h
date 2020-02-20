@@ -17,11 +17,11 @@
 #include "ADKernel.h"
 
 template <ComputeStage compute_stage>
-class ADEEDFRxnProd : public ADKernel<compute_stage>
+class ADEEDFRxnReac : public ADKernel<compute_stage>
 {
 public:
   static InputParameters validParams();
-  ADEEDFRxnProd(const InputParameters & parameters);
+  ADEEDFRxnReac(const InputParameters & parameters);
 
 protected:
   virtual ADReal computeQpResidual();
@@ -35,7 +35,7 @@ protected:
   const ADMaterialProperty(Real) & _muem;
   const ADMaterialProperty(Real) & _alpha;
 
-  //const ADVariableValue & _mean_en;
+  const ADVariableValue & _mean_en;
   const ADVariableGradient & _grad_potential;
   const ADVariableValue & _em;
   const ADVariableGradient & _grad_em;

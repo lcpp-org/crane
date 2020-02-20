@@ -75,4 +75,5 @@ protected:
   std::vector<int> _lumped_reaction;
   std::vector<std::string> _lumped_species;
   std::vector<int> num_particles;
+  bool _use_ad;
 };

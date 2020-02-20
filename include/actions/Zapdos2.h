@@ -4,20 +4,21 @@
 #include "Action.h"
 #include "ChemicalReactionsBase.h"
 
-class AddZapdosReactions;
+class Zapdos2;
 
 template <>
-InputParameters validParams<AddZapdosReactions>();
+InputParameters validParams<Zapdos2>();
 
-class AddZapdosReactions : public ChemicalReactionsBase
+class Zapdos2 : public ChemicalReactionsBase
 {
 public:
-  AddZapdosReactions(InputParameters params);
+  Zapdos2(InputParameters params);
 
   virtual void act();
 
 protected:
   //virtual void addEnergyKernel();
+  virtual void addEEDFKernel();
   //virtual void add
 
   std::string _coefficient_format;
