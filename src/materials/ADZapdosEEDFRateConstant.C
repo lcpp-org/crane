@@ -80,6 +80,7 @@ ADZapdosEEDFRateConstant<compute_stage>::computeQpProperties()
     //_reaction_rate[_qp] = _coefficient_interpolation.sample(actual_mean_energy);
     _reaction_rate[_qp] = _coefficient_interpolation.sample(std::exp(_mean_en[_qp] - _em[_qp]));
   }
+  std::cout << _sampler[_qp] << std::endl;
 
   if (_reaction_rate[_qp] < 0.0)
   {
