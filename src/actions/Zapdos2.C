@@ -73,6 +73,17 @@ Zapdos2::Zapdos2(InputParameters params)
 
   if (_coefficient_format == "townsend" && !isParamValid("electron_energy"))
     mooseError("Coefficient format type 'townsend' requires an input parameter 'electron_energy'!");
+
+  if (_use_ad)
+  {
+    _ad_prepend = "AD";
+    _ad_append = "<RESIDUAL>";
+  }
+  else
+  {
+    _ad_prepend = "";
+    _ad_append = "";
+  }
 }
 
 void
@@ -191,195 +202,28 @@ Zapdos2::act()
     }
   }
 
+  // Add all rate coefficients as materials
   if (_current_task == "add_material")
   {
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
       _reaction_coefficient_name[i] = "alpha_" + _reaction[i];
-      if (_rate_type[i] == "EEDF" && _coefficient_format == "townsend")
+      if (_rate_type[i] == "EEDF")
       {
-        // BOLOS and BOLSIG+ both get stored as NAN in _rate_coefficient, as to
-        // rate constants based on an equation (_rate_equation).
-        // Superelastic reactions need to have their constants calculated separately.
-        // Coefficient format chooses which specific material to apply.
-        Real position_units = getParam<Real>("position_units");
-        InputParameters params = _factory.getValidParams("ADEEDFRateConstantTownsend<RESIDUAL>");
-        params.set<std::string>("reaction") = _reaction[i];
-        params.set<std::string>("file_location") = getParam<std::string>("file_location");
-        params.set<Real>("position_units") = position_units;
-        params.set<std::vector<VariableName>>("em") = {_reactants[i][_electron_index[i]]};
-        params.set<std::vector<VariableName>>("mean_en") = {_electron_energy[0]};
-        // params.set<std::string>("reaction_coefficient_format") = _coefficient_format;
-        // params.set<std::string>("sampling_format") = _sampling_format;
-
-        // This section determines if the target species is a tracked variable.
-        // If it isn't, the target is assumed to be the background gas (_n_gas).
-        // (This cannot handle gas mixtures yet.)
-        bool target_species_tracked = false;
-        bool target_species_aux = false;
-        for (unsigned int j = 0; j < _species.size(); ++j)
-        {
-          // Checking for the target species in electron-impact reactions, so
-          // electrons are ignored.
-          // if (getParam<bool>("include_electrons") == true)
-          // {
-          if (_species[j] == getParam<std::string>("electron_density"))
-          {
-            continue;
-          }
-          // }
-
-          for (unsigned int k = 0; k < _reactants[i].size(); ++k)
-          {
-            if (_reactants[i][k] == _species[j])
-            {
-              target_species_tracked = true;
-              target = k;
-              break;
-            }
-          }
-
-          if (target_species_tracked)
-            break;
-        }
-        for (unsigned int j = 0; j < _aux_species.size(); ++j)
-        {
-          for (unsigned int k = 0; k < _reactants[i].size(); ++k)
-          {
-            if (_reactants[i][k] == _aux_species[j])
-            {
-              target_species_aux = true;
-              break;
-            }
-          }
-
-          if (target_species_aux)
-            break;
-        }
-        if (target_species_tracked)
-        {
-          params.set<std::vector<VariableName>>("target_species") = {_reactants[i][target]};
-        }
-        // if (target_species_aux)
-        params.set<bool>("is_target_aux") = target_species_aux;
-
-        params.set<bool>("elastic_collision") = {_elastic_collision[i]};
-        params.set<FileName>("property_file") = "reaction_" + _reaction[i] + ".txt";
-        params.set<std::vector<SubdomainName>>("block") =
-            getParam<std::vector<SubdomainName>>("block");
-        //_problem->addMaterial("ADEEDFRateConstantTownsend",
-        //                      "reaction_" + std::to_string(i) + std::to_string(i) + "_" +
-        //                          getParam<std::vector<SubdomainName>>("block")[0],
-        //                      params);
-        _problem->addADResidualMaterial("ADEEDFRateConstantTownsend<RESIDUAL>",
-                                        "reaction_" + std::to_string(i) + std::to_string(i) + "_" +
-                                            getParam<std::vector<SubdomainName>>("block")[0] +
-                                            "_residual",
-                                        params);
-        _problem->addADJacobianMaterial("ADEEDFRateConstantTownsend<JACOBIAN>",
-                                        "reaction_" + std::to_string(i) + std::to_string(i) + "_" +
-                                            getParam<std::vector<SubdomainName>>("block")[0] +
-                                            "_jacobian",
-                                        params);
-        _problem->haveADObjects(true);
-      }
-      else if (_rate_type[i] == "EEDF" && _coefficient_format == "rate")
-      // else if (_rate_type[i] )
-      {
-        Real position_units = getParam<Real>("position_units");
-        InputParameters params = _factory.getValidParams("ZapdosEEDFRateConstant");
-        params.set<std::string>("reaction") = _reaction[i];
-        params.set<std::string>("file_location") = getParam<std::string>("file_location");
-        params.set<Real>("position_units") = position_units;
-        params.set<std::string>("sampling_format") = _sampling_variable;
-        params.set<FileName>("property_file") = "reaction_" + _reaction[i] + ".txt";
-        params.set<std::vector<VariableName>>("em") = {_reactants[i][_electron_index[i]]};
-        if (isParamValid("electron_energy"))
-        {
-          params.set<std::vector<VariableName>>("mean_en") = {_electron_energy[0]};
-        }
-        params.set<bool>("elastic_collision") = _elastic_collision[i];
-        params.set<std::vector<SubdomainName>>("block") =
-            getParam<std::vector<SubdomainName>>("block");
-        _problem->addMaterial("ADZapdosEEDFRateConstant",
-                              "reaction_" + std::to_string(i) + std::to_string(i),
-                              params);
+        addEEDFCoefficient(i);
       }
       else if (_rate_type[i] == "Constant")
       {
-        InputParameters params = _factory.getValidParams("GenericRateConstant");
-        params.set<std::string>("reaction") = _reaction[i];
-        params.set<Real>("reaction_rate_value") = _rate_coefficient[i];
-        params.set<std::vector<SubdomainName>>("block") =
-            getParam<std::vector<SubdomainName>>("block");
-        _problem->addMaterial("GenericRateConstant",
-                              "reaction_" + getParam<std::vector<SubdomainName>>("block")[0] + "_" +
-                                  std::to_string(i) + std::to_string(i),
-                              params);
+        addConstantRateCoefficient(i);
       }
       else if (_rate_type[i] == "Equation")
       {
-        // For equations, we need to use DerivativeParsedMaterial
-        // This will allow the derivative of the coefficient to be taken w.r.t
-        // nonlinear variables, which will contribute to the Jacobian.
-        InputParameters params = _factory.getValidParams("DerivativeParsedMaterial");
-        // params.set<std::string>("f_name") = _reaction_coefficient_name[i];
-        params.set<std::string>("f_name") = "k_" + _reaction[i];
-        params.set<std::vector<VariableName>>("args") =
-            getParam<std::vector<VariableName>>("equation_variables");
-        params.set<std::vector<std::string>>("constant_names") =
-            getParam<std::vector<std::string>>("equation_constants");
-        params.set<std::vector<std::string>>("constant_expressions") =
-            getParam<std::vector<std::string>>("equation_values");
-        params.set<std::string>("function") = _rate_equation_string[i];
-        params.set<unsigned int>("derivative_order") = 2;
-        params.set<std::vector<SubdomainName>>("block") =
-            getParam<std::vector<SubdomainName>>("block");
-        _problem->addMaterial("DerivativeParsedMaterial",
-                              "reaction_" + std::to_string(i) + std::to_string(i),
-                              params);
+        addFunctionRateCoefficient(i);
       }
       else if (_superelastic_reaction[i] == true)
       {
-        // first we need to figure out which participants exist, and pass only
-        // those stoichiometric coefficients and names.
-        std::vector<std::string> active_participants;
-
-        for (unsigned int k = 0; k < _reactants[i].size(); ++k)
-        {
-          active_participants.push_back(_reactants[i][k]);
-        }
-        for (unsigned int k = 0; k < _products[i].size(); ++k)
-        {
-          active_participants.push_back(_products[i][k]);
-        }
-        sort(active_participants.begin(), active_participants.end());
-        std::vector<std::string>::iterator it;
-        it = std::unique(active_participants.begin(), active_participants.end());
-        active_participants.resize(std::distance(active_participants.begin(), it));
-
-        // Now we find the correct index to obtain the necessary stoichiometric values
-        std::vector<std::string>::iterator iter;
-        std::vector<Real> active_constants;
-        for (unsigned int k = 0; k < active_participants.size(); ++k)
-        {
-          iter =
-              std::find(_all_participants.begin(), _all_participants.end(), active_participants[k]);
-          active_constants.push_back(
-              _stoichiometric_coeff[i][std::distance(_all_participants.begin(), iter)]);
-        }
-
-        InputParameters params = _factory.getValidParams("SuperelasticReactionRate");
-        params.set<std::string>("reaction") = _reaction[i];
-        params.set<std::string>("original_reaction") = _reaction[_superelastic_index[i]];
-        params.set<std::vector<Real>>("stoichiometric_coeff") = active_constants;
-        params.set<std::vector<std::string>>("participants") = active_participants;
-        params.set<std::string>("file_location") = "PolynomialCoefficients";
-        params.set<std::vector<SubdomainName>>("block") =
-            getParam<std::vector<SubdomainName>>("block");
-        _problem->addMaterial("SuperelasticReactionRate",
-                              "reaction_" + std::to_string(i) + std::to_string(i),
-                              params);
+        mooseError("Superelastic reactions not supported yet!");
+        addSuperelasticRateCoefficient(i);
       }
       // Now we check for reactions that include a change of energy.
       // Will this require  its own material?
@@ -408,19 +252,17 @@ Zapdos2::act()
       if (_coefficient_format == "townsend" && _rate_type[i] == "EEDF")
       {
         energy_kernel_name += "Townsend";
-        // product_kernel_name = "ElectronImpactReactionProduct";
-        // reactant_kernel_name = "ElectronImpactReactionReactant";
 
-        product_kernel_name = "ADEEDFRxnProd";
-        reactant_kernel_name = "ADEEDFRxnReac";
-        // if (getParam<bool>("track_electron_energy") == true)
-        // {
-        //   if (_coefficient_format == "townsend")
-        //   {
-        //     product_kernel_name = "ElectronImpactReactionProduct";
-        //     reactant_kernel_name = "ElectronImpactReactionReactant";
-        //   }
-        // }
+        if (_use_ad)
+        {
+          product_kernel_name = "ADEEDFRxnProd";
+          reactant_kernel_name = "ADEEDFRxnReac";
+        }
+        else
+        {
+          product_kernel_name = "ElectronImpactReactionProduct";
+          reactant_kernel_name = "ElectronImpactReactionReactant";
+        }
       }
       // else if (_coefficient_format == "rate")
 
@@ -490,92 +332,7 @@ Zapdos2::act()
 
           if (_rate_type[i] == "EEDF")
           {
-            for (unsigned int k = 0; k < _reactants[i].size(); ++k)
-            {
-              if (_reactants[i][k] == "em")
-                continue;
-              else
-                non_electron_index = k;
-            }
-            // Check if value is tracked, and if so, add as coupled variable.
-            find_other =
-                std::find(_species.begin(), _species.end(), _reactants[i][non_electron_index]) !=
-                _species.end();
-            find_aux = std::find(_aux_species.begin(),
-                                 _aux_species.end(),
-                                 _reactants[i][non_electron_index]) != _aux_species.end();
-            if (_elastic_collision[i])
-            {
-              // First we find the correct target species to add (need species mass for elastic
-              // energy change calculation)
-              InputParameters params = _factory.getADValidParams(energy_kernel_name);
-              // params.set<NonlinearVariableName>("variable") = _electron_energy[0];
-              params.set<NonlinearVariableName>("variable") = _energy_variable[t];
-              params.set<std::string>("reaction") = _reaction[i];
-              if (_coefficient_format == "townsend")
-                params.set<std::vector<VariableName>>("potential") =
-                    getParam<std::vector<VariableName>>("potential");
-              params.set<std::vector<VariableName>>("electron_species") = {
-                  getParam<std::string>("electron_density")};
-              if (find_other || find_aux)
-              {
-                params.set<std::vector<VariableName>>("target_species") = {
-                    _reactants[i][non_electron_index]};
-              }
-              params.set<Real>("position_units") = _r_units;
-              params.set<std::vector<SubdomainName>>("block") =
-                  getParam<std::vector<SubdomainName>>("block");
-              _problem->addADKernel(energy_kernel_name,
-                                    "elastic_kernel" + std::to_string(i) + "_" + _reaction[i],
-                                    params);
-            }
-            else
-            {
-              InputParameters params = _factory.getADValidParams(energy_kernel_name);
-              params.set<NonlinearVariableName>("variable") = {_electron_energy[0]};
-              if (_coefficient_format == "townsend")
-              {
-                params.set<std::vector<VariableName>>("em") = {"em"};
-                params.set<std::vector<VariableName>>("potential") =
-                    getParam<std::vector<VariableName>>("potential");
-                if (find_other)
-                {
-                  params.set<std::vector<VariableName>>("target") = {
-                      _reactants[i][non_electron_index]};
-                }
-              }
-              else
-              {
-                /*
-                std::string tempvar;
-                for (unsigned int val = 0; val < _reactants[i].size(); ++val)
-                {
-                  if (val == 0)
-                    tempvar = "v";
-                  else if (val == 1)
-                    tempvar = "w";
-                  else if (val == 2)
-                    tempvar = "x";
-                  else
-                    tempvar = "y";
-                  params.set<std::vector<VariableName>>(tempvar) = {_reactants[i][val]};
-                }
-                */
-                // If rate format, the target species is needed.
-                params.set<std::vector<VariableName>>("em") = {"em"};
-                if (find_other || find_aux)
-                  params.set<std::vector<VariableName>>("v") = {_reactants[i][non_electron_index]};
-              }
-              // params.set<std::vector<VariableName>>("v") = {"Ar"};
-              params.set<std::string>("reaction") = _reaction[i];
-              params.set<Real>("threshold_energy") = energy_sign * _threshold_energy[i];
-              params.set<Real>("position_units") = _r_units;
-              params.set<std::vector<SubdomainName>>("block") =
-                  getParam<std::vector<SubdomainName>>("block");
-              _problem->addADKernel(energy_kernel_name,
-                                    "energy_kernel" + std::to_string(i) + "_" + _reaction[i],
-                                    params);
-            }
+            addEEDFEnergy(i);
           }
           else if (_rate_type[i] != "EEDF")
           {
@@ -617,7 +374,6 @@ Zapdos2::act()
 
       for (MooseIndex(_species) j = 0; j < _species.size(); ++j)
       {
-        addEEDFKernel();
         iter = std::find(_reactants[i].begin(), _reactants[i].end(), _species[j]);
         index = std::distance(_reactants[i].begin(), iter);
 
@@ -770,6 +526,8 @@ Zapdos2::act()
           {
             if (_coefficient_format == "townsend" && _rate_type[i] == "EEDF")
             {
+              addEEDFKernel(i, j, product_kernel_name);
+              /*
               // InputParameters params = _factory.getADValidParams(product_kernel_name);
               auto params = _factory.getValidParams(product_kernel_name + "<RESIDUAL>");
               params.set<NonlinearVariableName>("variable") = _species[j];
@@ -784,6 +542,7 @@ Zapdos2::act()
               params.set<std::string>("reaction_coefficient_name") = _reaction_coefficient_name[i];
               params.set<std::vector<SubdomainName>>("block") =
                   getParam<std::vector<SubdomainName>>("block");
+                  */
               /*
               if (find_other)
               {
@@ -796,6 +555,7 @@ Zapdos2::act()
                                   "kernel_prod" + std::to_string(j) + "_" + _reaction[i],
                                   params);
               */
+              /*
               _problem->addKernel(product_kernel_name + "<RESIDUAL>",
                                   "kernel_prod" + std::to_string(i) + std::to_string(j) +
                                       "_residual",
@@ -805,6 +565,7 @@ Zapdos2::act()
                                       "_jacobian" + _reaction[i],
                                   params);
               _problem->haveADObjects(true);
+              */
             }
             // else if (_coefficient_format == "rate")
             else if (_coefficient_format == "rate" && _rate_type[i] == "EEDF")
@@ -893,41 +654,280 @@ Zapdos2::act()
 }
 
 void
-Zapdos2::addEEDFKernel()
+Zapdos2::addEEDFKernel(const unsigned & reaction_num,
+                       const unsigned & species_num,
+                       const std::string & kernel_name)
 {
-  std::cout << _use_ad << std::endl;
-  /*
-  auto params = _factory.getValidParams(product_kernel_name + "<RESIDUAL>");
-  params.set<NonlinearVariableName>("variable") = _species[j];
+  auto params = _factory.getValidParams(kernel_name + _ad_append);
+  params.set<NonlinearVariableName>("variable") = _species[species_num];
   params.set<std::vector<VariableName>>("mean_en") = {_electron_energy[0]};
+
+  params.set<std::vector<VariableName>>("em") = {getParam<std::string>("electron_density")};
+  params.set<Real>("position_units") = _r_units;
+  params.set<std::string>("reaction") = _reaction[reaction_num];
+  params.set<std::string>("reaction_coefficient_name") = _reaction_coefficient_name[reaction_num];
+  params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
+
+  // For townsend coefficients, potential variable is needed to compute electron flux
   if (_coefficient_format == "townsend")
     params.set<std::vector<VariableName>>("potential") =
         getParam<std::vector<VariableName>>("potential");
-  params.set<std::vector<VariableName>>("em") = {getParam<std::string>("electron_density")};
-  params.set<Real>("position_units") = _r_units;
-  params.set<std::string>("reaction") = _reaction[i];
-  params.set<std::string>("reaction_coefficient_name") = _reaction_coefficient_name[i];
+
+  if (_use_ad)
+  {
+    _problem->addKernel(kernel_name + "<RESIDUAL>",
+                        "kernel_eedf_" + getParam<std::vector<SubdomainName>>("block")[0] +
+                            std::to_string(reaction_num) + std::to_string(species_num) +
+                            "_residual",
+                        params);
+    _problem->addKernel(kernel_name + "<JACOBIAN>",
+                        "kernel_eedf_" + getParam<std::vector<SubdomainName>>("block")[0] +
+                            std::to_string(reaction_num) + std::to_string(species_num) +
+                            "_jacobian",
+                        params);
+    _problem->haveADObjects(true);
+  }
+  else
+  {
+    /*
+    if (find_other)
+    {
+      params.set<std::vector<VariableName>>("target") = {_reactants[i][non_electron_index]};
+    }
+    */
+
+    _problem->addKernel(kernel_name,
+                        "kernel_eedf_" + getParam<std::vector<SubdomainName>>("block")[0] +
+                            std::to_string(reaction_num) + std::to_string(species_num),
+                        params);
+  }
+}
+
+void
+Zapdos2::addEEDFCoefficient(const unsigned & reaction_num)
+{
+  std::string material_name = _ad_prepend + "EEDFRateConstant";
+
+  if (_coefficient_format == "townsend")
+  {
+    material_name += "Townsend";
+  }
+  auto params = _factory.getValidParams(material_name + _ad_append);
+  params.set<std::string>("reaction") = _reaction[reaction_num];
+  params.set<std::string>("file_location") = getParam<std::string>("file_location");
+  params.set<Real>("position_units") = getParam<Real>("position_units");
+  params.set<std::vector<VariableName>>("em") = {
+      _reactants[reaction_num][_electron_index[reaction_num]]};
+  params.set<std::vector<VariableName>>("mean_en") = {_electron_energy[0]};
+
+  unsigned int target; // stores index of target species for electron-impact reactions
+  // InputParameters params = _factory.getValidParams("ADEEDFRateConstantTownsend<RESIDUAL>");
+
+  bool target_species_tracked = false;
+  bool target_species_aux = false;
+  for (unsigned int j = 0; j < _species.size(); ++j)
+  {
+    if (_species[j] == getParam<std::string>("electron_density"))
+    {
+      continue;
+    }
+
+    for (unsigned int k = 0; k < _reactants[reaction_num].size(); ++k)
+    {
+      if (_reactants[reaction_num][k] == _species[j])
+      {
+        target_species_tracked = true;
+        target = k;
+        break;
+      }
+    }
+
+    if (target_species_tracked)
+      break;
+  }
+  for (unsigned int j = 0; j < _aux_species.size(); ++j)
+  {
+    for (unsigned int k = 0; k < _reactants[reaction_num].size(); ++k)
+    {
+      if (_reactants[reaction_num][k] == _aux_species[j])
+      {
+        target_species_aux = true;
+        break;
+      }
+    }
+
+    if (target_species_aux)
+      break;
+  }
+  if (target_species_tracked)
+  {
+    params.set<std::vector<VariableName>>("target_species") = {_reactants[reaction_num][target]};
+  }
+  params.set<bool>("is_target_aux") = target_species_aux;
+  params.set<bool>("elastic_collision") = {_elastic_collision[reaction_num]};
+  params.set<FileName>("property_file") = "reaction_" + _reaction[reaction_num] + ".txt";
   params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
 
-  _problem->addKernel(product_kernel_name + "<RESIDUAL>",
-                      "kernel_prod" + std::to_string(i) + std::to_string(j) + "_residual",
-                      params);
-  _problem->addKernel(product_kernel_name + "<JACOBIAN>",
-                      "kernel_prod" + std::to_string(i) + std::to_string(j) + "_jacobian" +
-                          _reaction[i],
-                      params);
-  _problem->haveADObjects(true);
-  */
-  /*
-  if (find_other)
+  if (_use_ad)
   {
-    params.set<std::vector<VariableName>>("target") = {
-        _reactants[i][non_electron_index]};
+    _problem->addADResidualMaterial(material_name + "<RESIDUAL>",
+                                    "reaction_" + getParam<std::vector<SubdomainName>>("block")[0] +
+                                        "_" + std::to_string(reaction_num) + "_residual",
+                                    params);
+    _problem->addADJacobianMaterial(material_name + "<JACOBIAN>",
+                                    "reaction_" + getParam<std::vector<SubdomainName>>("block")[0] +
+                                        "_" + std::to_string(reaction_num) + "_jacobian",
+                                    params);
+    _problem->haveADObjects(true);
   }
-  */
-  /*
-  _problem->addADKernel(product_kernel_name,
-                      "kernel_prod" + std::to_string(j) + "_" + _reaction[i],
-                      params);
-  */
+  else
+  {
+    _problem->addMaterial(material_name,
+                          "reaction_" + getParam<std::vector<SubdomainName>>("block")[0] + "_" +
+                              std::to_string(reaction_num),
+                          params);
+  }
+}
+
+void
+Zapdos2::addConstantRateCoefficient(const unsigned & reaction_num)
+{
+  InputParameters params = _factory.getValidParams("GenericRateConstant");
+  params.set<std::string>("reaction") = _reaction[reaction_num];
+  params.set<Real>("reaction_rate_value") = _rate_coefficient[reaction_num];
+  params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
+  _problem->addMaterial("GenericRateConstant",
+                        "reaction_" + getParam<std::vector<SubdomainName>>("block")[0] + "_" +
+                            std::to_string(reaction_num),
+                        params);
+}
+
+void
+Zapdos2::addFunctionRateCoefficient(const unsigned & reaction_num)
+{
+  InputParameters params = _factory.getValidParams("DerivativeParsedMaterial");
+  params.set<std::string>("f_name") = "k_" + _reaction[reaction_num];
+  params.set<std::vector<VariableName>>("args") =
+      getParam<std::vector<VariableName>>("equation_variables");
+  params.set<std::vector<std::string>>("constant_names") =
+      getParam<std::vector<std::string>>("equation_constants");
+  params.set<std::vector<std::string>>("constant_expressions") =
+      getParam<std::vector<std::string>>("equation_values");
+  params.set<std::string>("function") = _rate_equation_string[reaction_num];
+  params.set<unsigned int>("derivative_order") = 1;
+  params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
+  _problem->addMaterial("DerivativeParsedMaterial",
+                        "reaction_" + getParam<std::vector<SubdomainName>>("block")[0] + "_" +
+                            std::to_string(reaction_num),
+                        params);
+}
+
+void
+Zapdos2::addSuperelasticRateCoefficient(const unsigned & reaction_num)
+{
+
+  // first we need to figure out which participants exist, and pass only
+  // those stoichiometric coefficients and names.
+  std::vector<std::string> active_participants;
+
+  for (unsigned int k = 0; k < _reactants[reaction_num].size(); ++k)
+  {
+    active_participants.push_back(_reactants[reaction_num][k]);
+  }
+  for (unsigned int k = 0; k < _products[reaction_num].size(); ++k)
+  {
+    active_participants.push_back(_products[reaction_num][k]);
+  }
+  sort(active_participants.begin(), active_participants.end());
+  std::vector<std::string>::iterator it;
+  it = std::unique(active_participants.begin(), active_participants.end());
+  active_participants.resize(std::distance(active_participants.begin(), it));
+
+  // Now we find the correct index to obtain the necessary stoichiometric values
+  std::vector<std::string>::iterator iter;
+  std::vector<Real> active_constants;
+  for (unsigned int k = 0; k < active_participants.size(); ++k)
+  {
+    iter = std::find(_all_participants.begin(), _all_participants.end(), active_participants[k]);
+    active_constants.push_back(
+        _stoichiometric_coeff[reaction_num][std::distance(_all_participants.begin(), iter)]);
+  }
+
+  InputParameters params = _factory.getValidParams("SuperelasticReactionRate");
+  params.set<std::string>("reaction") = _reaction[reaction_num];
+  params.set<std::string>("original_reaction") = _reaction[_superelastic_index[reaction_num]];
+  params.set<std::vector<Real>>("stoichiometric_coeff") = active_constants;
+  params.set<std::vector<std::string>>("participants") = active_participants;
+  params.set<std::string>("file_location") = "PolynomialCoefficients";
+  params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
+  _problem->addMaterial("SuperelasticReactionRate",
+                        "reaction_" + getParam<std::vector<SubdomainName>>("block")[0] + "_" +
+                            std::to_string(reaction_num),
+                        params);
+}
+
+// Add energy term from a reaction that uses a rate coefficient computed by EEDF convolution
+void
+Zapdos2::addEEDFEnergy(const unsigned & reaction_num)
+{
+  std::string kernel_name = _ad_prepend + "ElectronEnergyTerm";
+  unsigned int non_electron_index;
+  for (unsigned int k = 0; k < _reactants[reaction_num].size(); ++k)
+  {
+    if (_reactants[reaction_num][k] == "em")
+      continue;
+    else
+      non_electron_index = k;
+  }
+
+  if (_elastic_collision[reaction_num])
+  {
+    kernel_name += "Elastic";
+  }
+
+  if (_coefficient_format == "townsend")
+    kernel_name += "Townsend";
+  InputParameters params = _factory.getValidParams(kernel_name + _ad_append);
+
+  // If this is not an elastic collision, the change in enthalpy needs to be included
+  if (!_elastic_collision[reaction_num])
+    params.set<Real>("threshold_energy") = _threshold_energy[reaction_num];
+
+  params.set<NonlinearVariableName>("variable") = {_electron_energy[0]};
+  params.set<std::vector<VariableName>>("target_species") = {
+      _reactants[reaction_num][non_electron_index]};
+  // params.set<Real>("threshold_energy") = energy_sign * _threshold_energy[reaction_num];
+
+  params.set<std::vector<VariableName>>("target_species") = {
+      _reactants[reaction_num][non_electron_index]};
+  params.set<std::string>("reaction") = _reaction[reaction_num];
+  params.set<Real>("position_units") = _r_units;
+  params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
+
+  if (_coefficient_format == "townsend")
+    params.set<std::vector<VariableName>>("potential") =
+        getParam<std::vector<VariableName>>("potential");
+  else
+    params.set<std::vector<VariableName>>("v") = {_reactants[reaction_num][non_electron_index]};
+
+  params.set<std::vector<VariableName>>("electron_species") = {
+      getParam<std::string>("electron_density")};
+
+  if (_use_ad)
+  {
+    _problem->addKernel(kernel_name + "<RESIDUAL>",
+                        "energy_reaction_" + getParam<std::vector<SubdomainName>>("block")[0] +
+                            "_" + std::to_string(reaction_num) + "_residual",
+                        params);
+    _problem->addKernel(kernel_name + "<JACOBIAN>",
+                        "energy_reaction_" + getParam<std::vector<SubdomainName>>("block")[0] +
+                            "_" + std::to_string(reaction_num) + "_jacobian",
+                        params);
+    _problem->haveADObjects(true);
+  }
+  else
+    _problem->addKernel(kernel_name,
+                        "energy_reaction_" + getParam<std::vector<SubdomainName>>("block")[0] +
+                            "_" + std::to_string(reaction_num),
+                        params);
 }

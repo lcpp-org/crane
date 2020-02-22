@@ -8,12 +8,12 @@ validParams<ElectronEnergyTermTownsend>()
 {
   InputParameters params = validParams<Kernel>();
   params.addCoupledVar("potential", "The potential.");
-  params.addRequiredCoupledVar("em", "The electron density.");
+  params.addRequiredCoupledVar("electron_species", "The electron density.");
   params.addParam<bool>("elastic_collision", false, "If the collision is elastic.");
   params.addRequiredParam<std::string>("reaction", "The reaction that is adding/removing energy.");
   params.addParam<Real>("threshold_energy", 0.0, "Energy required for reaction to take place.");
   params.addRequiredParam<Real>("position_units", "Units of position.");
-  params.addCoupledVar("target",
+  params.addCoupledVar("target_species",
                        "The coupled target. If none, assumed to be background gas from BOLSIG+.");
   return params;
 }
@@ -34,12 +34,12 @@ ElectronEnergyTermTownsend::ElectronEnergyTermTownsend(const InputParameters & p
     _d_muem_d_actual_mean_en(getMaterialProperty<Real>("d_muem_d_actual_mean_en")),
     _d_diffem_d_actual_mean_en(getMaterialProperty<Real>("d_diffem_d_actual_mean_en")),
     _grad_potential(isCoupled("potential") ? coupledGradient("potential") : _grad_zero),
-    _em(coupledValue("em")),
-    _grad_em(coupledGradient("em")),
+    _em(coupledValue("electron_species")),
+    _grad_em(coupledGradient("electron_species")),
     _potential_id(coupled("potential")),
-    _em_id(coupled("em")),
-    _target(isCoupled("target") ? coupledValue("target") : _zero),
-    _target_id(isCoupled("target") ? coupled("target") : 12345678)
+    _em_id(coupled("electron_species")),
+    _target(isCoupled("target_species") ? coupledValue("target_species") : _zero),
+    _target_id(isCoupled("target_species") ? coupled("target_species") : 12345678)
 {
   if (!_elastic && !isParamValid("threshold_energy"))
     mooseError("ElectronEnergyTermTownsend: Elastic collision set to false, but no threshold "

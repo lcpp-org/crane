@@ -34,7 +34,7 @@ ElectronEnergyTermElasticTownsend::ElectronEnergyTermElasticTownsend(
     _diffem(getMaterialProperty<Real>("diffem")),
     _muem(getMaterialProperty<Real>("muem")),
     _alpha(getMaterialProperty<Real>("alpha_" + getParam<std::string>("reaction"))),
-    _d_iz_d_actual_mean_en(getMaterialProperty<Real>("d_iz_d_actual_mean_en")),
+    //_d_iz_d_actual_mean_en(getMaterialProperty<Real>("d_iz_d_actual_mean_en")),
     _d_muem_d_actual_mean_en(getMaterialProperty<Real>("d_muem_d_actual_mean_en")),
     _d_diffem_d_actual_mean_en(getMaterialProperty<Real>("d_diffem_d_actual_mean_en")),
     //    _massem(getMaterialProperty<Real>("mass" + (*getVar("electron_species",0)).name())),

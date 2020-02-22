@@ -203,7 +203,8 @@ AddZapdosReactions::act()
         // Superelastic reactions need to have their constants calculated separately.
         // Coefficient format chooses which specific material to apply.
         Real position_units = getParam<Real>("position_units");
-        InputParameters params = _factory.getValidParams("ADEEDFRateConstantTownsend<RESIDUAL>");
+        InputParameters params = _factory.getValidParams("EEDFRateConstantTownsend");
+        // InputParameters params = _factory.getValidParams("ADEEDFRateConstantTownsend<RESIDUAL>");
         params.set<std::string>("reaction") = _reaction[i];
         params.set<std::string>("file_location") = getParam<std::string>("file_location");
         params.set<Real>("position_units") = position_units;
@@ -267,10 +268,11 @@ AddZapdosReactions::act()
         params.set<FileName>("property_file") = "reaction_" + _reaction[i] + ".txt";
         params.set<std::vector<SubdomainName>>("block") =
             getParam<std::vector<SubdomainName>>("block");
-        //_problem->addMaterial("ADEEDFRateConstantTownsend",
-        //                      "reaction_" + std::to_string(i) + std::to_string(i) + "_" +
-        //                          getParam<std::vector<SubdomainName>>("block")[0],
-        //                      params);
+        _problem->addMaterial("EEDFRateConstantTownsend",
+                              "reaction_" + std::to_string(i) + std::to_string(i) + "_" +
+                                  getParam<std::vector<SubdomainName>>("block")[0],
+                              params);
+        /*
         _problem->addADResidualMaterial("ADEEDFRateConstantTownsend<RESIDUAL>",
                                         "reaction_" + std::to_string(i) + std::to_string(i) + "_" +
                                             getParam<std::vector<SubdomainName>>("block")[0] +
@@ -282,6 +284,7 @@ AddZapdosReactions::act()
                                             "_jacobian",
                                         params);
         _problem->haveADObjects(true);
+        */
       }
       else if (_rate_type[i] == "EEDF" && _coefficient_format == "rate")
       // else if (_rate_type[i] )
@@ -400,7 +403,8 @@ AddZapdosReactions::act()
     std::vector<std::string>::iterator iter_aux;
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
-      energy_kernel_name = "ADElectronEnergyTerm";
+      // energy_kernel_name = "ADElectronEnergyTerm";
+      energy_kernel_name = "ElectronEnergyTerm";
       if (_elastic_collision[i])
         energy_kernel_name += "Elastic";
       // if (!isnan(_rate_coefficient[i]) || _rate_equation[i] == true || _superelastic_reaction[i]
@@ -408,11 +412,11 @@ AddZapdosReactions::act()
       if (_coefficient_format == "townsend" && _rate_type[i] == "EEDF")
       {
         energy_kernel_name += "Townsend";
-        // product_kernel_name = "ElectronImpactReactionProduct";
-        // reactant_kernel_name = "ElectronImpactReactionReactant";
+        product_kernel_name = "ElectronImpactReactionProduct";
+        reactant_kernel_name = "ElectronImpactReactionReactant";
 
-        product_kernel_name = "ADEEDFRxnProd";
-        reactant_kernel_name = "ADEEDFRxnReac";
+        // product_kernel_name = "ADEEDFRxnProd";
+        // reactant_kernel_name = "ADEEDFRxnReac";
         // if (getParam<bool>("track_electron_energy") == true)
         // {
         //   if (_coefficient_format == "townsend")
@@ -508,7 +512,8 @@ AddZapdosReactions::act()
             {
               // First we find the correct target species to add (need species mass for elastic
               // energy change calculation)
-              InputParameters params = _factory.getADValidParams(energy_kernel_name);
+              InputParameters params = _factory.getValidParams(energy_kernel_name);
+              // InputParameters params = _factory.getADValidParams(energy_kernel_name);
               // params.set<NonlinearVariableName>("variable") = _electron_energy[0];
               params.set<NonlinearVariableName>("variable") = _energy_variable[t];
               params.set<std::string>("reaction") = _reaction[i];
@@ -525,13 +530,17 @@ AddZapdosReactions::act()
               params.set<Real>("position_units") = _r_units;
               params.set<std::vector<SubdomainName>>("block") =
                   getParam<std::vector<SubdomainName>>("block");
-              _problem->addADKernel(energy_kernel_name,
-                                    "elastic_kernel" + std::to_string(i) + "_" + _reaction[i],
-                                    params);
+              _problem->addKernel(energy_kernel_name,
+                                  "elastic_kernel" + std::to_string(i) + "_" + _reaction[i],
+                                  params);
+              //_problem->addADKernel(energy_kernel_name,
+              //                      "elastic_kernel" + std::to_string(i) + "_" + _reaction[i],
+              //                      params);
             }
             else
             {
-              InputParameters params = _factory.getADValidParams(energy_kernel_name);
+              InputParameters params = _factory.getValidParams(energy_kernel_name);
+              //InputParameters params = _factory.getADValidParams(energy_kernel_name);
               params.set<NonlinearVariableName>("variable") = {_electron_energy[0]};
               if (_coefficient_format == "townsend")
               {
@@ -572,9 +581,12 @@ AddZapdosReactions::act()
               params.set<Real>("position_units") = _r_units;
               params.set<std::vector<SubdomainName>>("block") =
                   getParam<std::vector<SubdomainName>>("block");
-              _problem->addADKernel(energy_kernel_name,
+              _problem->addKernel(energy_kernel_name,
                                     "energy_kernel" + std::to_string(i) + "_" + _reaction[i],
                                     params);
+              //_problem->addADKernel(energy_kernel_name,
+              //                      "energy_kernel" + std::to_string(i) + "_" + _reaction[i],
+              //                      params);
             }
           }
           else if (_rate_type[i] != "EEDF")
@@ -769,8 +781,9 @@ AddZapdosReactions::act()
           {
             if (_coefficient_format == "townsend" && _rate_type[i] == "EEDF")
             {
+              InputParameters params = _factory.getValidParams(reactant_kernel_name);
               // InputParameters params = _factory.getADValidParams(product_kernel_name);
-              auto params = _factory.getValidParams(product_kernel_name + "<RESIDUAL>");
+              // auto params = _factory.getValidParams(product_kernel_name + "<RESIDUAL>");
               params.set<NonlinearVariableName>("variable") = _species[j];
               params.set<std::vector<VariableName>>("mean_en") = {_electron_energy[0]};
               if (_coefficient_format == "townsend")
@@ -783,18 +796,15 @@ AddZapdosReactions::act()
               params.set<std::string>("reaction_coefficient_name") = _reaction_coefficient_name[i];
               params.set<std::vector<SubdomainName>>("block") =
                   getParam<std::vector<SubdomainName>>("block");
-              /*
               if (find_other)
               {
                 params.set<std::vector<VariableName>>("target") = {
                     _reactants[i][non_electron_index]};
               }
-              */
-              /*
-              _problem->addADKernel(product_kernel_name,
+              _problem->addKernel(product_kernel_name,
                                   "kernel_prod" + std::to_string(j) + "_" + _reaction[i],
                                   params);
-              */
+              /*
               _problem->addKernel(product_kernel_name + "<RESIDUAL>",
                                   "kernel_prod" + std::to_string(i) + std::to_string(j) +
                                       "_residual",
@@ -804,6 +814,7 @@ AddZapdosReactions::act()
                                       "_jacobian" + _reaction[i],
                                   params);
               _problem->haveADObjects(true);
+              */
             }
             // else if (_coefficient_format == "rate")
             else if (_coefficient_format == "rate" && _rate_type[i] == "EEDF")

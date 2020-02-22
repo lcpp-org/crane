@@ -12,12 +12,12 @@ ADElectronEnergyTermTownsend<compute_stage>::validParams()
 {
   InputParameters params = ADKernel<compute_stage>::validParams();
   params.addCoupledVar("potential", "The potential.");
-  params.addRequiredCoupledVar("em", "The electron density.");
+  params.addRequiredCoupledVar("electron_species", "The electron density.");
   params.addParam<bool>("elastic_collision", false, "If the collision is elastic.");
   params.addRequiredParam<std::string>("reaction", "The reaction that is adding/removing energy.");
   params.addParam<Real>("threshold_energy", 0.0, "Energy required for reaction to take place.");
   params.addRequiredParam<Real>("position_units", "Units of position.");
-  params.addCoupledVar("target",
+  params.addCoupledVar("target_species",
                        "The coupled target. If none, assumed to be background gas from BOLSIG+.");
   params.addClassDescription("Adds the change in enthalpy from a chemical reaction to the electron "
                              "and/or gas temperature equations.");
@@ -34,9 +34,9 @@ ADElectronEnergyTermTownsend<compute_stage>::ADElectronEnergyTermTownsend(
     _muem(getADMaterialProperty<Real>("muem")),
     _alpha(getADMaterialProperty<Real>("alpha_" + getParam<std::string>("reaction"))),
     _grad_potential(adCoupledGradient("potential")),
-    _em(adCoupledValue("em")),
-    _grad_em(adCoupledGradient("em")),
-    _target(adCoupledValue("target"))
+    _em(adCoupledValue("electron_species")),
+    _grad_em(adCoupledGradient("electron_species")),
+    _target(adCoupledValue("target_species"))
 {
 }
 
