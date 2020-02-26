@@ -26,6 +26,12 @@ protected:
   virtual void addFunctionRateCoefficient(const unsigned & reaction_num);
   virtual void addSuperelasticRateCoefficient(const unsigned & reaction_num);
   virtual void addEEDFEnergy(const unsigned & reaction_num);
+  virtual void addRateEnergy(const unsigned & reaction_num);
+  virtual void addRateReactantKernel(const unsigned & reaction_num,
+                             const unsigned & species_num,
+                             const std::string & kernel_name,
+                             const std::vector<int> & indices,
+                             const std::vector<std::string> & variables);
   // virtual void add
 
   std::string _coefficient_format;
