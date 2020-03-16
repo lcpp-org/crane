@@ -45,8 +45,6 @@ validParams<AddGeneralReactions>()
       "The format of the reaction coefficient. Options: rate or townsend.");
   params.addParam<std::vector<VariableName>>(
       "potential", "The electric potential, used for energy-dependent reaction rates.");
-  params.addParam<std::vector<std::string>>(
-      "aux_species", "Auxiliary species that are not included in nonlinear solve.");
   params.addParam<std::vector<SubdomainName>>("block",
                                               "The subdomain that this action applies to.");
   params.addClassDescription(
@@ -57,9 +55,7 @@ validParams<AddGeneralReactions>()
 
 AddGeneralReactions::AddGeneralReactions(InputParameters params)
   : ChemicalReactionsBase(params),
-    _coefficient_format(getParam<std::string>("reaction_coefficient_format")),
-    _aux_species(getParam<std::vector<std::string>>("aux_species"))
-
+    _coefficient_format(getParam<std::string>("reaction_coefficient_format"))
 {
   if (_coefficient_format == "townsend" && !isParamValid("electron_density"))
     mooseError(

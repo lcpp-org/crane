@@ -40,8 +40,6 @@ validParams<AddScalarReactions>()
   MooseEnum orders(AddVariableAction::getNonlinearVariableOrders());
 
   InputParameters params = validParams<ChemicalReactionsBase>();
-  params.addParam<std::vector<std::string>>(
-      "aux_species", "Auxiliary species that are not included in nonlinear solve.");
   params.addParam<std::string>("boltzmann_input_file",
                                "The name of the input file being used for Bolsig+.");
   params.addParam<bool>("output_table",
@@ -81,7 +79,7 @@ validParams<AddScalarReactions>()
 }
 
 AddScalarReactions::AddScalarReactions(InputParameters params)
-  : ChemicalReactionsBase(params), _aux_species(getParam<std::vector<std::string>>("aux_species"))
+  : ChemicalReactionsBase(params)
 // _use_bolsig(getParam<bool>("use_bolsig"))
 {
 }

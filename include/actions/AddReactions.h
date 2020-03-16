@@ -19,6 +19,5 @@ public:
 
 protected:
   std::string _coefficient_format;
-  std::vector<std::string> _aux_species;
 
 };

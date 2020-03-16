@@ -13,42 +13,40 @@
 /****************************************************************/
 #pragma once
 
-#include "Material.h"
+#include "ADMaterial.h"
 /* #include "LinearInterpolation.h" */
-#include "SplineInterpolation.h"
+//#include "SplineInterpolation.h"
+#include "LinearInterpolation.h"
 
-class EEDFRateConstantTownsend;
-
-template <>
-InputParameters validParams<EEDFRateConstantTownsend>();
-
-class EEDFRateConstantTownsend : public Material
+template <ComputeStage compute_stage>
+class ADEEDFRateConstantTownsend : public ADMaterial<compute_stage>
 {
 public:
-  EEDFRateConstantTownsend(const InputParameters & parameters);
+  static InputParameters validParams();
+  ADEEDFRateConstantTownsend(const InputParameters & parameters);
 
 protected:
   virtual void computeQpProperties();
 
-  SplineInterpolation _coefficient_interpolation;
-
+  //SplineInterpolation _coefficient_interpolation;
+  //ADLinearInterpolation _coefficient_interpolation;
+  std::unique_ptr<LinearInterpolation> _coefficient_interpolation;
+  
   Real _r_units;
   std::string _coefficient_format;
-  MaterialProperty<Real> & _townsend_coefficient;
-  MaterialProperty<Real> & _energy_elastic;
-  MaterialProperty<Real> & _d_alpha_d_en;
-  MaterialProperty<unsigned int> & _d_alpha_d_var_id;
-  MaterialProperty<bool> & _target_coupled;
-  bool _is_target_aux;
-  //  const MaterialProperty<Real> & _n_gas;
+  ADMaterialProperty(Real) & _townsend_coefficient;
+  //ADMaterialProperty(Real) & _energy_elastic;
+  //MaterialProperty<bool> & _target_coupled;
+  //bool _is_target_aux;
   const MaterialProperty<Real> & _massIncident;
-  const MaterialProperty<Real> & _massTarget;
+  //const MaterialProperty<Real> & _massTarget;
 
-  const VariableValue & _target_species;
-  // MooseVariable & _ip_var;
-  unsigned int _target_id;
-  const VariableValue & _em;
-  const VariableValue & _mean_en;
+  //const ADVariableValue & _target_species;
+  const ADVariableValue & _em;
+  const ADVariableValue & _mean_en;
 
   bool _elastic_collision;
+  
+  usingMaterialMembers;
+  //using ADMaterial<compute_stage>::_communicator;
 };
