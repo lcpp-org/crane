@@ -44,8 +44,6 @@ validParams<AddReactions>()
       "reaction_coefficient_format",
       "rate",
       "The format of the reaction coefficient. Options: rate or townsend.");
-  params.addParam<std::vector<std::string>>(
-      "aux_species", "Auxiliary species that are not included in nonlinear solve.");
   params.addClassDescription(
       "This Action automatically adds the necessary kernels and materials for a reaction network.");
 
@@ -74,8 +72,7 @@ trim(string & s)
 
 AddReactions::AddReactions(InputParameters params)
   : ChemicalReactionsBase(params),
-    _coefficient_format(getParam<std::string>("reaction_coefficient_format")),
-    _aux_species(getParam<std::vector<std::string>>("aux_species"))
+    _coefficient_format(getParam<std::string>("reaction_coefficient_format"))
 {
   if (_coefficient_format == "townsend" && !isParamValid("electron_density"))
     mooseError(

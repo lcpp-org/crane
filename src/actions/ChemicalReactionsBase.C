@@ -48,13 +48,15 @@ validParams<ChemicalReactionsBase>()
       "Whether or not to use Bolsig+ (or bolos) to compute EEDF rate coefficients.");
   params.addRequiredParam<std::vector<NonlinearVariableName>>(
       "species", "List of (tracked) species included in reactions (both products and reactants)");
+  params.addParam<std::vector<std::string>>(
+      "aux_species", "Auxiliary species that are not included in nonlinear solve.");
   params.addParam<std::vector<Real>>("reaction_coefficient", "The reaction coefficients.");
   params.addParam<bool>(
       "include_electrons", false, "Whether or not electrons are being considered.");
   params.addParam<bool>(
       "use_log", false, "Whether or not to use logarithmic densities. (N = exp(n))");
   params.addParam<bool>(
-      "track_rates", true, "Whether or not to track production rates for each reaction");
+      "track_rates", false, "Whether or not to track production rates for each reaction");
   params.addParam<std::string>("electron_density", "The variable used for density of electrons.");
   params.addParam<std::vector<NonlinearVariableName>>(
       "electron_energy", "Electron energy, used for energy-dependent reaction rates.");
@@ -145,6 +147,11 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     _lumped_species(getParam<std::vector<std::string>>("lumped")),
     _use_ad(getParam<bool>("use_ad"))
 {
+  if (isParamValid("aux_species"))
+    _aux_species = getParam<std::vector<std::string>>("aux_species");
+  else
+    _aux_species.push_back("none");
+
   if (getParam<bool>("lumped_species") && !isParamValid("lumped"))
     mooseError("The lumped_species parameter is set to true, but vector of neutrals (lumped = "
                "'...') is not set.");
@@ -160,7 +167,6 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
       mooseError("The size of num_particles and species is not equal! Each species must have a "
                  "valid particle number in order to accurate check for particle balances.");
   }
-
   std::istringstream iss(_input_reactions);
   std::string token;
   std::string token2;
@@ -177,7 +183,8 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   size_t rxn_identifier_end;
   int counter;
   counter = 0;
-  _eedf_reaction_counter = 0;
+  //_eedf_reaction_counter = 0;
+  //_num_eedf_reactions = 0;
   while (std::getline(iss >> std::ws,
                       token)) // splits by \n character (default) and ignores leading whitespace
   {
@@ -243,15 +250,18 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
       _is_identified.push_back(true);
       _reaction_identifier.push_back(
           token.substr(rxn_identifier_start + 1, rxn_identifier_end - rxn_identifier_start - 1));
-      _eedf_reaction_number.push_back(_eedf_reaction_counter);
-      _eedf_reaction_counter += 1; // Counts the number of EEDF reactions (this is the only instance
-                                   // in which a reaction identifier is used)
+      //_eedf_reaction_number.push_back(_eedf_reaction_counter);
+      //_eedf_reaction_counter += 1; // Counts the number of EEDF reactions (this is the only
+      // instance
+      // in which a reaction identifier is used)
+      //_eedf_reaction_number.push_back(counter);
+      //_num_eedf_reactions += 1;
     }
     else
     {
       _is_identified.push_back(false);
-      // _reaction_identifier.push_back("NONE");
-      _eedf_reaction_number.push_back(123456);
+      _reaction_identifier.push_back("NONE");
+      //_eedf_reaction_number.push_back(123456);
     }
     counter += 1;
   }
@@ -263,6 +273,10 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   _rate_type.resize(_num_reactions);
   _aux_var_name.resize(_num_reactions);
   _reaction_coefficient_name.resize(_num_reactions);
+
+  _num_eedf_reactions = 0;
+  _num_function_reactions = 0;
+  _num_constant_reactions = 0;
   for (unsigned int i = 0; i < _num_reactions; ++i)
   {
     if (threshold_energy_string[i] == "\0")
@@ -284,11 +298,16 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     {
       _rate_coefficient[i] = NAN;
       _rate_type[i] = "EEDF";
+      _eedf_reaction_number.push_back(i);
+      _num_eedf_reactions +=1;
+          
     }
     else if (_rate_equation[i] == true)
     {
       _rate_coefficient[i] = NAN;
       _rate_type[i] = "Equation";
+      _function_reaction_number.push_back(i);
+      _num_function_reactions += 1;
       // USE THIS CODE TO SEE IF VARIABLE IS CONTAINED WITHIN EQUATION
       //////////
       // if (_rate_equation_string[i].find("Tgas") != std::string::npos)
@@ -328,6 +347,8 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
         throw;
       }
       // _rate_coefficient[i] = std::stod(rate_coefficient_string[i]);
+      _constant_reaction_number.push_back(i);
+      _num_constant_reactions += 1;
       _rate_type[i] = "Constant";
     }
   }
@@ -835,6 +856,22 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
         std::cout << "    " << faulty_reaction[i] << std::endl;
 
       mooseError("Fix unbalanced reactions or particle conservation will not be enforced.");
+    }
+  }
+
+  // Here we check to make sure that there are no aux_variables in the species list.
+  // Only nonlinear variables should be included.
+  for (unsigned int i = 0; i < _species.size(); ++i)
+  {
+    for (unsigned int j = 0; j < _aux_species.size(); ++j)
+    {
+      if (_species[i] == _aux_species[j])
+        mooseError("Species " + Moose::stringify(_species[i]) +
+                   " is included as both a species and aux_species!\nA species can only be either "
+                   "a nonlinear variable or an auxiliary variable, not both. Note that any species "
+                   "included as an aux_species will be treated as an auxiliary variable and will "
+                   "not have any source or sink terms applied to it (though it will be included as "
+                   "a reactant in the source/sink terms of other nonlinear variables.)");
     }
   }
 }

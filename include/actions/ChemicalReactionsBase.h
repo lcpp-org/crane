@@ -18,6 +18,7 @@ public:
 
 protected:
   const std::vector<NonlinearVariableName> _species;
+  std::vector<std::string> _aux_species;
   const std::vector<NonlinearVariableName> _electron_energy;
   const std::vector<NonlinearVariableName> _gas_energy;
   std::string _input_reactions;
@@ -62,6 +63,8 @@ protected:
   std::vector<std::string> _reaction_identifier;
   std::vector<bool> _is_identified;
   std::vector<int> _eedf_reaction_number;
+  std::vector<int> _function_reaction_number;
+  std::vector<int> _constant_reaction_number;
   std::vector<std::string> _reaction_species;
   int _eedf_reaction_counter;
   /// Number of reactions
@@ -76,4 +79,7 @@ protected:
   std::vector<std::string> _lumped_species;
   std::vector<int> num_particles;
   bool _use_ad;
+  unsigned int _num_eedf_reactions;
+  unsigned int _num_function_reactions;
+  unsigned int _num_constant_reactions;
 };

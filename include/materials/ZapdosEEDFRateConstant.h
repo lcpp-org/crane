@@ -37,7 +37,7 @@ protected:
   MaterialProperty<Real> & _reaction_rate;
   MaterialProperty<Real> & _d_k_d_en;
   MaterialProperty<Real> & _energy_elastic;
-  std::string _sampling_format;
+  //std::string _sampling_format;
 
   const MaterialProperty<Real> & _massIncident;
   const MaterialProperty<Real> & _massTarget;

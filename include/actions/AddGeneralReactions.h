@@ -28,7 +28,6 @@ protected:
                                      std::vector<SubdomainName> block);
   //virtual void addReactionCoefficient(const std::string & var_name);
   std::string _coefficient_format;
-  std::vector<std::string> _aux_species;
 };
 
 //#endif // ADDZAPDOSREACTIONS_H

@@ -34,10 +34,8 @@ protected:
 
   Real _r_units;
   std::string _coefficient_format;
-  MaterialProperty<Real> & _reaction_rate;
   MaterialProperty<Real> & _townsend_coefficient;
   MaterialProperty<Real> & _energy_elastic;
-  MaterialProperty<Real> & _d_k_d_en;
   MaterialProperty<Real> & _d_alpha_d_en;
   MaterialProperty<unsigned int> & _d_alpha_d_var_id;
   MaterialProperty<bool> & _target_coupled;

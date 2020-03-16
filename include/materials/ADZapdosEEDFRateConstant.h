@@ -29,19 +29,18 @@ protected:
   virtual void computeQpProperties();
 
   //SplineInterpolation _coefficient_interpolation;
-  ADLinearInterpolation _coefficient_interpolation;
+  //ADLinearInterpolation _coefficient_interpolation;
+  std::unique_ptr<LinearInterpolation> _coefficient_interpolation;
 
   Real _r_units;
-  bool _elastic;
-  ADMaterialProperty(Real) & _reaction_rate;
-  ADMaterialProperty(Real) & _energy_elastic;
-  std::string _sampling_format;
+  //bool _elastic;
+  ADMaterialProperty(Real) & _rate_coefficient;
+  //ADMaterialProperty(Real) & _energy_elastic;
 
-  const MaterialProperty<Real> & _massIncident;
-  const MaterialProperty<Real> & _massTarget;
+  //const MaterialProperty<Real> & _massIncident;
+  //const MaterialProperty<Real> & _massTarget;
   // const MaterialProperty<Real> & _reduced_field;
   const ADVariableValue & _em;
-  const ADVariableValue & _sampler;
   const ADVariableValue & _mean_en;
   
   usingMaterialMembers;

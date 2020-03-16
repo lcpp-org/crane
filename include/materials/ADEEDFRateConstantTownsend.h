@@ -29,23 +29,24 @@ protected:
   virtual void computeQpProperties();
 
   //SplineInterpolation _coefficient_interpolation;
-  ADLinearInterpolation _coefficient_interpolation;
+  //ADLinearInterpolation _coefficient_interpolation;
+  std::unique_ptr<LinearInterpolation> _coefficient_interpolation;
   
   Real _r_units;
   std::string _coefficient_format;
   ADMaterialProperty(Real) & _townsend_coefficient;
-  ADMaterialProperty(Real) & _energy_elastic;
-  MaterialProperty<bool> & _target_coupled;
-  bool _is_target_aux;
+  //ADMaterialProperty(Real) & _energy_elastic;
+  //MaterialProperty<bool> & _target_coupled;
+  //bool _is_target_aux;
   const MaterialProperty<Real> & _massIncident;
-  const MaterialProperty<Real> & _massTarget;
+  //const MaterialProperty<Real> & _massTarget;
 
-  const ADVariableValue & _target_species;
+  //const ADVariableValue & _target_species;
   const ADVariableValue & _em;
   const ADVariableValue & _mean_en;
 
   bool _elastic_collision;
   
   usingMaterialMembers;
-  using ADMaterial<compute_stage>::_communicator;
+  //using ADMaterial<compute_stage>::_communicator;
 };
