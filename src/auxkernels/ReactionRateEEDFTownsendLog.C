@@ -22,9 +22,9 @@ validParams<ReactionRateEEDFTownsendLog>()
 {
   InputParameters params = validParams<AuxKernel>();
 
-  params.addRequiredCoupledVar("mean_en", "The electron mean energy.");
+  params.addRequiredCoupledVar("mean_energy", "The electron mean energy.");
   params.addRequiredCoupledVar("potential", "The potential.");
-  params.addRequiredCoupledVar("em", "The electron density.");
+  params.addRequiredCoupledVar("electrons", "The electron density.");
   params.addCoupledVar("target",
                        "The coupled target. If none, assumed to be background gas from BOLSIG+.");
   params.addRequiredParam<Real>("position_units", "Units of position.");
@@ -43,10 +43,10 @@ ReactionRateEEDFTownsendLog::ReactionRateEEDFTownsendLog(const InputParameters &
     _diffem(getMaterialProperty<Real>("diffem")),
     _muem(getMaterialProperty<Real>("muem")),
     _alpha(getMaterialProperty<Real>(_reaction_coeff_name)),
-    _mean_en(coupledValue("mean_en")),
+    _mean_en(coupledValue("mean_energy")),
     _grad_potential(coupledGradient("potential")),
-    _em(coupledValue("em")),
-    _grad_em(coupledGradient("em")),
+    _em(coupledValue("electrons")),
+    _grad_em(coupledGradient("electrons")),
     _target(coupledValue("target"))
 {
 }

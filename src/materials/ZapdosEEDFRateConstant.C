@@ -14,7 +14,6 @@ validParams<ZapdosEEDFRateConstant>()
   params.addRequiredParam<FileName>(
       "property_file", "The file containing interpolation tables for material properties.");
   params.addRequiredParam<std::string>("reaction", "The full reaction equation.");
-  params.addRequiredParam<Real>("position_units", "The units of position.");
   params.addRequiredParam<std::string>(
       "file_location", "The name of the file that stores the reaction rate tables.");
   params.addCoupledVar("mean_energy", "The electron mean energy in log form.");

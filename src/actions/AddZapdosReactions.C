@@ -499,7 +499,7 @@ AddZapdosReactions::addEEDFEnergy(const unsigned & reaction_num, const std::stri
 
   params.set<std::vector<VariableName>>("target") = {_reactants[reaction_num][non_electron_index]};
   params.set<std::string>("reaction") = _reaction[reaction_num];
-  params.set<Real>("position_units") = _r_units;
+
   params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
   params.set<std::string>("number") = Moose::stringify(reaction_num);
 
