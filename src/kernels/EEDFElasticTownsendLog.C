@@ -18,8 +18,8 @@ validParams<EEDFElasticTownsendLog>()
 {
   InputParameters params = validParams<Kernel>();
   params.addRequiredCoupledVar("potential", "The potential.");
-  params.addRequiredCoupledVar("electron_species", "The electron density.");
-  params.addRequiredCoupledVar("target_species", "The target species variable.");
+  params.addRequiredCoupledVar("electrons", "The electron density.");
+  params.addRequiredCoupledVar("target", "The target species variable.");
   params.addRequiredParam<std::string>("reaction",
                                        "Stores the name of the reaction (townsend) coefficient, "
                                        "unique to each individual reaction.");
@@ -34,29 +34,25 @@ validParams<EEDFElasticTownsendLog>()
   return params;
 }
 
-EEDFElasticTownsendLog::EEDFElasticTownsendLog(
-    const InputParameters & parameters)
+EEDFElasticTownsendLog::EEDFElasticTownsendLog(const InputParameters & parameters)
   : Kernel(parameters),
     _r_units(1. / getParam<Real>("position_units")),
     _diffem(getMaterialProperty<Real>("diffem")),
     _muem(getMaterialProperty<Real>("muem")),
     _alpha(getMaterialProperty<Real>("alpha" + getParam<std::string>("number") + "_" +
                                      getParam<std::string>("reaction"))),
-    //_d_iz_d_actual_mean_en(getMaterialProperty<Real>("d_iz_d_actual_mean_en")),
     _d_muem_d_actual_mean_en(getMaterialProperty<Real>("d_muem_d_actual_mean_en")),
     _d_diffem_d_actual_mean_en(getMaterialProperty<Real>("d_diffem_d_actual_mean_en")),
-    //    _massem(getMaterialProperty<Real>("mass" + (*getVar("electron_species",0)).name())),
-    _massGas(getMaterialProperty<Real>("mass" + (*getVar("target_species", 0)).name())),
-    //_d_el_d_actual_mean_en(getMaterialProperty<Real>("d_el_d_actual_mean_en")),
+    _massGas(getMaterialProperty<Real>("mass" + (*getVar("target", 0)).name())),
     _d_el_d_actual_mean_en(getMaterialProperty<Real>("d_alpha" + getParam<std::string>("number") +
                                                      "_d_en_" + getParam<std::string>("reaction"))),
     _grad_potential(coupledGradient("potential")),
-    _em(coupledValue("electron_species")),
-    _grad_em(coupledGradient("electron_species")),
+    _em(coupledValue("electrons")),
+    _grad_em(coupledGradient("electrons")),
     _potential_id(coupled("potential")),
-    _em_id(coupled("electron_species")),
-    _target(coupledValue("target_species")),
-    _target_id(coupled("target_species"))
+    _em_id(coupled("electrons")),
+    _target(coupledValue("target")),
+    _target_id(coupled("target"))
 {
   _massem = 9.11e-31;
 }
@@ -145,7 +141,8 @@ EEDFElasticTownsendLog::computeQpOffDiagJacobian(unsigned int jvar)
   else if (jvar == _em_id)
     return -_test[_i][_qp] * d_el_term_d_em * std::exp(_target[_qp]);
   else if (jvar == _target_id)
-    return -_test[_i][_qp] * _alpha[_qp] * std::exp(_target[_qp]) * electron_flux_mag * _phi[_j][_qp];
+    return -_test[_i][_qp] * _alpha[_qp] * std::exp(_target[_qp]) * electron_flux_mag *
+           _phi[_j][_qp];
 
   else
     return 0.0;

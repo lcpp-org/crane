@@ -17,11 +17,8 @@ validParams<ZapdosEEDFRateConstant>()
   params.addRequiredParam<Real>("position_units", "The units of position.");
   params.addRequiredParam<std::string>(
       "file_location", "The name of the file that stores the reaction rate tables.");
-  params.addParam<bool>("elastic_collision", false, "If the reaction is elastic (true/false).");
-  params.addCoupledVar("sampler", "The variable used to sample.");
-  params.addCoupledVar("target_species", "The target species in this collision.");
-  params.addCoupledVar("mean_en", "The electron mean energy in log form.");
-  params.addCoupledVar("em", "The electron density.");
+  params.addCoupledVar("mean_energy", "The electron mean energy in log form.");
+  params.addCoupledVar("electrons", "The electron density.");
   params.addParam<std::string>(
       "number",
       "",
@@ -34,23 +31,16 @@ validParams<ZapdosEEDFRateConstant>()
 
 ZapdosEEDFRateConstant::ZapdosEEDFRateConstant(const InputParameters & parameters)
   : Material(parameters),
-    _r_units(1. / getParam<Real>("position_units")),
-    _elastic(getParam<bool>("elastic_collision")),
     _reaction_rate(declareProperty<Real>("k" + getParam<std::string>("number") + "_" +
                                          getParam<std::string>("reaction"))),
     _d_k_d_en(declareProperty<Real>("d_k" + getParam<std::string>("number") + "_d_en_" +
                                     getParam<std::string>("reaction"))),
-    _energy_elastic(declareProperty<Real>("energy_elastic_" + getParam<std::string>("reaction"))),
-    //_sampling_format(getParam<std::string>("sampling_format")),
-    _massIncident(isCoupled("target_species")
-                      ? getMaterialProperty<Real>("mass" + (*getVar("target_species", 0)).name())
-                      : getMaterialProperty<Real>("mass" + (*getVar("em", 0)).name())),
-    _massTarget(getMaterialProperty<Real>("mass" + (*getVar("em", 0)).name())),
-    // _reduced_field(getMaterialProperty<Real>("reduced_field")),
-    _sampler(isCoupled("sampler") ? coupledValue("sampler") : _zero),
-    _em(isCoupled("em") ? coupledValue("em") : _zero),
-    _mean_en(isCoupled("mean_en") ? coupledValue("mean_en") : _zero)
+    _em(isCoupled("electrons") ? coupledValue("electrons") : _zero),
+    _mean_en(isCoupled("mean_energy") ? coupledValue("mean_energy") : _zero)
 {
+  if (!isParamValid("sampler") && !isParamValid("mean_energy"))
+    mooseError("Material ZapdosEEDFRateConstant requires either a sampling variable or the "
+               "electron and mean energy variables to be set!");
   std::vector<Real> val_x;
   std::vector<Real> rate_coefficient;
   std::string file_name =
@@ -79,29 +69,12 @@ ZapdosEEDFRateConstant::ZapdosEEDFRateConstant(const InputParameters & parameter
 void
 ZapdosEEDFRateConstant::computeQpProperties()
 {
+  Real actual_mean_energy = std::exp(_mean_en[_qp] - _em[_qp]);
 
-  if (isCoupled("sampler"))
-  {
-    _reaction_rate[_qp] = _coefficient_interpolation.sample(_sampler[_qp]);
-    _d_k_d_en[_qp] = _coefficient_interpolation.sampleDerivative(_sampler[_qp]);
-  }
-  else
-  {
-    Real actual_mean_energy = std::exp(_mean_en[_qp] - _em[_qp]);
-    _reaction_rate[_qp] = _coefficient_interpolation.sample(actual_mean_energy);
-    _d_k_d_en[_qp] = _coefficient_interpolation.sampleDerivative(actual_mean_energy);
-  }
+  _reaction_rate[_qp] = _coefficient_interpolation.sample(actual_mean_energy);
+
+  _d_k_d_en[_qp] = _coefficient_interpolation.sampleDerivative(actual_mean_energy);
 
   if (_reaction_rate[_qp] < 0.0)
-  {
     _reaction_rate[_qp] = 0.0;
-  }
-
-  if (_elastic)
-  {
-    _energy_elastic[_qp] = -3.0 * (_massIncident[_qp] / _massTarget[_qp]) * 2.0 / 3.0 *
-                           std::exp(_mean_en[_qp] - _em[_qp]);
-  }
-  else
-    _energy_elastic[_qp] = 0.0;
 }

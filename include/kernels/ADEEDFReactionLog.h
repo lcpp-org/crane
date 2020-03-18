@@ -27,8 +27,6 @@ protected:
   virtual ADReal computeQpResidual();
   usingKernelMembers;
 
-  Real _r_units;
-
   const ADMaterialProperty(Real) & _reaction_coeff;
 
   const ADVariableValue & _em;

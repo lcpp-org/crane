@@ -7,11 +7,10 @@ InputParameters
 validParams<EEDFEnergyLog>()
 {
   InputParameters params = validParams<Kernel>();
-  params.addRequiredCoupledVar("electron_species", "The electron density.");
+  params.addRequiredCoupledVar("electrons", "The electron density.");
   params.addRequiredParam<std::string>("reaction", "The reaction that is adding/removing energy.");
   params.addRequiredParam<Real>("threshold_energy", "Energy required for reaction to take place.");
-  params.addRequiredParam<Real>("position_units", "Units of position.");
-  params.addCoupledVar("target_species",
+  params.addCoupledVar("target",
                        "The coupled target. If none, assumed to be background gas from BOLSIG+.");
   params.addParam<std::string>(
       "number",
@@ -25,16 +24,15 @@ validParams<EEDFEnergyLog>()
 
 EEDFEnergyLog::EEDFEnergyLog(const InputParameters & parameters)
   : Kernel(parameters),
-    _r_units(1. / getParam<Real>("position_units")),
     _threshold_energy(getParam<Real>("threshold_energy")),
     _reaction_coeff(getMaterialProperty<Real>("k" + getParam<std::string>("number") + "_" +
-                                     getParam<std::string>("reaction"))),
+                                              getParam<std::string>("reaction"))),
     _d_k_d_actual_mean_en(getMaterialProperty<Real>("d_k" + getParam<std::string>("number") +
-                                                     "_d_en_" + getParam<std::string>("reaction"))),
-    _em(coupledValue("electron_species")),
-    _em_id(coupled("electron_species")),
-    _target(coupledValue("target_species")),
-    _target_id(coupled("target_species"))
+                                                    "_d_en_" + getParam<std::string>("reaction"))),
+    _em(coupledValue("electrons")),
+    _em_id(coupled("electrons")),
+    _target(coupledValue("target")),
+    _target_id(coupled("target"))
 {
 }
 
@@ -43,7 +41,8 @@ EEDFEnergyLog::~EEDFEnergyLog() {}
 Real
 EEDFEnergyLog::computeQpResidual()
 {
-  return -_test[_i][_qp] * _reaction_coeff[_qp] * std::exp(_em[_qp] + _target[_qp]) * _threshold_energy;
+  return -_test[_i][_qp] * _reaction_coeff[_qp] * std::exp(_em[_qp] + _target[_qp]) *
+         _threshold_energy;
 }
 
 Real
@@ -67,7 +66,8 @@ EEDFEnergyLog::computeQpOffDiagJacobian(unsigned int jvar)
   }
   else if (jvar == _target_id)
   {
-    return -_test[_i][_qp] * d_k_d_em * _threshold_energy * std::exp(_em[_qp] + _target[_qp]) * _phi[_j][_qp];
+    return -_test[_i][_qp] * d_k_d_em * _threshold_energy * std::exp(_em[_qp] + _target[_qp]) *
+           _phi[_j][_qp];
   }
   else
     return 0.0;

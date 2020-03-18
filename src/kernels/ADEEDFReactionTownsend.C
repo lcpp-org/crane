@@ -12,7 +12,7 @@ ADEEDFReactionTownsendLog<compute_stage>::validParams()
 {
   InputParameters params = ADKernel<compute_stage>::validParams();
   params.addRequiredCoupledVar("potential", "The potential.");
-  params.addRequiredCoupledVar("em", "The electron density.");
+  params.addRequiredCoupledVar("electrons", "The electron density.");
   params.addRequiredCoupledVar("target",
                                "The (heavy species) target of the electron-impact reaction.");
   params.addRequiredParam<Real>(
@@ -42,10 +42,10 @@ ADEEDFReactionTownsendLog<compute_stage>::ADEEDFReactionTownsendLog(
                                        getParam<std::string>("reaction"))),
     //_mean_en(adCoupledValue("mean_en")),
     _grad_potential(adCoupledGradient("potential")),
-    _em(adCoupledValue("em")),
+    _em(adCoupledValue("electrons")),
     _target(adCoupledValue("target")),
     _coefficient(getParam<Real>("coefficient")),
-    _grad_em(adCoupledGradient("em"))
+    _grad_em(adCoupledGradient("electrons"))
 //_target(isCoupled("target") ? adCoupledValue("target") : _em),
 {
 }

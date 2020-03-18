@@ -36,7 +36,6 @@ protected:
 
   bool _elastic;
   Real _threshold_energy;
-  const MaterialProperty<Real> & _elastic_energy;
   const MaterialProperty<Real> & _diffem;
   const MaterialProperty<Real> & _muem;
   const MaterialProperty<Real> & _alpha;
@@ -51,6 +50,4 @@ protected:
   unsigned int _em_id;
   const VariableValue & _target;
   unsigned int _target_id;
-
-  Real _energy_change;
 };

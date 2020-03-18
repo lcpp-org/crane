@@ -14,14 +14,13 @@ validParams<EEDFRateConstant>()
   params.addRequiredParam<FileName>(
       "property_file", "The file containing interpolation tables for material properties.");
   params.addRequiredParam<std::string>("reaction", "The full reaction equation.");
-  params.addRequiredParam<Real>("position_units", "The units of position.");
   params.addRequiredParam<std::string>(
       "file_location", "The name of the file that stores the reaction rate tables.");
   params.addParam<bool>("elastic_collision", false, "If the reaction is elastic (true/false).");
   params.addCoupledVar("sampler", "The variable used to sample.");
   params.addCoupledVar("target_species", "The target species in this collision.");
-  params.addCoupledVar("mean_en", "The electron mean energy.");
-  params.addRequiredCoupledVar("em", "The electron density.");
+  params.addCoupledVar("mean_energy", "The electron mean energy.");
+  params.addRequiredCoupledVar("electrons", "The electron density.");
   params.addParam<std::string>(
       "number",
       "",
@@ -34,19 +33,12 @@ validParams<EEDFRateConstant>()
 
 EEDFRateConstant::EEDFRateConstant(const InputParameters & parameters)
   : Material(parameters),
-    _r_units(1. / getParam<Real>("position_units")),
-    _elastic(getParam<bool>("elastic_collision")),
     _reaction_rate(declareProperty<Real>("k" + getParam<std::string>("number") + "_" +
                                          getParam<std::string>("reaction"))),
     _d_k_d_en(declareProperty<Real>("d_k_d_en_" + getParam<std::string>("reaction"))),
-    _energy_elastic(declareProperty<Real>("energy_elastic_" + getParam<std::string>("reaction"))),
-    _massIncident(getMaterialProperty<Real>("mass" + (*getVar("em", 0)).name())),
-    _massTarget(isCoupled("target_species")
-                    ? getMaterialProperty<Real>("mass" + (*getVar("target_species", 0)).name())
-                    : getMaterialProperty<Real>("mass" + (*getVar("em", 0)).name())),
     _sampler(isCoupled("sampler") ? coupledValue("sampler") : _zero),
-    _em(isCoupled("em") ? coupledValue("em") : _zero),
-    _mean_en(isCoupled("mean_en") ? coupledValue("mean_en") : _zero)
+    _em(isCoupled("electrons") ? coupledValue("electrons") : _zero),
+    _mean_en(isCoupled("mean_energy") ? coupledValue("mean_energy") : _zero)
 {
   if (!isCoupled("sampler"))
     mooseError("Sampling variable is not coupled! Please input the variable (aux or nonlinear) "
@@ -86,12 +78,4 @@ EEDFRateConstant::computeQpProperties()
   {
     _reaction_rate[_qp] = 0.0;
   }
-
-  if (_elastic)
-  {
-    _energy_elastic[_qp] =
-        -3.0 * (_massIncident[_qp] / _massTarget[_qp]) * 2.0 / 3.0 * _mean_en[_qp];
-  }
-  else
-    _energy_elastic[_qp] = 0.0;
 }

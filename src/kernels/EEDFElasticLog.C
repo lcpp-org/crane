@@ -17,12 +17,11 @@ InputParameters
 validParams<EEDFElasticLog>()
 {
   InputParameters params = validParams<Kernel>();
-  params.addRequiredCoupledVar("electron_species", "The electron density.");
-  params.addRequiredCoupledVar("target_species", "The target species variable.");
+  params.addRequiredCoupledVar("electrons", "The electron density.");
+  params.addRequiredCoupledVar("target", "The target species variable.");
   params.addRequiredParam<std::string>("reaction",
                                        "Stores the name of the reaction (townsend) coefficient, "
                                        "unique to each individual reaction.");
-  params.addRequiredParam<Real>("position_units", "Units of position.");
   params.addParam<std::string>(
       "number",
       "",
@@ -35,16 +34,15 @@ validParams<EEDFElasticLog>()
 
 EEDFElasticLog::EEDFElasticLog(const InputParameters & parameters)
   : Kernel(parameters),
-    _r_units(1. / getParam<Real>("position_units")),
     _reaction_coeff(getMaterialProperty<Real>("k" + getParam<std::string>("number") + "_" +
                                               getParam<std::string>("reaction"))),
-    _massTarget(getMaterialProperty<Real>("mass" + (*getVar("target_species", 0)).name())),
+    _massTarget(getMaterialProperty<Real>("mass" + (*getVar("target", 0)).name())),
     _d_k_d_actual_mean_en(getMaterialProperty<Real>("d_k" + getParam<std::string>("number") +
                                                     "_d_en_" + getParam<std::string>("reaction"))),
-    _em(coupledValue("electron_species")),
-    _em_id(coupled("electron_species")),
-    _target(coupledValue("target_species")),
-    _target_id(coupled("target_species"))
+    _em(coupledValue("electrons")),
+    _em_id(coupled("electrons")),
+    _target(coupledValue("target")),
+    _target_id(coupled("target"))
 {
   _massem = 9.11e-31;
 }

@@ -10,11 +10,10 @@ InputParameters
 validParams<EEDFReactionLog>()
 {
   InputParameters params = validParams<Kernel>();
-  params.addRequiredCoupledVar("mean_en", "The electron mean energy.");
-  params.addRequiredCoupledVar("em", "The electron density.");
+  params.addRequiredCoupledVar("mean_energy", "The electron mean energy.");
+  params.addRequiredCoupledVar("electrons", "The electron density.");
   params.addCoupledVar("target",
                        "The coupled target. If none, assumed to be background gas from BOLSIG+.");
-  params.addRequiredParam<Real>("position_units", "Units of position.");
   params.addRequiredParam<std::string>("reaction", "Stores the full reaction equation.");
   params.addRequiredParam<Real>(
       "coefficient", "The stoichiometric coefficient of this variable. (Gain or loss term.)");
@@ -31,15 +30,14 @@ validParams<EEDFReactionLog>()
 EEDFReactionLog::EEDFReactionLog(const InputParameters & parameters)
   : Kernel(parameters),
 
-    _r_units(1. / getParam<Real>("position_units")),
     _reaction_coeff(getMaterialProperty<Real>("k" + getParam<std::string>("number") + "_" +
                                               getParam<std::string>("reaction"))),
     _d_k_d_actual_mean_en(getMaterialProperty<Real>("d_k" + getParam<std::string>("number") +
                                                     "_d_en_" + getParam<std::string>("reaction"))),
-    _mean_en(coupledValue("mean_en")),
-    _em(coupledValue("em")),
-    _mean_en_id(coupled("mean_en")),
-    _em_id(coupled("em")),
+    _mean_en(coupledValue("mean_energy")),
+    _em(coupledValue("electrons")),
+    _mean_en_id(coupled("mean_energy")),
+    _em_id(coupled("electrons")),
     _target(coupledValue("target")),
     _target_id(coupled("target")),
     _coefficient(getParam<Real>("coefficient"))

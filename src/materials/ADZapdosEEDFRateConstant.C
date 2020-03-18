@@ -14,13 +14,10 @@ ADZapdosEEDFRateConstant<compute_stage>::validParams()
   params.addRequiredParam<FileName>(
       "property_file", "The file containing interpolation tables for material properties.");
   params.addRequiredParam<std::string>("reaction", "The full reaction equation.");
-  params.addRequiredParam<Real>("position_units", "The units of position.");
   params.addRequiredParam<std::string>(
       "file_location", "The name of the file that stores the reaction rate tables.");
-  params.addParam<bool>("elastic_collision", false, "If the reaction is elastic (true/false).");
-  params.addCoupledVar("target_species", "The target species in this collision.");
-  params.addCoupledVar("mean_en", "The electron mean energy in log form.");
-  params.addCoupledVar("em", "The electron density.");
+  params.addCoupledVar("mean_energy", "The electron mean energy in log form.");
+  params.addCoupledVar("electrons", "The electron density.");
   params.addParam<std::string>(
       "number",
       "",
@@ -35,11 +32,10 @@ template <ComputeStage compute_stage>
 ADZapdosEEDFRateConstant<compute_stage>::ADZapdosEEDFRateConstant(
     const InputParameters & parameters)
   : ADMaterial<compute_stage>(parameters),
-    _r_units(1. / getParam<Real>("position_units")),
     _rate_coefficient(declareADProperty<Real>("k" + getParam<std::string>("number") + "_" +
                                               getParam<std::string>("reaction"))),
-    _em(adCoupledValue("em")),
-    _mean_en(isCoupled("mean_en") ? adCoupledValue("mean_en") : _em)
+    _em(adCoupledValue("electrons")),
+    _mean_en(isCoupled("mean_energy") ? adCoupledValue("mean_energy") : _em)
 {
   std::vector<Real> val_x;
   std::vector<Real> rate_coefficient;
@@ -79,7 +75,8 @@ ADZapdosEEDFRateConstant<compute_stage>::computeQpProperties()
 
   if (_rate_coefficient[_qp] < 0.0)
   {
-    _rate_coefficient[_qp] = 0.0;
+    _rate_coefficient[_qp].value() = 0.0;
+    _rate_coefficient[_qp].derivatives() = 0.0;
   }
 }
 
@@ -91,6 +88,5 @@ ADZapdosEEDFRateConstant<RESIDUAL>::computeQpProperties()
   if (_rate_coefficient[_qp] < 0.0)
   {
     _rate_coefficient[_qp] = 0.0;
-    // _d_k_d_en[_qp] = 0.0;
   }
 }

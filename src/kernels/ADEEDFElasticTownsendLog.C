@@ -12,8 +12,8 @@ ADEEDFElasticTownsendLog<compute_stage>::validParams()
 {
   InputParameters params = ADKernel<compute_stage>::validParams();
   params.addRequiredCoupledVar("potential", "The potential.");
-  params.addRequiredCoupledVar("electron_species", "The electron density.");
-  params.addRequiredCoupledVar("target_species", "The target species variable.");
+  params.addRequiredCoupledVar("electrons", "The electron density.");
+  params.addRequiredCoupledVar("target", "The target species variable.");
   params.addRequiredParam<std::string>("reaction",
                                        "Stores the name of the reaction (townsend) coefficient, "
                                        "unique to each individual reaction.");
@@ -37,11 +37,11 @@ ADEEDFElasticTownsendLog<compute_stage>::ADEEDFElasticTownsendLog(
     _muem(getADMaterialProperty<Real>("muem")),
     _alpha(getADMaterialProperty<Real>("alpha" + getParam<std::string>("number") + "_" +
                                        getParam<std::string>("reaction"))),
-    _massGas(getMaterialProperty<Real>("mass" + (*getVar("target_species", 0)).name())),
+    _massGas(getMaterialProperty<Real>("mass" + (*getVar("target", 0)).name())),
     _grad_potential(adCoupledGradient("potential")),
-    _em(adCoupledValue("electron_species")),
-    _target(adCoupledValue("target_species")),
-    _grad_em(adCoupledGradient("electron_species"))
+    _em(adCoupledValue("electrons")),
+    _target(adCoupledValue("target")),
+    _grad_em(adCoupledGradient("electrons"))
 {
   _massem = 9.11e-31;
 }
@@ -56,6 +56,5 @@ ADEEDFElasticTownsendLog<compute_stage>::computeQpResidual()
   ADReal Eel = -3.0 * _massem / _massGas[_qp] * 2.0 / 3. * std::exp(_u[_qp] - _em[_qp]);
   ADReal el_term = _alpha[_qp] * std::exp(_target[_qp]) * electron_flux_mag * Eel;
 
-  // return -_test[_i][_qp] * _alpha[_qp] * electron_flux_mag * Eel;
   return -_test[_i][_qp] * el_term;
 }

@@ -8,12 +8,12 @@ validParams<EEDFEnergyTownsendLog>()
 {
   InputParameters params = validParams<Kernel>();
   params.addCoupledVar("potential", "The potential.");
-  params.addRequiredCoupledVar("electron_species", "The electron density.");
+  params.addRequiredCoupledVar("electrons", "The electron density.");
   params.addParam<bool>("elastic_collision", false, "If the collision is elastic.");
   params.addRequiredParam<std::string>("reaction", "The reaction that is adding/removing energy.");
   params.addParam<Real>("threshold_energy", 0.0, "Energy required for reaction to take place.");
   params.addRequiredParam<Real>("position_units", "Units of position.");
-  params.addCoupledVar("target_species",
+  params.addCoupledVar("target",
                        "The coupled target. If none, assumed to be background gas from BOLSIG+.");
   params.addParam<std::string>(
       "number",
@@ -30,32 +30,25 @@ EEDFEnergyTownsendLog::EEDFEnergyTownsendLog(const InputParameters & parameters)
     _r_units(1. / getParam<Real>("position_units")),
     _elastic(getParam<bool>("elastic_collision")),
     _threshold_energy(getParam<Real>("threshold_energy")),
-    _elastic_energy(
-        getMaterialProperty<Real>("energy_elastic_" + getParam<std::string>("reaction"))),
     _diffem(getMaterialProperty<Real>("diffem")),
     _muem(getMaterialProperty<Real>("muem")),
     _alpha(getMaterialProperty<Real>("alpha" + getParam<std::string>("number") + "_" +
                                      getParam<std::string>("reaction"))),
-    // _d_iz_d_actual_mean_en(getMaterialProperty<Real>("d_alpha_d_en_em + Ar = em + em + Arp")),
     _d_iz_d_actual_mean_en(getMaterialProperty<Real>("d_alpha" + getParam<std::string>("number") +
                                                      "_d_en_" + getParam<std::string>("reaction"))),
     _d_muem_d_actual_mean_en(getMaterialProperty<Real>("d_muem_d_actual_mean_en")),
     _d_diffem_d_actual_mean_en(getMaterialProperty<Real>("d_diffem_d_actual_mean_en")),
     _grad_potential(isCoupled("potential") ? coupledGradient("potential") : _grad_zero),
-    _em(coupledValue("electron_species")),
-    _grad_em(coupledGradient("electron_species")),
+    _em(coupledValue("electrons")),
+    _grad_em(coupledGradient("electrons")),
     _potential_id(coupled("potential")),
-    _em_id(coupled("electron_species")),
-    _target(coupledValue("target_species")),
-    _target_id(coupled("target_species"))
+    _em_id(coupled("electrons")),
+    _target(coupledValue("target")),
+    _target_id(coupled("target"))
 {
   if (!_elastic && !isParamValid("threshold_energy"))
     mooseError("EEDFEnergyTownsendLog: Elastic collision set to false, but no threshold "
                "energy for this reaction is provided!");
-  // else if (_elastic)
-  // _energy_change = _elastic_energy[_qp];
-  // else
-  _energy_change = _threshold_energy;
 }
 
 EEDFEnergyTownsendLog::~EEDFEnergyTownsendLog() {}
@@ -132,7 +125,8 @@ EEDFEnergyTownsendLog::computeQpOffDiagJacobian(unsigned int jvar)
   }
   else if (jvar == _target_id)
   {
-    return -_test[_i][_qp] * _alpha[_qp] * std::exp(_target[_qp]) * electron_flux.norm() * _phi[_j][_qp] * _threshold_energy;
+    return -_test[_i][_qp] * _alpha[_qp] * std::exp(_target[_qp]) * electron_flux.norm() *
+           _phi[_j][_qp] * _threshold_energy;
   }
 
   else
