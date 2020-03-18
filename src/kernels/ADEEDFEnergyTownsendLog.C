@@ -12,12 +12,11 @@ ADEEDFEnergyTownsendLog<compute_stage>::validParams()
 {
   InputParameters params = ADKernel<compute_stage>::validParams();
   params.addCoupledVar("potential", "The potential.");
-  params.addRequiredCoupledVar("electron_species", "The electron density.");
-  params.addParam<bool>("elastic_collision", false, "If the collision is elastic.");
+  params.addRequiredCoupledVar("electrons", "The electron density.");
   params.addRequiredParam<std::string>("reaction", "The reaction that is adding/removing energy.");
-  params.addParam<Real>("threshold_energy", 0.0, "Energy required for reaction to take place.");
+  params.addRequiredParam<Real>("threshold_energy", "Energy required for reaction to take place.");
   params.addRequiredParam<Real>("position_units", "Units of position.");
-  params.addCoupledVar("target_species",
+  params.addCoupledVar("target",
                        "The coupled target. If none, assumed to be background gas from BOLSIG+.");
   params.addClassDescription("Adds the change in enthalpy from a chemical reaction to the electron "
                              "and/or gas temperature equations.");
@@ -32,8 +31,7 @@ ADEEDFEnergyTownsendLog<compute_stage>::validParams()
 }
 
 template <ComputeStage compute_stage>
-ADEEDFEnergyTownsendLog<compute_stage>::ADEEDFEnergyTownsendLog(
-    const InputParameters & parameters)
+ADEEDFEnergyTownsendLog<compute_stage>::ADEEDFEnergyTownsendLog(const InputParameters & parameters)
   : ADKernel<compute_stage>(parameters),
     _r_units(1. / getParam<Real>("position_units")),
     _threshold_energy(getParam<Real>("threshold_energy")),
@@ -42,9 +40,9 @@ ADEEDFEnergyTownsendLog<compute_stage>::ADEEDFEnergyTownsendLog(
     _alpha(getADMaterialProperty<Real>("alpha" + getParam<std::string>("number") + "_" +
                                        getParam<std::string>("reaction"))),
     _grad_potential(adCoupledGradient("potential")),
-    _em(adCoupledValue("electron_species")),
-    _grad_em(adCoupledGradient("electron_species")),
-    _target(adCoupledValue("target_species"))
+    _em(adCoupledValue("electrons")),
+    _grad_em(adCoupledGradient("electrons")),
+    _target(adCoupledValue("target"))
 {
 }
 
@@ -55,7 +53,6 @@ ADEEDFEnergyTownsendLog<compute_stage>::computeQpResidual()
   _electron_flux_mag = (-_muem[_qp] * -_grad_potential[_qp] * _r_units * std::exp(_em[_qp]) -
                         _diffem[_qp] * std::exp(_em[_qp]) * _grad_em[_qp] * _r_units)
                            .norm();
-  // ADReal iz_term = _alpha[_qp] * electron_flux_mag;
 
   return -_test[_i][_qp] * _alpha[_qp] * std::exp(_target[_qp]) * _electron_flux_mag *
          _threshold_energy;

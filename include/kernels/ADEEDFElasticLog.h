@@ -27,7 +27,6 @@ protected:
   virtual ADReal computeQpResidual();
   usingKernelMembers;
 
-  Real _r_units;
   std::string _reaction_coeff_name;
   std::string _reaction_name;
 

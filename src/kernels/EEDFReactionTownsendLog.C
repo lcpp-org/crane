@@ -10,9 +10,9 @@ InputParameters
 validParams<EEDFReactionTownsendLog>()
 {
   InputParameters params = validParams<Kernel>();
-  params.addRequiredCoupledVar("mean_en", "The electron mean energy.");
+  params.addRequiredCoupledVar("mean_energy", "The electron mean energy.");
   params.addRequiredCoupledVar("potential", "The potential.");
-  params.addRequiredCoupledVar("em", "The electron density.");
+  params.addRequiredCoupledVar("electrons", "The electron density.");
   params.addCoupledVar("target",
                        "The coupled target. If none, assumed to be background gas from BOLSIG+.");
   params.addRequiredParam<Real>("position_units", "Units of position.");
@@ -41,13 +41,13 @@ EEDFReactionTownsendLog::EEDFReactionTownsendLog(const InputParameters & paramet
                                                      "_d_en_" + getParam<std::string>("reaction"))),
     _d_muem_d_actual_mean_en(getMaterialProperty<Real>("d_muem_d_actual_mean_en")),
     _d_diffem_d_actual_mean_en(getMaterialProperty<Real>("d_diffem_d_actual_mean_en")),
-    _mean_en(coupledValue("mean_en")),
+    _mean_en(coupledValue("mean_energy")),
     _grad_potential(coupledGradient("potential")),
-    _em(coupledValue("em")),
-    _grad_em(coupledGradient("em")),
-    _mean_en_id(coupled("mean_en")),
+    _em(coupledValue("electrons")),
+    _grad_em(coupledGradient("electrons")),
+    _mean_en_id(coupled("mean_energy")),
     _potential_id(coupled("potential")),
-    _em_id(coupled("em")),
+    _em_id(coupled("electrons")),
     _target(isCoupled("target") ? coupledValue("target") : _zero),
     _target_id(isCoupled("target") ? coupled("target") : 12345678),
     _coefficient(getParam<Real>("coefficient"))
@@ -153,9 +153,9 @@ EEDFReactionTownsendLog::computeQpOffDiagJacobian(unsigned int jvar)
   else if (jvar == _mean_en_id)
     return -_test[_i][_qp] * d_iz_term_d_mean_en * std::exp(_target[_qp]) * _coefficient;
 
-  else if (jvar == _em_id)
+  else if (jvar == _em_id && _var.number() != _em_id)
     return -_test[_i][_qp] * d_iz_term_d_em * std::exp(_target[_qp]) * _coefficient;
-  else if (jvar == _target_id)
+  else if (jvar == _target_id && _var.number() != _target_id)
     return -_test[_i][_qp] * _alpha[_qp] * electron_flux_mag * _phi[_j][_qp] *
            std::exp(_target[_qp]) * _coefficient;
 

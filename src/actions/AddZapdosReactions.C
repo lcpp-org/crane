@@ -321,8 +321,8 @@ AddZapdosReactions::act()
 
 void
 AddZapdosReactions::addAuxRate(const std::string & aux_kernel_name,
-                       const unsigned & reaction_num,
-                       const bool & is_townsend)
+                               const unsigned & reaction_num,
+                               const bool & is_townsend)
 {
 
   auto params = _factory.getValidParams(aux_kernel_name);
@@ -332,11 +332,11 @@ AddZapdosReactions::addAuxRate(const std::string & aux_kernel_name,
     for (unsigned int k = 0; k < _reactants[reaction_num].size(); ++k)
     {
       if (_reactants[reaction_num][k] == getParam<std::string>("electron_density"))
-        params.set<std::vector<VariableName>>("em") = {_reactants[reaction_num][k]};
+        params.set<std::vector<VariableName>>("electrons") = {_reactants[reaction_num][k]};
       else
         params.set<std::vector<VariableName>>("target") = {_reactants[reaction_num][k]};
     }
-    params.set<std::vector<VariableName>>("mean_en") = {_electron_energy[0]};
+    params.set<std::vector<VariableName>>("mean_energy") = {_electron_energy[0]};
     params.set<std::vector<VariableName>>("potential") =
         getParam<std::vector<VariableName>>("potential");
     params.set<std::string>("reaction_coefficient_name") = {"alpha" + std::to_string(reaction_num) +
@@ -363,9 +363,9 @@ AddZapdosReactions::addAuxRate(const std::string & aux_kernel_name,
 
 std::string
 AddZapdosReactions::getElectronImpactKernelName(const unsigned & num_reactants,
-                                        const bool & energy_kernel,
-                                        const bool & elastic_kernel,
-                                        const bool & is_aux)
+                                                const bool & energy_kernel,
+                                                const bool & elastic_kernel,
+                                                const bool & is_aux)
 {
   /*
    * This function only gets kernel names for eedf kernels.
@@ -392,8 +392,8 @@ AddZapdosReactions::getElectronImpactKernelName(const unsigned & num_reactants,
 
 std::string
 AddZapdosReactions::getKernelName(const unsigned & num_reactants,
-                          const bool & energy_kernel,
-                          const bool & is_aux)
+                                  const bool & energy_kernel,
+                                  const bool & is_aux)
 {
   /*
    * This function only gets kernel names for non-eedf kernels.
@@ -419,10 +419,10 @@ AddZapdosReactions::getKernelName(const unsigned & num_reactants,
 
 void
 AddZapdosReactions::addEEDFKernel(const unsigned & reaction_num,
-                          const unsigned & species_num,
-                          const std::string & kernel_name,
-                          const int & electron_index,
-                          const int & target_index)
+                                  const unsigned & species_num,
+                                  const std::string & kernel_name,
+                                  const int & electron_index,
+                                  const int & target_index)
 {
   auto params = _factory.getValidParams(kernel_name + _ad_append);
   params.set<NonlinearVariableName>("variable") = _species[species_num];
@@ -431,9 +431,8 @@ AddZapdosReactions::addEEDFKernel(const unsigned & reaction_num,
   // params.set<std::vector<VariableName>>("mean_en") = {_electron_energy[0]};
 
   // params.set<std::vector<VariableName>>("em") = {getParam<std::string>("electron_density")};
-  params.set<std::vector<VariableName>>("em") = {_reactants[reaction_num][electron_index]};
+  params.set<std::vector<VariableName>>("electrons") = {_reactants[reaction_num][electron_index]};
   params.set<std::vector<VariableName>>("target") = {_reactants[reaction_num][target_index]};
-  params.set<Real>("position_units") = _r_units;
   params.set<std::string>("reaction") = _reaction[reaction_num];
   params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
   params.set<Real>("coefficient") = (Real)_species_count[reaction_num][species_num];
@@ -441,8 +440,11 @@ AddZapdosReactions::addEEDFKernel(const unsigned & reaction_num,
 
   // For townsend coefficients, potential variable is needed to compute electron flux
   if (_coefficient_format == "townsend")
+  {
     params.set<std::vector<VariableName>>("potential") =
         getParam<std::vector<VariableName>>("potential");
+    params.set<Real>("position_units") = _r_units;
+  }
 
   if (_use_ad)
   {
@@ -460,7 +462,7 @@ AddZapdosReactions::addEEDFKernel(const unsigned & reaction_num,
   }
   else
   {
-    params.set<std::vector<VariableName>>("mean_en") = {_electron_energy[0]};
+    params.set<std::vector<VariableName>>("mean_energy") = {_electron_energy[0]};
     _problem->addKernel(kernel_name,
                         "kernel_eedf_" + getParam<std::vector<SubdomainName>>("block")[0] +
                             std::to_string(reaction_num) + "_" + std::to_string(species_num),
@@ -471,12 +473,16 @@ AddZapdosReactions::addEEDFKernel(const unsigned & reaction_num,
 void
 AddZapdosReactions::addEEDFEnergy(const unsigned & reaction_num, const std::string & kernel_name)
 {
-  // std::string kernel_name = _ad_prepend + kernel_name + _townsend_append;
+  /*
+   * Adds kernels for energy changes based on tabulated EEDF rate constants.
+   * Note that this adds both elastic and inelastic collision energy changes.
+   * Currently only applies to electron energy, not gas temperature.
+   */
   unsigned int non_electron_index;
   std::string elastic;
   for (unsigned int k = 0; k < _reactants[reaction_num].size(); ++k)
   {
-    if (_reactants[reaction_num][k] == "em")
+    if (_reactants[reaction_num][k] == getParam<std::string>("electron_density"))
       continue;
     else
       non_electron_index = k;
@@ -489,36 +495,29 @@ AddZapdosReactions::addEEDFEnergy(const unsigned & reaction_num, const std::stri
     params.set<Real>("threshold_energy") = _threshold_energy[reaction_num];
 
   params.set<NonlinearVariableName>("variable") = {_electron_energy[0]};
-  params.set<std::vector<VariableName>>("target_species") = {
-      _reactants[reaction_num][non_electron_index]};
-  // params.set<Real>("threshold_energy") = energy_sign * _threshold_energy[reaction_num];
+  params.set<std::vector<VariableName>>("target") = {_reactants[reaction_num][non_electron_index]};
 
-  params.set<std::vector<VariableName>>("target_species") = {
-      _reactants[reaction_num][non_electron_index]};
+  params.set<std::vector<VariableName>>("target") = {_reactants[reaction_num][non_electron_index]};
   params.set<std::string>("reaction") = _reaction[reaction_num];
   params.set<Real>("position_units") = _r_units;
   params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
   params.set<std::string>("number") = Moose::stringify(reaction_num);
 
   if (_coefficient_format == "townsend")
+  {
+    params.set<Real>("position_units") = _r_units; 
     params.set<std::vector<VariableName>>("potential") =
         getParam<std::vector<VariableName>>("potential");
-  /*
-  else
-    params.set<std::vector<VariableName>>("v") = {_reactants[reaction_num][non_electron_index]};
-  */
+  }
 
-  params.set<std::vector<VariableName>>("electron_species") = {
-      getParam<std::string>("electron_density")};
+  params.set<std::vector<VariableName>>("electrons") = {getParam<std::string>("electron_density")};
 
   if (_use_ad)
   {
-    //_problem->addKernel(_ad_prepend + kernel_name + elastic + "<RESIDUAL>",
     _problem->addKernel(kernel_name + "<RESIDUAL>",
                         "energy_reaction_" + getParam<std::vector<SubdomainName>>("block")[0] +
                             "_" + std::to_string(reaction_num) + "_residual",
                         params);
-    //_problem->addKernel(_ad_prepend + kernel_name + elastic + "<JACOBIAN>",
     _problem->addKernel(kernel_name + "<JACOBIAN>",
                         "energy_reaction_" + getParam<std::vector<SubdomainName>>("block")[0] +
                             "_" + std::to_string(reaction_num) + "_jacobian",
@@ -526,7 +525,6 @@ AddZapdosReactions::addEEDFEnergy(const unsigned & reaction_num, const std::stri
     _problem->haveADObjects(true);
   }
   else
-    //_problem->addKernel(kernel_name + elastic,
     _problem->addKernel(kernel_name,
                         "energy_reaction_" + getParam<std::vector<SubdomainName>>("block")[0] +
                             "_" + std::to_string(reaction_num),
@@ -536,8 +534,6 @@ AddZapdosReactions::addEEDFEnergy(const unsigned & reaction_num, const std::stri
 void
 AddZapdosReactions::addEEDFCoefficient(const unsigned & reaction_num)
 {
-  // This needs to be renamed - townsend coefficient material is identical regardless of whether or
-  // not it's a townsend coefficient The differences occur at the kernel level, not material level
   std::string material_name;
   if (_coefficient_format == "townsend")
     material_name = _ad_prepend + "EEDFRateConstantTownsend";
@@ -547,10 +543,9 @@ AddZapdosReactions::addEEDFCoefficient(const unsigned & reaction_num)
   auto params = _factory.getValidParams(material_name + _ad_append);
   params.set<std::string>("reaction") = _reaction[reaction_num];
   params.set<std::string>("file_location") = getParam<std::string>("file_location");
-  params.set<Real>("position_units") = getParam<Real>("position_units");
-  params.set<std::vector<VariableName>>("em") = {
+  params.set<std::vector<VariableName>>("electrons") = {
       _reactants[reaction_num][_electron_index[reaction_num]]};
-  params.set<std::vector<VariableName>>("mean_en") = {_electron_energy[0]};
+  params.set<std::vector<VariableName>>("mean_energy") = {_electron_energy[0]};
   if (_is_identified[reaction_num])
   {
     params.set<FileName>("property_file") = _reaction_identifier[reaction_num];
@@ -559,11 +554,6 @@ AddZapdosReactions::addEEDFCoefficient(const unsigned & reaction_num)
   {
     params.set<FileName>("property_file") = "reaction_" + _reaction[reaction_num] + ".txt";
   }
-  //params.set<FileName>("property_file") = "reaction_" + _reaction[reaction_num] + ".txt";
-
-  unsigned int target; // stores index of target species for electron-impact reactions
-
-  params.set<bool>("elastic_collision") = {_elastic_collision[reaction_num]};
 
   params.set<std::string>("number") = Moose::stringify(reaction_num);
   params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
@@ -627,7 +617,9 @@ AddZapdosReactions::addFunctionRateCoefficient(const unsigned & reaction_num)
 void
 AddZapdosReactions::addSuperelasticRateCoefficient(const unsigned & reaction_num)
 {
-
+  /*
+   * THIS IS A WORK IN PROGRESS.
+   */
   // first we need to figure out which participants exist, and pass only
   // those stoichiometric coefficients and names.
   std::vector<std::string> active_participants;
@@ -671,9 +663,9 @@ AddZapdosReactions::addSuperelasticRateCoefficient(const unsigned & reaction_num
 
 void
 AddZapdosReactions::addFunctionKernel(const unsigned & reaction_num,
-                              const unsigned & species_num,
-                              const std::string & kernel_name,
-                              const bool & energy_kernel)
+                                      const unsigned & species_num,
+                                      const std::string & kernel_name,
+                                      const bool & energy_kernel)
 {
   // Source and sink terms that are dictated by a parsed function rate coefficient are little tricky
   // to handle, so they require a separate kernel function. As of the writing of this code no
@@ -727,9 +719,9 @@ AddZapdosReactions::addFunctionKernel(const unsigned & reaction_num,
 
 void
 AddZapdosReactions::addConstantKernel(const unsigned & reaction_num,
-                              const unsigned & species_num,
-                              const std::string & kernel_name,
-                              const bool & energy_kernel)
+                                      const unsigned & species_num,
+                                      const std::string & kernel_name,
+                                      const bool & energy_kernel)
 {
   std::string kernel_identifier;
 

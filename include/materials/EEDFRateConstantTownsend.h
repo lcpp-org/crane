@@ -32,23 +32,10 @@ protected:
 
   SplineInterpolation _coefficient_interpolation;
 
-  Real _r_units;
-  std::string _coefficient_format;
   MaterialProperty<Real> & _townsend_coefficient;
-  MaterialProperty<Real> & _energy_elastic;
   MaterialProperty<Real> & _d_alpha_d_en;
   MaterialProperty<unsigned int> & _d_alpha_d_var_id;
-  MaterialProperty<bool> & _target_coupled;
-  bool _is_target_aux;
-  //  const MaterialProperty<Real> & _n_gas;
-  const MaterialProperty<Real> & _massIncident;
-  const MaterialProperty<Real> & _massTarget;
 
-  const VariableValue & _target_species;
-  // MooseVariable & _ip_var;
-  unsigned int _target_id;
   const VariableValue & _em;
   const VariableValue & _mean_en;
-
-  bool _elastic_collision;
 };

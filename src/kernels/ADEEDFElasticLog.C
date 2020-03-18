@@ -11,12 +11,11 @@ InputParameters
 ADEEDFElasticLog<compute_stage>::validParams()
 {
   InputParameters params = ADKernel<compute_stage>::validParams();
-  params.addRequiredCoupledVar("electron_species", "The electron density.");
-  params.addRequiredCoupledVar("target_species", "The target species variable.");
+  params.addRequiredCoupledVar("electrons", "The electron density.");
+  params.addRequiredCoupledVar("target", "The target species variable.");
   params.addRequiredParam<std::string>("reaction",
                                        "Stores the name of the reaction (townsend) coefficient, "
                                        "unique to each individual reaction.");
-  params.addRequiredParam<Real>("position_units", "Units of position.");
   params.addParam<std::string>(
       "number",
       "",
@@ -31,12 +30,11 @@ template <ComputeStage compute_stage>
 ADEEDFElasticLog<compute_stage>::ADEEDFElasticLog(
     const InputParameters & parameters)
   : ADKernel<compute_stage>(parameters),
-    _r_units(1. / getParam<Real>("position_units")),
     _reaction_coefficient(getADMaterialProperty<Real>("k" + getParam<std::string>("number") + "_" +
                                                       getParam<std::string>("reaction"))),
-    _massGas(getMaterialProperty<Real>("mass" + (*getVar("target_species", 0)).name())),
-    _em(adCoupledValue("electron_species")),
-    _target(adCoupledValue("target_species"))
+    _massGas(getMaterialProperty<Real>("mass" + (*getVar("target", 0)).name())),
+    _em(adCoupledValue("electrons")),
+    _target(adCoupledValue("target"))
 {
   _massem = 9.11e-31;
 }
@@ -46,9 +44,6 @@ ADReal
 ADEEDFElasticLog<compute_stage>::computeQpResidual()
 {
   ADReal Eel = -3.0 * _massem / _massGas[_qp] * 2.0 / 3. * std::exp(_u[_qp] - _em[_qp]);
-  // ADReal el_term = _alpha[_qp] * electron_flux_mag * Eel;
 
-  // return -_test[_i][_qp] * _alpha[_qp] * electron_flux_mag * Eel;
-  // return -_test[_i][_qp] * el_term;
   return -_test[_i][_qp] * _reaction_coefficient[_qp] * std::exp(_em[_qp] + _target[_qp]) * Eel;
 }

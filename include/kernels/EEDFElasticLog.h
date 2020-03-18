@@ -28,7 +28,6 @@ protected:
   virtual Real computeQpJacobian();
   virtual Real computeQpOffDiagJacobian(unsigned int jvar);
 
-  Real _r_units;
   std::string _reaction_coeff_name;
   const MaterialProperty<Real> & _reaction_coeff;
   const MaterialProperty<Real> & _massTarget;

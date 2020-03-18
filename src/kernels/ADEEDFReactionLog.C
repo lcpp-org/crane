@@ -11,14 +11,13 @@ InputParameters
 ADEEDFReactionLog<compute_stage>::validParams()
 {
   InputParameters params = ADKernel<compute_stage>::validParams();
-  params.addRequiredCoupledVar("em", "The electron density.");
+  params.addRequiredCoupledVar("electrons", "The electron density.");
   params.addRequiredCoupledVar("target",
                                "The (heavy species) target of the electron-impact reaction.");
   params.addRequiredParam<Real>(
       "coefficient",
       "The number of species consumed or produced in this reaction.\ne.g. e + Ar -> e + e + Arp:\n "
       "coefficient of e is 1, coefficient of Ar is -1, and coefficient of Arp is 1.");
-  params.addRequiredParam<Real>("position_units", "Units of position.");
   params.addRequiredParam<std::string>("reaction", "Stores the full reaction equation.");
   params.addParam<std::string>(
       "number",
@@ -34,10 +33,9 @@ template <ComputeStage compute_stage>
 ADEEDFReactionLog<compute_stage>::ADEEDFReactionLog(
     const InputParameters & parameters)
   : ADKernel<compute_stage>(parameters),
-    _r_units(1. / getParam<Real>("position_units")),
     _reaction_coeff(getADMaterialProperty<Real>("k" + getParam<std::string>("number") + "_" +
                                                 getParam<std::string>("reaction"))),
-    _em(adCoupledValue("em")),
+    _em(adCoupledValue("electrons")),
     _target(adCoupledValue("target")),
     _coefficient(getParam<Real>("coefficient"))
 {
