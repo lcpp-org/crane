@@ -88,7 +88,6 @@ void
 AddScalarReactions::act()
 {
   // Some quick error checks
-  int v_index;
   std::vector<int> other_index;
   std::vector<int> reactant_indices;
 
@@ -463,7 +462,6 @@ AddScalarReactions::act()
               reactant_indices.erase(reactant_indices.begin() + k);
             */
           }
-          v_index = std::abs(index - 1);
           // find_other =
           //    std::find(_species.begin(), _species.end(), _reactants[i][v_index]) !=
           //    _species.end();

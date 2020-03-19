@@ -76,6 +76,7 @@ Real
 Product3BodyScalarLog::computeQpOffDiagJacobian(unsigned int jvar)
 {
   Real power;
+  power = 0.0;
 
   if (_v_coupled && !_v_eq_u && jvar == _v_var)
   {
