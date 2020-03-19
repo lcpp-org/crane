@@ -811,17 +811,17 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     Real p_sum;
     std::vector<std::string> faulty_reaction;
     bool unbalanced = false;
-    bool electron_reaction;
+    //bool electron_reaction;
 
     // charge balance is not yet implemented
     //bool charge_balance = getParam<bool>("charge_balance_check");
 
-    for (auto i = 0; i < _num_reactions; ++i)
+    for (unsigned int i = 0; i < _num_reactions; ++i)
     {
-      electron_reaction = false;
+      //electron_reaction = false;
       r_sum = 0;
       p_sum = 0;
-      for (auto j = 0; j < _reactants[i].size(); ++j)
+      for (unsigned int j = 0; j < _reactants[i].size(); ++j)
       {
         auto iter = std::find(_species.begin(), _species.end(), _reactants[i][j]);
         index = std::distance(_species.begin(), iter);
@@ -829,10 +829,10 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
           continue;
         else
           r_sum += num_particles[index];
-        if (_species[index] == getParam<std::string>("electron_density"))
-          electron_reaction = true;
+        //if (_species[index] == getParam<std::string>("electron_density"))
+        //  electron_reaction = true;
       }
-      for (auto j = 0; j < _products[i].size(); ++j)
+      for (unsigned int j = 0; j < _products[i].size(); ++j)
       {
         auto iter = std::find(_species.begin(), _species.end(), _products[i][j]);
         index = std::distance(_species.begin(), iter);
@@ -840,8 +840,8 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
           continue;
         else
           p_sum += num_particles[index];
-        if (_species[index] == getParam<std::string>("electron_density"))
-          electron_reaction = true;
+        //if (_species[index] == getParam<std::string>("electron_density"))
+        //  electron_reaction = true;
       }
       // if (r_sum != p_sum && !electron_reaction)
       if (r_sum != p_sum)
@@ -853,7 +853,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     if (unbalanced)
     {
       std::cout << "WARNING: The following equations are unbalanced." << std::endl;
-      for (auto i = 0; i < faulty_reaction.size(); ++i)
+      for (unsigned int i = 0; i < faulty_reaction.size(); ++i)
         std::cout << "    " << faulty_reaction[i] << std::endl;
 
       mooseError("Fix unbalanced reactions or particle conservation will not be enforced.");
