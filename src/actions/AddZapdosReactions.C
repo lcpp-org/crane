@@ -180,8 +180,7 @@ AddZapdosReactions::act()
       {
         if (_species_count[_eedf_reaction_number[i]][j] != 0)
         {
-          kernel_name = getElectronImpactKernelName(
-              _reactants[_eedf_reaction_number[i]].size(), false, false, false);
+          kernel_name = getElectronImpactKernelName(false, false, false);
           addEEDFKernel(_eedf_reaction_number[i], j, kernel_name, electron_index, target_index);
           //_ad_prepend + "ElectronImpactReaction" + _townsend_append + _log_append,
         }
@@ -189,10 +188,8 @@ AddZapdosReactions::act()
 
       if (_energy_change[_eedf_reaction_number[i]])
       {
-        kernel_name = getElectronImpactKernelName(_reactants[_eedf_reaction_number[i]].size(),
-                                                  true,
-                                                  _elastic_collision[_eedf_reaction_number[i]],
-                                                  false);
+        kernel_name =
+            getElectronImpactKernelName(true, _elastic_collision[_eedf_reaction_number[i]], false);
         // This will be used to switch between gas temperature and electron temperature
         /*
         if (_electron_energy_term[t])
@@ -362,8 +359,7 @@ AddZapdosReactions::addAuxRate(const std::string & aux_kernel_name,
 }
 
 std::string
-AddZapdosReactions::getElectronImpactKernelName(const unsigned & num_reactants,
-                                                const bool & energy_kernel,
+AddZapdosReactions::getElectronImpactKernelName(const bool & energy_kernel,
                                                 const bool & elastic_kernel,
                                                 const bool & is_aux)
 {
@@ -505,7 +501,7 @@ AddZapdosReactions::addEEDFEnergy(const unsigned & reaction_num, const std::stri
 
   if (_coefficient_format == "townsend")
   {
-    params.set<Real>("position_units") = _r_units; 
+    params.set<Real>("position_units") = _r_units;
     params.set<std::vector<VariableName>>("potential") =
         getParam<std::vector<VariableName>>("potential");
   }

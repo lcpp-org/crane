@@ -47,7 +47,6 @@ Real
 Product3BodyScalar::computeQpJacobian()
 {
   Real power, eq_u_mult, gas_mult;
-  Real rate_constant;
   power = 0.0;
   eq_u_mult = 1.0;
   gas_mult = 1.0;

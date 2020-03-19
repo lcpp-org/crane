@@ -43,8 +43,7 @@ protected:
                                  const bool & energy_kernel);
   virtual std::string
   getKernelName(const unsigned & num_reactants, const bool & energy_kernel, const bool & is_aux);
-  virtual std::string getElectronImpactKernelName(const unsigned & num_reactants,
-                                                  const bool & energy_kernel,
+  virtual std::string getElectronImpactKernelName(const bool & energy_kernel,
                                                   const bool & elastic_kernel,
                                                   const bool & is_aux);
 

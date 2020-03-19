@@ -372,7 +372,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   // superelastic_reactions stores number of superelastic reactions, which will be added to
   // _num_reactions
   int superelastic_reactions = 0;
-  unsigned int lumped_count = 0;
+  //unsigned int lumped_count = 0;
   _reaction_lumped.resize(_num_reactions);
 
   for (unsigned int i = 0; i < _num_reactions; ++i)
@@ -813,7 +813,8 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     bool unbalanced = false;
     bool electron_reaction;
 
-    bool charge_balance = getParam<bool>("charge_balance_check");
+    // charge balance is not yet implemented
+    //bool charge_balance = getParam<bool>("charge_balance_check");
 
     for (auto i = 0; i < _num_reactions; ++i)
     {
