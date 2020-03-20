@@ -27,12 +27,6 @@
 #include "libmesh/fe.h"
 
 registerMooseAction("CraneApp", ChemicalReactionsBase, "add_variable");
-// registerMooseAction("CraneApp", ChemicalReactionsBase, "add_aux_variable");
-// registerMooseAction("CraneApp", ChemicalReactionsBase, "add_aux_scalar_kernel");
-// registerMooseAction("CraneApp", ChemicalReactionsBase, "add_material");
-// registerMooseAction("CraneApp", ChemicalReactionsBase, "add_kernel");
-// registerMooseAction("CraneApp", ChemicalReactionsBase, "add_scalar_kernel");
-// registerMooseAction("CraneApp", ChemicalReactionsBase, "add_function");
 
 template <>
 InputParameters
@@ -114,24 +108,20 @@ validParams<ChemicalReactionsBase>()
   return params;
 }
 
-// Here are a few functions for removing whitespace before/after expressions.
-// (Makes the reaction input formatting more forgiving!)
-// static inline string &ltrim(string &s)
-// {
-//   s.erase(s.begin(),find_if_not(s.begin(),s.end(),[](int c){return isspace(c);}));
-//   return s;
-// }
-//
-// static inline string &rtrim(string &s)
-// {
-//   s.erase(find_if_not(s.rbegin(),s.rend(),[](int c){return isspace(c);}).base(), s.end());
-//   return s;
-// }
-//
-// static inline string trim(string &s)
-// {
-//   return ltrim(rtrim(s));
-// }
+// Function that checks for file existence
+inline bool
+file_exists(const std::string & name)
+{
+  if (FILE * file = fopen(name.c_str(), "r"))
+  {
+    fclose(file);
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
 
 ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   : Action(params),
@@ -181,6 +171,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   size_t eq_end;
   size_t rxn_identifier_start;
   size_t rxn_identifier_end;
+
   int counter;
   counter = 0;
   //_eedf_reaction_counter = 0;
@@ -211,6 +202,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
 
     _reaction.push_back(token.substr(0, pos)); // Stores reactions
 
+    /*
     if (rxn_identifier_start != std::string::npos)
     {
       rate_coefficient_string.push_back(token.substr(pos + 1, rxn_identifier_start - (pos + 1)));
@@ -219,6 +211,11 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     {
       rate_coefficient_string.push_back(token.substr(pos + 1, pos_start - (pos + 1)));
     }
+    */
+    if (rxn_identifier_start < pos_start)
+      rate_coefficient_string.push_back(token.substr(pos + 1, rxn_identifier_start - (pos + 1)));
+    else
+      rate_coefficient_string.push_back(token.substr(pos + 1, pos_start - (pos + 1)));
 
     trim(_reaction[counter]);
     trim(rate_coefficient_string[counter]);
@@ -279,6 +276,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   _num_constant_reactions = 0;
   for (unsigned int i = 0; i < _num_reactions; ++i)
   {
+
     if (threshold_energy_string[i] == "\0")
     {
       _threshold_energy[i] = 0.0;
@@ -299,8 +297,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
       _rate_coefficient[i] = NAN;
       _rate_type[i] = "EEDF";
       _eedf_reaction_number.push_back(i);
-      _num_eedf_reactions +=1;
-          
+      _num_eedf_reactions += 1;
     }
     else if (_rate_equation[i] == true)
     {
@@ -372,7 +369,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
   // superelastic_reactions stores number of superelastic reactions, which will be added to
   // _num_reactions
   int superelastic_reactions = 0;
-  //unsigned int lumped_count = 0;
+  // unsigned int lumped_count = 0;
   _reaction_lumped.resize(_num_reactions);
 
   for (unsigned int i = 0; i < _num_reactions; ++i)
@@ -811,14 +808,14 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     Real p_sum;
     std::vector<std::string> faulty_reaction;
     bool unbalanced = false;
-    //bool electron_reaction;
+    // bool electron_reaction;
 
     // charge balance is not yet implemented
-    //bool charge_balance = getParam<bool>("charge_balance_check");
+    // bool charge_balance = getParam<bool>("charge_balance_check");
 
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
-      //electron_reaction = false;
+      // electron_reaction = false;
       r_sum = 0;
       p_sum = 0;
       for (unsigned int j = 0; j < _reactants[i].size(); ++j)
@@ -829,7 +826,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
           continue;
         else
           r_sum += num_particles[index];
-        //if (_species[index] == getParam<std::string>("electron_density"))
+        // if (_species[index] == getParam<std::string>("electron_density"))
         //  electron_reaction = true;
       }
       for (unsigned int j = 0; j < _products[i].size(); ++j)
@@ -840,7 +837,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
           continue;
         else
           p_sum += num_particles[index];
-        //if (_species[index] == getParam<std::string>("electron_density"))
+        // if (_species[index] == getParam<std::string>("electron_density"))
         //  electron_reaction = true;
       }
       // if (r_sum != p_sum && !electron_reaction)
@@ -873,6 +870,46 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
                    "included as an aux_species will be treated as an auxiliary variable and will "
                    "not have any source or sink terms applied to it (though it will be included as "
                    "a reactant in the source/sink terms of other nonlinear variables.)");
+    }
+  }
+
+  // Last we check for file names. This will be REQUIRED in future versions.
+  // If a file name does not exist, an error is thrown.
+  // txt, csv, and dat files are checked.
+  for (unsigned int i = 0; i < _num_eedf_reactions; ++i)
+  {
+    if (_is_identified[i])
+    {
+      std::string fileloc = getParam<std::string>("file_location") + "/" + _reaction_identifier[i];
+      if (file_exists(fileloc))
+      {
+        continue;
+      }
+
+      if (file_exists(fileloc + ".txt"))
+      {
+        _reaction_identifier[i] += ".txt";
+        continue;
+      }
+
+      if (file_exists(fileloc + ".csv"))
+      {
+        _reaction_identifier[i] += ".csv";
+        continue;
+      }
+
+      if (file_exists(fileloc + ".dat"))
+      {
+        _reaction_identifier[i] += ".dat";
+        continue;
+      }
+
+      // If we've come this far, the file does not exist. Error time.
+      mooseError("File " + fileloc +
+                 " does not exist. \nMake sure the rate coefficient file exists and is spelled "
+                 "correctly in the directory denoted by file_location.\nThe program "
+                 "automatically checks for txt, csv, and dat files.\n(Note that if no "
+                 "file_location parameter is added, the current directory is used.)");
     }
   }
 }
