@@ -79,7 +79,12 @@ protected:
   std::vector<std::string> _lumped_species;
   std::vector<int> num_particles;
   bool _use_ad;
+  const std::string _name;
   unsigned int _num_eedf_reactions;
   unsigned int _num_function_reactions;
   unsigned int _num_constant_reactions;
+
+  bool _mole_factor;
+  Real N_A; 
+  Real _rate_factor;
 };

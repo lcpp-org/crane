@@ -36,6 +36,10 @@ validParams<ChemicalReactionsBase>()
   MooseEnum orders(AddVariableAction::getNonlinearVariableOrders());
 
   InputParameters params = validParams<AddVariableAction>();
+  params.addParam<std::string>("name",
+                               "",
+                               "The name of this reaction list. If multiple reaction blocks are "
+                               "written, use this to supply a unique name to each one.");
   params.addParam<bool>(
       "use_bolsig",
       false,
@@ -102,9 +106,17 @@ validParams<ChemicalReactionsBase>()
                         "Whether or not to use automatic differentiation. Recommended for systems "
                         "that use equation-based rate coefficients, mixture-averaged diffusion, or "
                         "large simulations in general.");
+  params.addParam<bool>("convert_to_moles",
+                        false,
+                        "Multiplies all constant and parsed function rate coefficients by N_A "
+                        "(6.022e23) to convert to a molar rate coefficient. (Note that EEDF rate "
+                        "coefficient units are not affected. Those are up to the user to modify.");
+  params.addParam<Real>("convert_to_meters",
+                        1,
+                        "Multiplies constant and parsed function rate coefficients by "
+                        "convert_to_meters^(n*(n-1)), where `n` is the number of reactants.");
   params.addClassDescription(
       "This Action automatically adds the necessary kernels and materials for a reaction network.");
-
   return params;
 }
 
@@ -135,8 +147,18 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     _track_rates(getParam<bool>("track_rates")),
     _use_bolsig(getParam<bool>("use_bolsig")),
     _lumped_species(getParam<std::vector<std::string>>("lumped")),
-    _use_ad(getParam<bool>("use_ad"))
+    _use_ad(getParam<bool>("use_ad")),
+    _name(getParam<std::string>("name")),
+    _mole_factor(getParam<bool>("convert_to_moles")),
+    _rate_factor(getParam<Real>("convert_to_meters"))
 {
+  // Multiplies rate constants (constant and parsed function based only!) by N_A to convert to mole
+  // rates
+  if (_mole_factor)
+    N_A = 6.022e23;
+  else
+    N_A = 1.0;
+
   if (isParamValid("aux_species"))
     _aux_species = getParam<std::vector<std::string>>("aux_species");
   else
@@ -290,7 +312,8 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     {
       _threshold_energy[i] = std::stod(threshold_energy_string[i]);
     }
-    _aux_var_name[i] = "rate_constant" + std::to_string(i); // Stores name of rate coefficients
+    _aux_var_name[i] =
+        _name + "_rate_constant" + std::to_string(i); // Stores name of rate coefficients
     _reaction_coefficient_name[i] = "rate_constant" + std::to_string(i);
     if (rate_coefficient_string[i] == std::string("EEDF"))
     {
@@ -422,6 +445,20 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
         _products[i].push_back(token);
       }
       counter = counter + 1;
+    }
+    // Here we check to see if the rate coefficients need to be modified in any way
+    // (Options: convert to moles, convert to m^3/s or m^6/s)
+    if (_rate_type[i] == "Equation")
+    {
+      _rate_equation_string[i] +=
+          "*" +
+          Moose::stringify(
+              N_A * std::pow(_rate_factor, (3 * (_reactants[i].size() - 1))));
+    }
+    else if (_rate_type[i] == "Constant")
+    {
+      _rate_coefficient[i] *=
+          N_A * std::pow(_rate_factor, (3 * (_reactants[i].size() - 1)));
     }
 
     // _reaction_lumped is used as a flag in the add_kernel (or add_scalar_kernel) stage. All lumped
