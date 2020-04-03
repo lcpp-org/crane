@@ -272,7 +272,7 @@ AddZapdosReactions::act()
         params.set<MooseEnum>("family") = "MONOMIAL";
         params.set<std::vector<SubdomainName>>("block") =
             getParam<std::vector<SubdomainName>>("block");
-        _problem->addAuxVariable("MooseVariableConstMonomial", "rate" + std::to_string(i), params);
+        _problem->addAuxVariable("MooseVariableConstMonomial", "rate" + std::to_string(i) + "_" + _name, params);
       }
     }
   }
@@ -355,7 +355,7 @@ AddZapdosReactions::addAuxRate(const std::string & aux_kernel_name,
   params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
   params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_END";
   _problem->addAuxKernel(
-      aux_kernel_name, "Calc_Reaction_Rate" + std::to_string(reaction_num), params);
+      aux_kernel_name, "Calc_Reaction_Rate" + std::to_string(reaction_num) + "_" + _name, params);
 }
 
 std::string
@@ -445,13 +445,13 @@ AddZapdosReactions::addEEDFKernel(const unsigned & reaction_num,
   if (_use_ad)
   {
     _problem->addKernel(kernel_name + "<RESIDUAL>",
-                        "kernel_eedf_" + getParam<std::vector<SubdomainName>>("block")[0] +
-                            std::to_string(reaction_num) + std::to_string(species_num) +
+                        "kernel_eedf_" + getParam<std::vector<SubdomainName>>("block")[0] + "_" +
+                            std::to_string(reaction_num) + "_" + std::to_string(species_num) + "_" + _name +
                             "_residual",
                         params);
     _problem->addKernel(kernel_name + "<JACOBIAN>",
-                        "kernel_eedf_" + getParam<std::vector<SubdomainName>>("block")[0] +
-                            std::to_string(reaction_num) + std::to_string(species_num) +
+                        "kernel_eedf_" + getParam<std::vector<SubdomainName>>("block")[0] + "_" +
+                            std::to_string(reaction_num) + "_" + std::to_string(species_num) + "_" + _name +
                             "_jacobian",
                         params);
     _problem->haveADObjects(true);
@@ -460,8 +460,8 @@ AddZapdosReactions::addEEDFKernel(const unsigned & reaction_num,
   {
     params.set<std::vector<VariableName>>("mean_energy") = {_electron_energy[0]};
     _problem->addKernel(kernel_name,
-                        "kernel_eedf_" + getParam<std::vector<SubdomainName>>("block")[0] +
-                            std::to_string(reaction_num) + "_" + std::to_string(species_num),
+                        "kernel_eedf_" + getParam<std::vector<SubdomainName>>("block")[0] + "_" +
+                            std::to_string(reaction_num) + "_" + std::to_string(species_num) + "_" + _name,
                         params);
   }
 }
@@ -512,18 +512,18 @@ AddZapdosReactions::addEEDFEnergy(const unsigned & reaction_num, const std::stri
   {
     _problem->addKernel(kernel_name + "<RESIDUAL>",
                         "energy_reaction_" + getParam<std::vector<SubdomainName>>("block")[0] +
-                            "_" + std::to_string(reaction_num) + "_residual",
+                            "_" + std::to_string(reaction_num) + "_" + _name + "_residual",
                         params);
     _problem->addKernel(kernel_name + "<JACOBIAN>",
                         "energy_reaction_" + getParam<std::vector<SubdomainName>>("block")[0] +
-                            "_" + std::to_string(reaction_num) + "_jacobian",
+                            "_" + std::to_string(reaction_num) + "_" + _name + "_jacobian",
                         params);
     _problem->haveADObjects(true);
   }
   else
     _problem->addKernel(kernel_name,
                         "energy_reaction_" + getParam<std::vector<SubdomainName>>("block")[0] +
-                            "_" + std::to_string(reaction_num),
+                            "_" + std::to_string(reaction_num) + "_" + _name,
                         params);
 }
 
@@ -558,11 +558,11 @@ AddZapdosReactions::addEEDFCoefficient(const unsigned & reaction_num)
   {
     _problem->addADResidualMaterial(material_name + "<RESIDUAL>",
                                     "reaction_" + getParam<std::vector<SubdomainName>>("block")[0] +
-                                        "_" + std::to_string(reaction_num) + "_residual",
+                                        "_" + std::to_string(reaction_num) + "_" + _name + "_residual",
                                     params);
     _problem->addADJacobianMaterial(material_name + "<JACOBIAN>",
                                     "reaction_" + getParam<std::vector<SubdomainName>>("block")[0] +
-                                        "_" + std::to_string(reaction_num) + "_jacobian",
+                                        "_" + std::to_string(reaction_num) + "_" + _name + "_jacobian",
                                     params);
     _problem->haveADObjects(true);
   }
@@ -570,7 +570,7 @@ AddZapdosReactions::addEEDFCoefficient(const unsigned & reaction_num)
   {
     _problem->addMaterial(material_name,
                           "reaction_" + getParam<std::vector<SubdomainName>>("block")[0] + "_" +
-                              std::to_string(reaction_num),
+                              std::to_string(reaction_num) + "_" + _name,
                           params);
   }
 }
@@ -585,7 +585,7 @@ AddZapdosReactions::addConstantRateCoefficient(const unsigned & reaction_num)
   params.set<std::string>("number") = Moose::stringify(reaction_num);
   _problem->addMaterial("GenericRateConstant",
                         "reaction_" + getParam<std::vector<SubdomainName>>("block")[0] + "_" +
-                            std::to_string(reaction_num),
+                            std::to_string(reaction_num) + "_" + _name,
                         params);
 }
 
@@ -606,7 +606,7 @@ AddZapdosReactions::addFunctionRateCoefficient(const unsigned & reaction_num)
   params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
   _problem->addMaterial("DerivativeParsedMaterial",
                         "reaction_" + getParam<std::vector<SubdomainName>>("block")[0] + "_" +
-                            std::to_string(reaction_num),
+                            std::to_string(reaction_num) + "_" + _name,
                         params);
 }
 
@@ -653,7 +653,7 @@ AddZapdosReactions::addSuperelasticRateCoefficient(const unsigned & reaction_num
   params.set<std::string>("number") = Moose::stringify(reaction_num);
   _problem->addMaterial("SuperelasticReactionRate",
                         "reaction_" + getParam<std::vector<SubdomainName>>("block")[0] + "_" +
-                            std::to_string(reaction_num),
+                            std::to_string(reaction_num) + "_" + _name,
                         params);
 }
 
@@ -710,7 +710,7 @@ AddZapdosReactions::addFunctionKernel(const unsigned & reaction_num,
                         std::to_string(reaction_num) + "_" + std::to_string(species_num);
   }
 
-  _problem->addKernel(kernel_name, kernel_identifier, params);
+  _problem->addKernel(kernel_name, kernel_identifier + "_" + _name, params);
 }
 
 void
@@ -756,5 +756,5 @@ AddZapdosReactions::addConstantKernel(const unsigned & reaction_num,
   }
 
   params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
-  _problem->addKernel(kernel_name, kernel_identifier, params);
+  _problem->addKernel(kernel_name, kernel_identifier + "_" + _name, params);
 }
