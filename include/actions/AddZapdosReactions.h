@@ -70,7 +70,6 @@ protected:
   bool _use_ad;
 
   std::string _ad_prepend;
-  std::string _ad_append;
   std::string _townsend_append;
   std::string _log_append;
   std::vector<std::string> _reactant_names;

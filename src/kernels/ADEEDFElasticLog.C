@@ -6,11 +6,10 @@
 
 registerADMooseObject("CraneApp", ADEEDFElasticLog);
 
-template <ComputeStage compute_stage>
 InputParameters
-ADEEDFElasticLog<compute_stage>::validParams()
+ADEEDFElasticLog::validParams()
 {
-  InputParameters params = ADKernel<compute_stage>::validParams();
+  InputParameters params = ADKernel::validParams();
   params.addRequiredCoupledVar("electrons", "The electron density.");
   params.addRequiredCoupledVar("target", "The target species variable.");
   params.addRequiredParam<std::string>("reaction",
@@ -26,10 +25,9 @@ ADEEDFElasticLog<compute_stage>::validParams()
   return params;
 }
 
-template <ComputeStage compute_stage>
-ADEEDFElasticLog<compute_stage>::ADEEDFElasticLog(
+ADEEDFElasticLog::ADEEDFElasticLog(
     const InputParameters & parameters)
-  : ADKernel<compute_stage>(parameters),
+  : ADKernel(parameters),
     _reaction_coefficient(getADMaterialProperty<Real>("k" + getParam<std::string>("number") + "_" +
                                                       getParam<std::string>("reaction"))),
     _massGas(getMaterialProperty<Real>("mass" + (*getVar("target", 0)).name())),
@@ -39,9 +37,8 @@ ADEEDFElasticLog<compute_stage>::ADEEDFElasticLog(
   _massem = 9.11e-31;
 }
 
-template <ComputeStage compute_stage>
 ADReal
-ADEEDFElasticLog<compute_stage>::computeQpResidual()
+ADEEDFElasticLog::computeQpResidual()
 {
   ADReal Eel = -3.0 * _massem / _massGas[_qp] * 2.0 / 3. * std::exp(_u[_qp] - _em[_qp]);
 

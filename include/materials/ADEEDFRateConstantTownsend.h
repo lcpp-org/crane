@@ -18,8 +18,7 @@
 //#include "SplineInterpolation.h"
 #include "LinearInterpolation.h"
 
-template <ComputeStage compute_stage>
-class ADEEDFRateConstantTownsend : public ADMaterial<compute_stage>
+class ADEEDFRateConstantTownsend : public ADMaterial
 {
 public:
   static InputParameters validParams();
@@ -31,10 +30,9 @@ protected:
   std::unique_ptr<LinearInterpolation> _coefficient_interpolation;
   
   std::string _coefficient_format;
-  ADMaterialProperty(Real) & _townsend_coefficient;
+  ADMaterialProperty<Real> & _townsend_coefficient;
   const MaterialProperty<Real> & _massIncident;
   const ADVariableValue & _em;
   const ADVariableValue & _mean_en;
 
-  usingMaterialMembers;
 };

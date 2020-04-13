@@ -6,11 +6,10 @@
 
 registerADMooseObject("CraneApp", ADEEDFElasticTownsendLog);
 
-template <ComputeStage compute_stage>
 InputParameters
-ADEEDFElasticTownsendLog<compute_stage>::validParams()
+ADEEDFElasticTownsendLog::validParams()
 {
-  InputParameters params = ADKernel<compute_stage>::validParams();
+  InputParameters params = ADKernel::validParams();
   params.addRequiredCoupledVar("potential", "The potential.");
   params.addRequiredCoupledVar("electrons", "The electron density.");
   params.addRequiredCoupledVar("target", "The target species variable.");
@@ -28,10 +27,9 @@ ADEEDFElasticTownsendLog<compute_stage>::validParams()
   return params;
 }
 
-template <ComputeStage compute_stage>
-ADEEDFElasticTownsendLog<compute_stage>::ADEEDFElasticTownsendLog(
+ADEEDFElasticTownsendLog::ADEEDFElasticTownsendLog(
     const InputParameters & parameters)
-  : ADKernel<compute_stage>(parameters),
+  : ADKernel(parameters),
     _r_units(1. / getParam<Real>("position_units")),
     _diffem(getADMaterialProperty<Real>("diffem")),
     _muem(getADMaterialProperty<Real>("muem")),
@@ -46,9 +44,8 @@ ADEEDFElasticTownsendLog<compute_stage>::ADEEDFElasticTownsendLog(
   _massem = 9.11e-31;
 }
 
-template <ComputeStage compute_stage>
 ADReal
-ADEEDFElasticTownsendLog<compute_stage>::computeQpResidual()
+ADEEDFElasticTownsendLog::computeQpResidual()
 {
   ADReal electron_flux_mag = (-_muem[_qp] * -_grad_potential[_qp] * _r_units * std::exp(_em[_qp]) -
                               _diffem[_qp] * std::exp(_em[_qp]) * _grad_em[_qp] * _r_units)

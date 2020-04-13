@@ -6,11 +6,10 @@
 
 registerADMooseObject("CraneApp", ADZapdosEEDFRateConstant);
 
-template <ComputeStage compute_stage>
 InputParameters
-ADZapdosEEDFRateConstant<compute_stage>::validParams()
+ADZapdosEEDFRateConstant::validParams()
 {
-  InputParameters params = ADMaterial<compute_stage>::validParams();
+  InputParameters params = ADMaterial::validParams();
   params.addRequiredParam<FileName>(
       "property_file", "The file containing interpolation tables for material properties.");
   params.addRequiredParam<std::string>("reaction", "The full reaction equation.");
@@ -28,10 +27,8 @@ ADZapdosEEDFRateConstant<compute_stage>::validParams()
   return params;
 }
 
-template <ComputeStage compute_stage>
-ADZapdosEEDFRateConstant<compute_stage>::ADZapdosEEDFRateConstant(
-    const InputParameters & parameters)
-  : ADMaterial<compute_stage>(parameters),
+ADZapdosEEDFRateConstant::ADZapdosEEDFRateConstant(const InputParameters & parameters)
+  : ADMaterial(parameters),
     _rate_coefficient(declareADProperty<Real>("k" + getParam<std::string>("number") + "_" +
                                               getParam<std::string>("reaction"))),
     _em(adCoupledValue("electrons")),
@@ -62,9 +59,8 @@ ADZapdosEEDFRateConstant<compute_stage>::ADZapdosEEDFRateConstant(
   _coefficient_interpolation = libmesh_make_unique<LinearInterpolation>(val_x, rate_coefficient);
 }
 
-template <ComputeStage compute_stage>
 void
-ADZapdosEEDFRateConstant<compute_stage>::computeQpProperties()
+ADZapdosEEDFRateConstant::computeQpProperties()
 {
   _rate_coefficient[_qp].value() =
       _coefficient_interpolation->sample(std::exp(_mean_en[_qp].value() - _em[_qp].value()));
@@ -77,16 +73,5 @@ ADZapdosEEDFRateConstant<compute_stage>::computeQpProperties()
   {
     _rate_coefficient[_qp].value() = 0.0;
     _rate_coefficient[_qp].derivatives() = 0.0;
-  }
-}
-
-template <>
-void
-ADZapdosEEDFRateConstant<RESIDUAL>::computeQpProperties()
-{
-  _rate_coefficient[_qp] = _coefficient_interpolation->sample(std::exp(_mean_en[_qp] - _em[_qp]));
-  if (_rate_coefficient[_qp] < 0.0)
-  {
-    _rate_coefficient[_qp] = 0.0;
   }
 }

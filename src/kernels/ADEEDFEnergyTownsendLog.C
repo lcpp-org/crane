@@ -6,11 +6,10 @@
 
 registerADMooseObject("CraneApp", ADEEDFEnergyTownsendLog);
 
-template <ComputeStage compute_stage>
 InputParameters
-ADEEDFEnergyTownsendLog<compute_stage>::validParams()
+ADEEDFEnergyTownsendLog::validParams()
 {
-  InputParameters params = ADKernel<compute_stage>::validParams();
+  InputParameters params = ADKernel::validParams();
   params.addCoupledVar("potential", "The potential.");
   params.addRequiredCoupledVar("electrons", "The electron density.");
   params.addRequiredParam<std::string>("reaction", "The reaction that is adding/removing energy.");
@@ -30,9 +29,8 @@ ADEEDFEnergyTownsendLog<compute_stage>::validParams()
   return params;
 }
 
-template <ComputeStage compute_stage>
-ADEEDFEnergyTownsendLog<compute_stage>::ADEEDFEnergyTownsendLog(const InputParameters & parameters)
-  : ADKernel<compute_stage>(parameters),
+ADEEDFEnergyTownsendLog::ADEEDFEnergyTownsendLog(const InputParameters & parameters)
+  : ADKernel(parameters),
     _r_units(1. / getParam<Real>("position_units")),
     _threshold_energy(getParam<Real>("threshold_energy")),
     _diffem(getADMaterialProperty<Real>("diffem")),
@@ -46,9 +44,8 @@ ADEEDFEnergyTownsendLog<compute_stage>::ADEEDFEnergyTownsendLog(const InputParam
 {
 }
 
-template <ComputeStage compute_stage>
 ADReal
-ADEEDFEnergyTownsendLog<compute_stage>::computeQpResidual()
+ADEEDFEnergyTownsendLog::computeQpResidual()
 {
   _electron_flux_mag = (-_muem[_qp] * -_grad_potential[_qp] * _r_units * std::exp(_em[_qp]) -
                         _diffem[_qp] * std::exp(_em[_qp]) * _grad_em[_qp] * _r_units)

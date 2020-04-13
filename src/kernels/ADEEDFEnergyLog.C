@@ -6,11 +6,10 @@
 
 registerADMooseObject("CraneApp", ADEEDFEnergyLog);
 
-template <ComputeStage compute_stage>
 InputParameters
-ADEEDFEnergyLog<compute_stage>::validParams()
+ADEEDFEnergyLog::validParams()
 {
-  InputParameters params = ADKernel<compute_stage>::validParams();
+  InputParameters params = ADKernel::validParams();
   params.addRequiredCoupledVar("electrons", "The electron density.");
   params.addRequiredCoupledVar("target", "The target species.");
   params.addRequiredParam<Real>("threshold_energy", "Energy required for reaction to take place.");
@@ -25,9 +24,8 @@ ADEEDFEnergyLog<compute_stage>::validParams()
   return params;
 }
 
-template <ComputeStage compute_stage>
-ADEEDFEnergyLog<compute_stage>::ADEEDFEnergyLog(const InputParameters & parameters)
-  : ADKernel<compute_stage>(parameters),
+ADEEDFEnergyLog::ADEEDFEnergyLog(const InputParameters & parameters)
+  : ADKernel(parameters),
     _reaction_name(getParam<std::string>("reaction")),
     _reaction_coefficient(getADMaterialProperty<Real>("k" + getParam<std::string>("number") + "_" +
                                                       getParam<std::string>("reaction"))),
@@ -37,9 +35,8 @@ ADEEDFEnergyLog<compute_stage>::ADEEDFEnergyLog(const InputParameters & paramete
 {
 }
 
-template <ComputeStage compute_stage>
 ADReal
-ADEEDFEnergyLog<compute_stage>::computeQpResidual()
+ADEEDFEnergyLog::computeQpResidual()
 {
   return -_test[_i][_qp] * _reaction_coefficient[_qp] * std::exp(_em[_qp] + _target[_qp]) *
          _threshold_energy;

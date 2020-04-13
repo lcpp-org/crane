@@ -16,8 +16,7 @@
 
 #include "ADKernel.h"
 
-template <ComputeStage compute_stage>
-class ADEEDFReactionLog : public ADKernel<compute_stage>
+class ADEEDFReactionLog : public ADKernel
 {
 public:
   static InputParameters validParams();
@@ -25,9 +24,8 @@ public:
 
 protected:
   virtual ADReal computeQpResidual();
-  usingKernelMembers;
 
-  const ADMaterialProperty(Real) & _reaction_coeff;
+  const ADMaterialProperty<Real> & _reaction_coeff;
 
   const ADVariableValue & _em;
   const ADVariableValue & _target;

@@ -16,8 +16,7 @@
 
 #include "ADKernel.h"
 
-template <ComputeStage compute_stage>
-class ADEEDFEnergyTownsendLog : public ADKernel<compute_stage>
+class ADEEDFEnergyTownsendLog : public ADKernel
 {
 public:
   static InputParameters validParams();
@@ -25,14 +24,13 @@ public:
 
 protected:
   virtual ADReal computeQpResidual();
-  usingKernelMembers;
 
   Real _r_units;
   Real _threshold_energy;
 
-  const ADMaterialProperty(Real) & _diffem;
-  const ADMaterialProperty(Real) & _muem;
-  const ADMaterialProperty(Real) & _alpha;
+  const ADMaterialProperty<Real> & _diffem;
+  const ADMaterialProperty<Real> & _muem;
+  const ADMaterialProperty<Real> & _alpha;
 
   const ADVariableGradient & _grad_potential;
   const ADVariableValue & _em;

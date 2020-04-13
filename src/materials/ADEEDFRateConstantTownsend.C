@@ -6,11 +6,10 @@
 
 registerADMooseObject("CraneApp", ADEEDFRateConstantTownsend);
 
-template <ComputeStage compute_stage>
 InputParameters
-ADEEDFRateConstantTownsend<compute_stage>::validParams()
+ADEEDFRateConstantTownsend::validParams()
 {
-  InputParameters params = ADMaterial<compute_stage>::validParams();
+  InputParameters params = ADMaterial::validParams();
   params.addRequiredParam<FileName>(
       "property_file", "The file containing interpolation tables for material properties.");
   params.addRequiredParam<std::string>("reaction", "The full reaction equation.");
@@ -38,10 +37,8 @@ ADEEDFRateConstantTownsend<compute_stage>::validParams()
   return params;
 }
 
-template <ComputeStage compute_stage>
-ADEEDFRateConstantTownsend<compute_stage>::ADEEDFRateConstantTownsend(
-    const InputParameters & parameters)
-  : ADMaterial<compute_stage>(parameters),
+ADEEDFRateConstantTownsend::ADEEDFRateConstantTownsend(const InputParameters & parameters)
+  : ADMaterial(parameters),
     _coefficient_format(getParam<std::string>("reaction_coefficient_format")),
     _townsend_coefficient(declareADProperty<Real>("alpha" + getParam<std::string>("number") + "_" +
                                                   getParam<std::string>("reaction"))),
@@ -74,9 +71,8 @@ ADEEDFRateConstantTownsend<compute_stage>::ADEEDFRateConstantTownsend(
   _coefficient_interpolation = libmesh_make_unique<LinearInterpolation>(val_x, rate_coefficient);
 }
 
-template <ComputeStage compute_stage>
 void
-ADEEDFRateConstantTownsend<compute_stage>::computeQpProperties()
+ADEEDFRateConstantTownsend::computeQpProperties()
 {
 
   _townsend_coefficient[_qp].value() =
@@ -91,14 +87,4 @@ ADEEDFRateConstantTownsend<compute_stage>::computeQpProperties()
     _townsend_coefficient[_qp].value() = 0;
     _townsend_coefficient[_qp].derivatives() = 0;
   }
-}
-
-template <>
-void
-ADEEDFRateConstantTownsend<RESIDUAL>::computeQpProperties()
-{
-  _townsend_coefficient[_qp] =
-      _coefficient_interpolation->sample(std::exp(_mean_en[_qp] - _em[_qp]));
-  if (_townsend_coefficient[_qp] < 0)
-    _townsend_coefficient[_qp] = 0;
 }
