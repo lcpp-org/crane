@@ -16,8 +16,7 @@
 
 #include "ADKernel.h"
 
-template <ComputeStage compute_stage>
-class ADEEDFElasticTownsendLog : public ADKernel<compute_stage>
+class ADEEDFElasticTownsendLog : public ADKernel
 {
 public:
   static InputParameters validParams();
@@ -25,15 +24,14 @@ public:
 
 protected:
   virtual ADReal computeQpResidual();
-  usingKernelMembers;
 
   Real _r_units;
   std::string _reaction_coeff_name;
   std::string _reaction_name;
 
-  const ADMaterialProperty(Real) & _diffem;
-  const ADMaterialProperty(Real) & _muem;
-  const ADMaterialProperty(Real) & _alpha;
+  const ADMaterialProperty<Real> & _diffem;
+  const ADMaterialProperty<Real> & _muem;
+  const ADMaterialProperty<Real> & _alpha;
   const MaterialProperty<Real> & _massGas;
 
   const ADVariableGradient & _grad_potential;

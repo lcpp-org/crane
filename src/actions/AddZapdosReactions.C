@@ -85,15 +85,9 @@ AddZapdosReactions::AddZapdosReactions(InputParameters params)
     _townsend_append = "";
 
   if (_use_ad)
-  {
     _ad_prepend = "AD";
-    _ad_append = "<RESIDUAL>";
-  }
   else
-  {
     _ad_prepend = "";
-    _ad_append = "";
-  }
 
   if (_use_log)
     _log_append = "Log";
@@ -272,7 +266,8 @@ AddZapdosReactions::act()
         params.set<MooseEnum>("family") = "MONOMIAL";
         params.set<std::vector<SubdomainName>>("block") =
             getParam<std::vector<SubdomainName>>("block");
-        _problem->addAuxVariable("MooseVariableConstMonomial", "rate" + std::to_string(i) + "_" + _name, params);
+        _problem->addAuxVariable(
+            "MooseVariableConstMonomial", "rate" + std::to_string(i) + "_" + _name, params);
       }
     }
   }
@@ -420,7 +415,7 @@ AddZapdosReactions::addEEDFKernel(const unsigned & reaction_num,
                                   const int & electron_index,
                                   const int & target_index)
 {
-  auto params = _factory.getValidParams(kernel_name + _ad_append);
+  auto params = _factory.getValidParams(kernel_name);
   params.set<NonlinearVariableName>("variable") = _species[species_num];
 
   // Necessary for jacobian, but we are sticking with AD for now
@@ -444,15 +439,10 @@ AddZapdosReactions::addEEDFKernel(const unsigned & reaction_num,
 
   if (_use_ad)
   {
-    _problem->addKernel(kernel_name + "<RESIDUAL>",
-                        "kernel_eedf_" + getParam<std::vector<SubdomainName>>("block")[0] + "_" +
-                            std::to_string(reaction_num) + "_" + std::to_string(species_num) + "_" + _name +
-                            "_residual",
-                        params);
-    _problem->addKernel(kernel_name + "<JACOBIAN>",
-                        "kernel_eedf_" + getParam<std::vector<SubdomainName>>("block")[0] + "_" +
-                            std::to_string(reaction_num) + "_" + std::to_string(species_num) + "_" + _name +
-                            "_jacobian",
+    _problem->addKernel(kernel_name,
+                        "kernel_eedf_" + getParam<std::vector<SubdomainName>>("block")[0] +
+                            std::to_string(reaction_num) + std::to_string(species_num) + "_" +
+                            _name,
                         params);
     _problem->haveADObjects(true);
   }
@@ -461,7 +451,8 @@ AddZapdosReactions::addEEDFKernel(const unsigned & reaction_num,
     params.set<std::vector<VariableName>>("mean_energy") = {_electron_energy[0]};
     _problem->addKernel(kernel_name,
                         "kernel_eedf_" + getParam<std::vector<SubdomainName>>("block")[0] + "_" +
-                            std::to_string(reaction_num) + "_" + std::to_string(species_num) + "_" + _name,
+                            std::to_string(reaction_num) + "_" + std::to_string(species_num) + "_" +
+                            _name,
                         params);
   }
 }
@@ -484,7 +475,7 @@ AddZapdosReactions::addEEDFEnergy(const unsigned & reaction_num, const std::stri
       non_electron_index = k;
   }
 
-  InputParameters params = _factory.getValidParams(kernel_name + _ad_append);
+  InputParameters params = _factory.getValidParams(kernel_name);
 
   // If this is not an elastic collision, the change in enthalpy needs to be included
   if (!_elastic_collision[reaction_num])
@@ -510,13 +501,9 @@ AddZapdosReactions::addEEDFEnergy(const unsigned & reaction_num, const std::stri
 
   if (_use_ad)
   {
-    _problem->addKernel(kernel_name + "<RESIDUAL>",
+    _problem->addKernel(kernel_name,
                         "energy_reaction_" + getParam<std::vector<SubdomainName>>("block")[0] +
-                            "_" + std::to_string(reaction_num) + "_" + _name + "_residual",
-                        params);
-    _problem->addKernel(kernel_name + "<JACOBIAN>",
-                        "energy_reaction_" + getParam<std::vector<SubdomainName>>("block")[0] +
-                            "_" + std::to_string(reaction_num) + "_" + _name + "_jacobian",
+                            "_" + std::to_string(reaction_num) + "_" + _name,
                         params);
     _problem->haveADObjects(true);
   }
@@ -536,7 +523,7 @@ AddZapdosReactions::addEEDFCoefficient(const unsigned & reaction_num)
   else
     material_name = _ad_prepend + "ZapdosEEDFRateConstant";
 
-  auto params = _factory.getValidParams(material_name + _ad_append);
+  auto params = _factory.getValidParams(material_name);
   params.set<std::string>("reaction") = _reaction[reaction_num];
   params.set<std::string>("file_location") = getParam<std::string>("file_location");
   params.set<std::vector<VariableName>>("electrons") = {
@@ -556,14 +543,10 @@ AddZapdosReactions::addEEDFCoefficient(const unsigned & reaction_num)
 
   if (_use_ad)
   {
-    _problem->addADResidualMaterial(material_name + "<RESIDUAL>",
-                                    "reaction_" + getParam<std::vector<SubdomainName>>("block")[0] +
-                                        "_" + std::to_string(reaction_num) + "_" + _name + "_residual",
-                                    params);
-    _problem->addADJacobianMaterial(material_name + "<JACOBIAN>",
-                                    "reaction_" + getParam<std::vector<SubdomainName>>("block")[0] +
-                                        "_" + std::to_string(reaction_num) + "_" + _name + "_jacobian",
-                                    params);
+    _problem->addMaterial(material_name,
+                          "reaction_" + getParam<std::vector<SubdomainName>>("block")[0] + "_" +
+                              std::to_string(reaction_num) + "_" + _name,
+                          params);
     _problem->haveADObjects(true);
   }
   else

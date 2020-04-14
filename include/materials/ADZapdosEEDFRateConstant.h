@@ -18,8 +18,7 @@
 //#include "SplineInterpolation.h"
 #include "LinearInterpolation.h"
 
-template <ComputeStage compute_stage>
-class ADZapdosEEDFRateConstant : public ADMaterial<compute_stage>
+class ADZapdosEEDFRateConstant : public ADMaterial
 {
 public:
   static InputParameters validParams();
@@ -31,10 +30,9 @@ protected:
   std::unique_ptr<LinearInterpolation> _coefficient_interpolation;
 
   Real _r_units;
-  ADMaterialProperty(Real) & _rate_coefficient;
+  ADMaterialProperty<Real> & _rate_coefficient;
   const ADVariableValue & _em;
   const ADVariableValue & _mean_en;
 
-  usingMaterialMembers;
-  using ADMaterial<compute_stage>::_communicator;
+  using ADMaterial::_communicator;
 };

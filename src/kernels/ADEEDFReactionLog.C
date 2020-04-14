@@ -6,11 +6,10 @@
 
 registerADMooseObject("CraneApp", ADEEDFReactionLog);
 
-template <ComputeStage compute_stage>
 InputParameters
-ADEEDFReactionLog<compute_stage>::validParams()
+ADEEDFReactionLog::validParams()
 {
-  InputParameters params = ADKernel<compute_stage>::validParams();
+  InputParameters params = ADKernel::validParams();
   params.addRequiredCoupledVar("electrons", "The electron density.");
   params.addRequiredCoupledVar("target",
                                "The (heavy species) target of the electron-impact reaction.");
@@ -29,10 +28,9 @@ ADEEDFReactionLog<compute_stage>::validParams()
   return params;
 }
 
-template <ComputeStage compute_stage>
-ADEEDFReactionLog<compute_stage>::ADEEDFReactionLog(
+ADEEDFReactionLog::ADEEDFReactionLog(
     const InputParameters & parameters)
-  : ADKernel<compute_stage>(parameters),
+  : ADKernel(parameters),
     _reaction_coeff(getADMaterialProperty<Real>("k" + getParam<std::string>("number") + "_" +
                                                 getParam<std::string>("reaction"))),
     _em(adCoupledValue("electrons")),
@@ -41,9 +39,8 @@ ADEEDFReactionLog<compute_stage>::ADEEDFReactionLog(
 {
 }
 
-template <ComputeStage compute_stage>
 ADReal
-ADEEDFReactionLog<compute_stage>::computeQpResidual()
+ADEEDFReactionLog::computeQpResidual()
 {
   return -_test[_i][_qp] * _reaction_coeff[_qp] * std::exp(_em[_qp] + _target[_qp]) * _coefficient;
 }
