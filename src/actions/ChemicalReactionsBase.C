@@ -37,7 +37,6 @@ validParams<ChemicalReactionsBase>()
 
   InputParameters params = validParams<AddVariableAction>();
   params.addParam<std::string>("name",
-                               "",
                                "The name of this reaction list. If multiple reaction blocks are "
                                "written, use this to supply a unique name to each one.");
   params.addParam<bool>(
@@ -148,10 +147,16 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     _use_bolsig(getParam<bool>("use_bolsig")),
     _lumped_species(getParam<std::vector<std::string>>("lumped")),
     _use_ad(getParam<bool>("use_ad")),
-    _name(getParam<std::string>("name")),
+    //_name(getParam<std::string>("name")),
     _mole_factor(getParam<bool>("convert_to_moles")),
     _rate_factor(getParam<Real>("convert_to_meters"))
 {
+  if (isParamValid("name"))
+  {
+    _name += "_";
+  }
+  else
+    _name = "";
   // Multiplies rate constants (constant and parsed function based only!) by N_A to convert to mole
   // rates
   if (_mole_factor)
@@ -313,7 +318,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
       _threshold_energy[i] = std::stod(threshold_energy_string[i]);
     }
     _aux_var_name[i] =
-        _name + "_rate_constant" + std::to_string(i); // Stores name of rate coefficients
+        _name + "rate_constant" + std::to_string(i); // Stores name of rate coefficients
     _reaction_coefficient_name[i] = "rate_constant" + std::to_string(i);
     if (rate_coefficient_string[i] == std::string("EEDF"))
     {

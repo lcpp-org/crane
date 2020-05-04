@@ -129,7 +129,7 @@ AddScalarReactions::act()
       if (_track_rates == true)
       {
         //_problem->addAuxScalarVariable("rate" + std::to_string(i), FIRST);
-        _problem->addAuxVariable("MooseVariableScalar", _name + "_rate" + std::to_string(i), params);
+        _problem->addAuxVariable("MooseVariableScalar", _name + "rate" + std::to_string(i), params);
       }
     }
   }
@@ -225,7 +225,7 @@ AddScalarReactions::act()
           }
           params.set<std::string>("file_location") = getParam<std::string>("file_location");
           params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
-          _problem->addAuxScalarKernel("DataReadScalar", _name + "_aux_rate" + std::to_string(i), params);
+          _problem->addAuxScalarKernel("DataReadScalar", _name + "aux_rate" + std::to_string(i), params);
         }
       }
       else if (_rate_type[i] == "Equation" && !_superelastic_reaction[i])
@@ -262,7 +262,7 @@ AddScalarReactions::act()
         // params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN NONLINEAR";
         params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
         _problem->addAuxScalarKernel(
-            "ParsedScalarRateCoefficient", _name + "_aux_rate" + std::to_string(i), params);
+            "ParsedScalarRateCoefficient", _name + "aux_rate" + std::to_string(i), params);
       }
       else if (_rate_type[i] == "Constant" && !_superelastic_reaction[i])
       {
@@ -305,7 +305,7 @@ AddScalarReactions::act()
           params.set<Real>("coefficient") = 1; //_reaction_stoichiometric_coeff[i].back();
           params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
           _problem->addAuxScalarKernel(
-              "ReactionRateOneBodyScalar", _name + "_Calc_Production_Rate" + std::to_string(i), params);
+              "ReactionRateOneBodyScalar", _name + "Calc_Production_Rate" + std::to_string(i), params);
         }
         else if (_reactants[i].size() == 2)
         {
@@ -317,7 +317,7 @@ AddScalarReactions::act()
           params.set<Real>("coefficient") = 1; //_reaction_stoichiometric_coeff[i].back();
           params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
           _problem->addAuxScalarKernel(
-              "ReactionRateTwoBodyScalar", _name + "_Calc_Production_Rate" + std::to_string(i), params);
+              "ReactionRateTwoBodyScalar", _name + "Calc_Production_Rate" + std::to_string(i), params);
         }
 
         else if (_reactants[i].size() == 3)
@@ -331,7 +331,7 @@ AddScalarReactions::act()
           params.set<Real>("coefficient") = 1; //_reaction_stoichiometric_coeff[i].back();
           params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
           _problem->addAuxScalarKernel(
-              "ReactionRateThreeBodyScalar", _name + "_Calc_Production_Rate" + std::to_string(i), params);
+              "ReactionRateThreeBodyScalar", _name + "Calc_Production_Rate" + std::to_string(i), params);
         }
       }
     }
@@ -414,7 +414,7 @@ AddScalarReactions::act()
             params.set<Real>("threshold_energy") = energy_sign * _threshold_energy[i];
             params.set<Real>("position_units") = _r_units;
             _problem->addKernel(energy_kernel_name,
-                                _name + "_energy_kernel" + std::to_string(i) + "_" + _reaction[i],
+                                _name + "energy_kernel" + std::to_string(i) + "_" + _reaction[i],
                                 params);
           }
         }
@@ -479,7 +479,7 @@ AddScalarReactions::act()
                     _reactants[i][reactant_indices[k]]};
             }
             _problem->addScalarKernel(reactant_kernel_name,
-                                      _name + "_kernel" + std::to_string(i) + "_" + std::to_string(j) + "_" +
+                                      _name + "kernel" + std::to_string(i) + "_" + std::to_string(j) + "_" +
                                           _reaction[i],
                                       params);
           }
