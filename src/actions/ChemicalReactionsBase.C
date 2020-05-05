@@ -453,17 +453,16 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     }
     // Here we check to see if the rate coefficients need to be modified in any way
     // (Options: convert to moles, convert to m^3/s or m^6/s)
+    Real exp_factor;
+    exp_factor = _reactants[i].size() - 1;
     if (_rate_type[i] == "Equation")
     {
       _rate_equation_string[i] +=
-          "*" +
-          Moose::stringify(
-              N_A * std::pow(_rate_factor, (3 * (_reactants[i].size() - 1))));
+          "*" + Moose::stringify(std::pow(N_A, exp_factor) * std::pow(_rate_factor, (3 * exp_factor)));
     }
     else if (_rate_type[i] == "Constant")
     {
-      _rate_coefficient[i] *=
-          N_A * std::pow(_rate_factor, (3 * (_reactants[i].size() - 1)));
+      _rate_coefficient[i] *= std::pow(N_A, exp_factor) * std::pow(_rate_factor, (3 * exp_factor));
     }
 
     // _reaction_lumped is used as a flag in the add_kernel (or add_scalar_kernel) stage. All lumped

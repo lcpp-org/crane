@@ -15,7 +15,8 @@ validParams<ReactionThirdOrderEnergyLog>()
   params.addRequiredCoupledVar("x", "The third variable that is reacting.");
   params.addRequiredParam<std::string>("reaction", "The full reaction equation.");
   params.addRequiredParam<Real>("coefficient", "The stoichiometric coeffient.");
-  params.addRequiredParam<Real>("threshold_energy", "The change in enthalpy associated with this reaction.");
+  params.addRequiredParam<Real>("threshold_energy",
+                                "The change in enthalpy associated with this reaction.");
   params.addParam<bool>("_v_eq_u", false, "If coupled v == u.");
   params.addParam<bool>("_w_eq_u", false, "If coupled w == u.");
   params.addParam<bool>("_x_eq_u", false, "If coupled x == u.");
@@ -50,28 +51,14 @@ ReactionThirdOrderEnergyLog::ReactionThirdOrderEnergyLog(const InputParameters &
 Real
 ReactionThirdOrderEnergyLog::computeQpResidual()
 {
-  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * std::exp(_v[_qp]) *
-         std::exp(_w[_qp]) * std::exp(_x[_qp]) * _threshold_energy;
+  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] *
+         std::exp(_v[_qp] + _w[_qp] + _x[_qp]) * _threshold_energy;
 }
 
 Real
 ReactionThirdOrderEnergyLog::computeQpJacobian()
 {
   return 0.0;
-  /*
-  Real power;
-
-  power = 0;
-  if (_v_eq_u)
-    power += 1;
-  if (_w_eq_u)
-    power += 1;
-  if (_x_eq_u)
-    power += 1;
-
-  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * power *
-         std::exp(_v[_qp]) * std::exp(_w[_qp]) * std::exp(_x[_qp]) * _phi[_j][_qp];
-  */
 }
 
 Real
@@ -89,6 +76,6 @@ ReactionThirdOrderEnergyLog::computeQpOffDiagJacobian(unsigned int jvar)
   if (!_x_eq_u && jvar == _x_id)
     power += 1;
 
-  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * std::exp(_v[_qp]) *
-         std::exp(_w[_qp]) * std::exp(_x[_qp]) * power * _phi[_j][_qp] * _threshold_energy;
+  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] *
+         std::exp(_v[_qp] + _w[_qp] + _x[_qp]) * power * _phi[_j][_qp] * _threshold_energy;
 }
