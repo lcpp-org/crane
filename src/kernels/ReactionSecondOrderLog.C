@@ -43,8 +43,8 @@ ReactionSecondOrderLog::ReactionSecondOrderLog(const InputParameters & parameter
 Real
 ReactionSecondOrderLog::computeQpResidual()
 {
-  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * std::exp(_v[_qp]) *
-         std::exp(_w[_qp]);
+  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] *
+         std::exp(_v[_qp] + _w[_qp]);
 }
 
 Real
@@ -66,7 +66,7 @@ ReactionSecondOrderLog::computeQpJacobian()
   else
   {
     return -_test[_i][_qp] * _stoichiometric_coeff * power * _reaction_coeff[_qp] *
-           std::exp(_v[_qp]) * std::exp(_w[_qp]) * _phi[_j][_qp];
+           std::exp(_v[_qp] + _w[_qp]) * _phi[_j][_qp];
   }
 }
 
@@ -82,6 +82,6 @@ ReactionSecondOrderLog::computeQpOffDiagJacobian(unsigned int jvar)
   if (!_w_eq_u && jvar == _w_id)
     power += 1;
 
-  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * std::exp(_v[_qp]) *
-         std::exp(_w[_qp]) * power * _phi[_j][_qp];
+  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] *
+         std::exp(_v[_qp] + _w[_qp]) * power * _phi[_j][_qp];
 }

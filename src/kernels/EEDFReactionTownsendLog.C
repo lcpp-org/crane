@@ -59,8 +59,8 @@ EEDFReactionTownsendLog::~EEDFReactionTownsendLog() {}
 Real
 EEDFReactionTownsendLog::computeQpResidual()
 {
-  Real electron_flux_mag = (-_muem[_qp] * -_grad_potential[_qp] * _r_units * std::exp(_em[_qp]) -
-                            _diffem[_qp] * std::exp(_em[_qp]) * _grad_em[_qp] * _r_units)
+  Real electron_flux_mag = (std::exp(_em[_qp]) * (-_muem[_qp] * -_grad_potential[_qp] * _r_units -
+                                                  _diffem[_qp] * _grad_em[_qp] * _r_units))
                                .norm();
 
   return -_test[_i][_qp] * _alpha[_qp] * std::exp(_target[_qp]) * electron_flux_mag * _coefficient;
@@ -78,14 +78,14 @@ EEDFReactionTownsendLog::computeQpJacobian()
     Real d_diffem_d_em = _d_diffem_d_actual_mean_en[_qp] * actual_mean_en * -_phi[_j][_qp];
 
     RealVectorValue electron_flux =
-        -_muem[_qp] * -_grad_potential[_qp] * _r_units * std::exp(_em[_qp]) -
-        _diffem[_qp] * std::exp(_em[_qp]) * _grad_em[_qp] * _r_units;
+        std::exp(_em[_qp]) *
+        (-_muem[_qp] * -_grad_potential[_qp] * _r_units - _diffem[_qp] * _grad_em[_qp] * _r_units);
     RealVectorValue d_electron_flux_d_em =
-        -d_muem_d_em * -_grad_potential[_qp] * _r_units * std::exp(_em[_qp]) -
-        _muem[_qp] * -_grad_potential[_qp] * _r_units * std::exp(_em[_qp]) * _phi[_j][_qp] -
-        d_diffem_d_em * std::exp(_em[_qp]) * _grad_em[_qp] * _r_units -
-        _diffem[_qp] * std::exp(_em[_qp]) * _phi[_j][_qp] * _grad_em[_qp] * _r_units -
-        _diffem[_qp] * std::exp(_em[_qp]) * _grad_phi[_j][_qp] * _r_units;
+        std::exp(_em[_qp]) * (-d_muem_d_em * -_grad_potential[_qp] * _r_units -
+                              _muem[_qp] * -_grad_potential[_qp] * _r_units * _phi[_j][_qp] -
+                              d_diffem_d_em * _grad_em[_qp] * _r_units -
+                              _diffem[_qp] * _phi[_j][_qp] * _grad_em[_qp] * _r_units -
+                              _diffem[_qp] * _grad_phi[_j][_qp] * _r_units);
     Real electron_flux_mag = electron_flux.norm();
     Real d_electron_flux_mag_d_em = electron_flux * d_electron_flux_d_em /
                                     (electron_flux_mag + std::numeric_limits<double>::epsilon());
@@ -120,19 +120,19 @@ EEDFReactionTownsendLog::computeQpOffDiagJacobian(unsigned int jvar)
   Real d_diffem_d_em = _d_diffem_d_actual_mean_en[_qp] * actual_mean_en * -_phi[_j][_qp];
 
   RealVectorValue electron_flux =
-      -_muem[_qp] * -_grad_potential[_qp] * _r_units * std::exp(_em[_qp]) -
-      _diffem[_qp] * std::exp(_em[_qp]) * _grad_em[_qp] * _r_units;
+      std::exp(_em[_qp]) *
+      (-_muem[_qp] * -_grad_potential[_qp] * _r_units - _diffem[_qp] * _grad_em[_qp] * _r_units);
   RealVectorValue d_electron_flux_d_potential =
       -_muem[_qp] * -_grad_phi[_j][_qp] * _r_units * std::exp(_em[_qp]);
   RealVectorValue d_electron_flux_d_mean_en =
       -d_muem_d_mean_en * -_grad_potential[_qp] * _r_units * std::exp(_em[_qp]) -
       d_diffem_d_mean_en * std::exp(_em[_qp]) * _grad_em[_qp] * _r_units;
   RealVectorValue d_electron_flux_d_em =
-      -d_muem_d_em * -_grad_potential[_qp] * _r_units * std::exp(_em[_qp]) -
-      _muem[_qp] * -_grad_potential[_qp] * _r_units * std::exp(_em[_qp]) * _phi[_j][_qp] -
-      d_diffem_d_em * std::exp(_em[_qp]) * _grad_em[_qp] * _r_units -
-      _diffem[_qp] * std::exp(_em[_qp]) * _phi[_j][_qp] * _grad_em[_qp] * _r_units -
-      _diffem[_qp] * std::exp(_em[_qp]) * _grad_phi[_j][_qp] * _r_units;
+      std::exp(_em[_qp]) * (-d_muem_d_em * -_grad_potential[_qp] * _r_units -
+                            _muem[_qp] * -_grad_potential[_qp] * _r_units * _phi[_j][_qp] -
+                            d_diffem_d_em * _grad_em[_qp] * _r_units -
+                            _diffem[_qp] * _phi[_j][_qp] * _grad_em[_qp] * _r_units -
+                            _diffem[_qp] * _grad_phi[_j][_qp] * _r_units);
   Real electron_flux_mag = electron_flux.norm();
   Real d_electron_flux_mag_d_potential =
       electron_flux * d_electron_flux_d_potential /

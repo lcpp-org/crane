@@ -14,7 +14,8 @@ validParams<ReactionSecondOrderEnergyLog>()
   params.addRequiredCoupledVar("w", "The second variable that is reacting to create u.");
   params.addRequiredParam<std::string>("reaction", "The full reaction equation.");
   params.addRequiredParam<Real>("coefficient", "The stoichiometric coeffient.");
-  params.addRequiredParam<Real>("threshold_energy", "The change in enthalpy associated with this reaction.");
+  params.addRequiredParam<Real>("threshold_energy",
+                                "The change in enthalpy associated with this reaction.");
   params.addParam<bool>("_v_eq_u", false, "If v == u.");
   params.addParam<bool>("_w_eq_u", false, "If w == u.");
   params.addParam<std::string>(
@@ -45,34 +46,14 @@ ReactionSecondOrderEnergyLog::ReactionSecondOrderEnergyLog(const InputParameters
 Real
 ReactionSecondOrderEnergyLog::computeQpResidual()
 {
-  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * std::exp(_v[_qp]) *
-         std::exp(_w[_qp]) * _threshold_energy;
+  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] *
+         std::exp(_v[_qp] + _w[_qp]) * _threshold_energy;
 }
 
 Real
 ReactionSecondOrderEnergyLog::computeQpJacobian()
 {
   return 0.0;
-  /*
-  Real power;
-  power = 0.0;
-
-  if (_v_eq_u)
-    power += 1.0;
-
-  if (_w_eq_u)
-    power += 1.0;
-
-  if (!_v_eq_u && !_w_eq_u)
-  {
-    return 0.0;
-  }
-  else
-  {
-    return -_test[_i][_qp] * _stoichiometric_coeff * power * _reaction_coeff[_qp] *
-           std::exp(_v[_qp]) * std::exp(_w[_qp]) * _phi[_j][_qp];
-  }
-  */
 }
 
 Real
@@ -87,6 +68,6 @@ ReactionSecondOrderEnergyLog::computeQpOffDiagJacobian(unsigned int jvar)
   if (!_w_eq_u && jvar == _w_id)
     power += 1;
 
-  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * std::exp(_v[_qp]) *
-         std::exp(_w[_qp]) * power * _phi[_j][_qp] * _threshold_energy;
+  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] *
+         std::exp(_v[_qp] + _w[_qp]) * power * _phi[_j][_qp] * _threshold_energy;
 }
