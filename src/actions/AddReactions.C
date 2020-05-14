@@ -50,22 +50,22 @@ validParams<AddReactions>()
   return params;
 }
 
-static inline string &
-ltrim(string & s)
+static inline std::string &
+ltrim(std::string & s)
 {
   s.erase(s.begin(), find_if_not(s.begin(), s.end(), [](int c) { return isspace(c); }));
   return s;
 }
 
-static inline string &
-rtrim(string & s)
+static inline std::string &
+rtrim(std::string & s)
 {
   s.erase(find_if_not(s.rbegin(), s.rend(), [](int c) { return isspace(c); }).base(), s.end());
   return s;
 }
 
-static inline string
-trim(string & s)
+static inline std::string
+trim(std::string & s)
 {
   return ltrim(rtrim(s));
 }
@@ -522,7 +522,9 @@ AddReactions::act()
           include_species[k] =
               std::find(_species.begin(), _species.end(), _reactants[i][k]) != _species.end();
           if (!include_species[k])
-            include_species[k] = std::find(_aux_species.begin(), _aux_species.end(), _reactants[i][k]) != _aux_species.end();
+            include_species[k] =
+                std::find(_aux_species.begin(), _aux_species.end(), _reactants[i][k]) !=
+                _aux_species.end();
         }
         if (iter != _products[i].end())
         {
