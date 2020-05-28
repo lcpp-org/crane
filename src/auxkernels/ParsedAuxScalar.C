@@ -15,8 +15,8 @@ template <>
 InputParameters
 validParams<ParsedAuxScalar>()
 {
-  InputParameters params = validParams<AuxScalarKernel>();
-  params += validParams<FunctionParserUtils>();
+  InputParameters params = AuxScalarKernel::validParams();
+  params += FunctionParserUtils<false>::validParams();
   params.addClassDescription("Parsed function AuxScalarKernel.");
 
   params.addRequiredCustomTypeParam<std::string>(
@@ -33,7 +33,7 @@ validParams<ParsedAuxScalar>()
 
 ParsedAuxScalar::ParsedAuxScalar(const InputParameters & parameters)
   : AuxScalarKernel(parameters),
-    FunctionParserUtils(parameters),
+    FunctionParserUtils<false>(parameters),
     _function(getParam<std::string>("function")),
     _nargs(coupledScalarComponents("args")),
     _args(_nargs)
@@ -47,7 +47,7 @@ ParsedAuxScalar::ParsedAuxScalar(const InputParameters & parameters)
   }
 
   // base function object
-  _func_F = ADFunctionPtr(std::make_shared<ADFunction>());
+  _func_F = SymFunctionPtr(std::make_shared<SymFunction>());
 
   // set FParser interneal feature flags
   setParserFeatureFlags(_func_F);
@@ -59,8 +59,12 @@ ParsedAuxScalar::ParsedAuxScalar(const InputParameters & parameters)
 
   // parse function
   if (_func_F->Parse(_function, variables) >= 0)
-    mooseError(
-        "Invalid function\n", _function, "\nin ParsedAuxScalar ", name(), ".\n", _func_F->ErrorMsg());
+    mooseError("Invalid function\n",
+               _function,
+               "\nin ParsedAuxScalar ",
+               name(),
+               ".\n",
+               _func_F->ErrorMsg());
 
   // optimize
   if (!_disable_fpoptimizer)
@@ -80,5 +84,5 @@ ParsedAuxScalar::computeValue()
   for (unsigned int j = 0; j < _nargs; ++j)
     _func_params[j] = (*_args[j])[_i];
 
-  return abs(evaluate(_func_F));
+  return std::abs(evaluate(_func_F));
 }

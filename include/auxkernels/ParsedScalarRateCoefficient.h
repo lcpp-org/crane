@@ -27,7 +27,7 @@ InputParameters validParams<ParsedScalarRateCoefficient>();
 /**
  * Constant auxiliary value
  */
-class ParsedScalarRateCoefficient : public AuxScalarKernel, public FunctionParserUtils
+class ParsedScalarRateCoefficient : public AuxScalarKernel, public FunctionParserUtils<false>
 {
 public:
   ParsedScalarRateCoefficient(const InputParameters & parameters);
@@ -51,5 +51,5 @@ protected:
   std::vector<std::string> _constant_expressions;
   // const ValueProvider & _data;
 
-  ADFunctionPtr _func_F;
+  SymFunctionPtr _func_F;
 };

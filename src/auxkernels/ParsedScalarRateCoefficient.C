@@ -21,7 +21,7 @@ InputParameters
 validParams<ParsedScalarRateCoefficient>()
 {
   InputParameters params = validParams<AuxScalarKernel>();
-  params += validParams<FunctionParserUtils>();
+  params += validParams<FunctionParserUtils<false>>();
   params.addClassDescription("Parsed function AuxKernel.");
 
   params.addRequiredCustomTypeParam<std::string>(
@@ -44,7 +44,7 @@ validParams<ParsedScalarRateCoefficient>()
 
 ParsedScalarRateCoefficient::ParsedScalarRateCoefficient(const InputParameters & parameters)
   : AuxScalarKernel(parameters),
-    FunctionParserUtils(parameters),
+    FunctionParserUtils<false>(parameters),
     _function(getParam<std::string>("function")),
     _nargs(coupledScalarComponents("args")),
     _args(_nargs),
@@ -64,7 +64,7 @@ ParsedScalarRateCoefficient::ParsedScalarRateCoefficient(const InputParameters &
   }
 
   // base function object
-  _func_F = ADFunctionPtr(std::make_shared<ADFunction>());
+  _func_F = SymFunctionPtr(std::make_shared<SymFunction>());
 
   // set FParser interneal feature flags
   setParserFeatureFlags(_func_F);
