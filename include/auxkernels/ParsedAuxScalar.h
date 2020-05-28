@@ -12,7 +12,7 @@ InputParameters validParams<ParsedAuxScalar>();
 /**
  * AuxKernel that evaluates a parsed function expression
  */
-class ParsedAuxScalar : public AuxScalarKernel, public FunctionParserUtils
+class ParsedAuxScalar : public AuxScalarKernel, public FunctionParserUtils<false>
 {
 public:
   ParsedAuxScalar(const InputParameters & parameters);
@@ -28,5 +28,5 @@ protected:
   std::vector<const VariableValue *> _args;
 
   /// function parser object for the resudual and on-diagonal Jacobian
-  ADFunctionPtr _func_F;
+  SymFunctionPtr _func_F;
 };
