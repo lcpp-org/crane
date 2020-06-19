@@ -109,12 +109,16 @@ BoltzmannSolverScalar::BoltzmannSolverScalar(const InputParameters & parameters)
   std::string edit_command;
   edit_command = "sed -e \"9s/.*/" + _cross_sections + " \\/ File/\" -i \'\' " + _file_name;
   const char * command = edit_command.c_str();
-  system(command);
+  auto err = system(command);
+  if (err < 0)
+    mooseError("failed command:", edit_command);
 
   // Next the output file is named ("input_file_name_out")
   edit_command = "sed -e \"54s/.*/" + _output_file_name + " \\/   File /\" -i \'\' " + _file_name;
   command = edit_command.c_str();
-  system(command);
+  err = system(command);
+  if (err < 0)
+    mooseError("failed command:", edit_command);
 
   int line_counter;
   std::string line;
@@ -335,7 +339,9 @@ BoltzmannSolverScalar::initialize()
       // composition fraction/\" -i \'\' temp_in.dat";
       const char * command = edit_command.c_str();
 
-      system(command);
+      auto err = system(command);
+      if (err < 0)
+        mooseError("failed command:", edit_command);
 
       // Now the input file is edited with updated molar fractions!
 
@@ -350,7 +356,9 @@ BoltzmannSolverScalar::initialize()
         _field_string.str("");
         // std::cout << edit_command << std::endl;
         command = edit_command.c_str();
-        system(command);
+        err = system(command);
+        if (err < 0)
+          mooseError("failed command:", edit_command);
       }
 
       // Update the ionization fraction line
@@ -361,7 +369,9 @@ BoltzmannSolverScalar::initialize()
                      " \\/ Ionization degree/\" -i \'\' " + _file_name;
       _field_string.str("");
       command = edit_command.c_str();
-      system(command);
+      err = system(command);
+      if (err < 0)
+        mooseError("failed command:", edit_command);
     }
   }
 }
@@ -380,7 +390,9 @@ BoltzmannSolverScalar::execute()
 
       const char * command = _bolsig_run.c_str();
       std::cout << "\nRunning BOLSIG+..." << std::endl;
-      system(command);
+      auto err = system(command);
+      if (err < 0)
+        mooseError("failed command:", _bolsig_run);
       std::cout << "DONE" << std::endl;
       std::fstream file(_output_file_name);
 
