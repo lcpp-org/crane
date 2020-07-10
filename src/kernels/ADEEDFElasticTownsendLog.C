@@ -27,8 +27,7 @@ ADEEDFElasticTownsendLog::validParams()
   return params;
 }
 
-ADEEDFElasticTownsendLog::ADEEDFElasticTownsendLog(
-    const InputParameters & parameters)
+ADEEDFElasticTownsendLog::ADEEDFElasticTownsendLog(const InputParameters & parameters)
   : ADKernel(parameters),
     _r_units(1. / getParam<Real>("position_units")),
     _diffem(getADMaterialProperty<Real>("diffem")),
@@ -47,8 +46,8 @@ ADEEDFElasticTownsendLog::ADEEDFElasticTownsendLog(
 ADReal
 ADEEDFElasticTownsendLog::computeQpResidual()
 {
-  ADReal electron_flux_mag = (-_muem[_qp] * -_grad_potential[_qp] * _r_units * std::exp(_em[_qp]) -
-                              _diffem[_qp] * std::exp(_em[_qp]) * _grad_em[_qp] * _r_units)
+  ADReal electron_flux_mag = (std::exp(_em[_qp]) * (-_muem[_qp] * -_grad_potential[_qp] * _r_units -
+                                                    _diffem[_qp] * _grad_em[_qp] * _r_units))
                                  .norm();
   ADReal Eel = -3.0 * _massem / _massGas[_qp] * 2.0 / 3. * std::exp(_u[_qp] - _em[_qp]);
   ADReal el_term = _alpha[_qp] * std::exp(_target[_qp]) * electron_flux_mag * Eel;

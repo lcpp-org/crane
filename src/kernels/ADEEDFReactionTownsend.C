@@ -30,8 +30,7 @@ ADEEDFReactionTownsendLog::validParams()
   return params;
 }
 
-ADEEDFReactionTownsendLog::ADEEDFReactionTownsendLog(
-    const InputParameters & parameters)
+ADEEDFReactionTownsendLog::ADEEDFReactionTownsendLog(const InputParameters & parameters)
   : ADKernel(parameters),
     _r_units(1. / getParam<Real>("position_units")),
     _diffem(getADMaterialProperty<Real>("diffem")),
@@ -52,8 +51,8 @@ ADReal
 ADEEDFReactionTownsendLog::computeQpResidual()
 {
   return -_test[_i][_qp] * _alpha[_qp] * std::exp(_target[_qp]) *
-         (-_muem[_qp] * -_grad_potential[_qp] * _r_units * std::exp(_em[_qp]) -
-          _diffem[_qp] * std::exp(_em[_qp]) * _grad_em[_qp] * _r_units)
+         (std::exp(_em[_qp]) * (-_muem[_qp] * -_grad_potential[_qp] * _r_units -
+                                _diffem[_qp] * _grad_em[_qp] * _r_units))
              .norm() *
          _coefficient;
 }
