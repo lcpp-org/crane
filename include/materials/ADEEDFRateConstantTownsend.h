@@ -15,8 +15,8 @@
 
 #include "ADMaterial.h"
 /* #include "LinearInterpolation.h" */
-//#include "SplineInterpolation.h"
-#include "LinearInterpolation.h"
+#include "SplineInterpolation.h"
+//#include "LinearInterpolation.h"
 
 class ADEEDFRateConstantTownsend : public ADMaterial
 {
@@ -27,7 +27,7 @@ public:
 protected:
   virtual void computeQpProperties();
 
-  std::unique_ptr<LinearInterpolation> _coefficient_interpolation;
+  SplineInterpolation _coefficient_interpolation;
   
   std::string _coefficient_format;
   ADMaterialProperty<Real> & _townsend_coefficient;
