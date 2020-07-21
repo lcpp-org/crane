@@ -65,6 +65,10 @@ validParams<AddScalarReactions>()
                        1,
                        "How many timesteps should pass before rerunning Bolsig+. (If "
                        "output_table=false, this should be left to 1 so it runs every timestep.)");
+  params.addParam<std::string>("interpolation_type",
+                               "linear",
+                               "Type of interpolation to use for rate coefficients read from a "
+                               "file. Options are 'linear' or 'spline'. Default: 'linear'.");
   params.addParam<Real>(
       "cutoff_time",
       -1,
@@ -79,7 +83,7 @@ validParams<AddScalarReactions>()
 }
 
 AddScalarReactions::AddScalarReactions(InputParameters params)
-  : ChemicalReactionsBase(params)
+  : ChemicalReactionsBase(params), _interpolation_type(getParam<std::string>("interpolation_type"))
 // _use_bolsig(getParam<bool>("use_bolsig"))
 {
 }
@@ -211,7 +215,16 @@ AddScalarReactions::act()
         }
         else
         {
-          InputParameters params = _factory.getValidParams("DataReadScalar");
+          std::string data_read_name;
+          if (_interpolation_type == "linear")
+            data_read_name = "ScalarLinearInterpolation";
+          else if (_interpolation_type == "spline")
+            data_read_name = "ScalarSplineInterpolation";
+          else
+            mooseError("interpolation_type = '" + _interpolation_type +
+                       "' is not recognized! Select either 'linear' or 'spline'.");
+
+          InputParameters params = _factory.getValidParams(data_read_name);
           params.set<AuxVariableName>("variable") = {_aux_var_name[i]};
           params.set<std::vector<VariableName>>("sampler") = {
               getParam<std::string>("sampling_variable")};
@@ -225,7 +238,8 @@ AddScalarReactions::act()
           }
           params.set<std::string>("file_location") = getParam<std::string>("file_location");
           params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
-          _problem->addAuxScalarKernel("DataReadScalar", _name + "aux_rate" + std::to_string(i), params);
+          _problem->addAuxScalarKernel(
+              data_read_name, _name + "aux_rate" + std::to_string(i), params);
         }
       }
       else if (_rate_type[i] == "Equation" && !_superelastic_reaction[i])
@@ -304,8 +318,9 @@ AddScalarReactions::act()
           params.set<std::vector<VariableName>>("rate_coefficient") = {_aux_var_name[i]};
           params.set<Real>("coefficient") = 1; //_reaction_stoichiometric_coeff[i].back();
           params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
-          _problem->addAuxScalarKernel(
-              "ReactionRateOneBodyScalar", _name + "Calc_Production_Rate" + std::to_string(i), params);
+          _problem->addAuxScalarKernel("ReactionRateOneBodyScalar",
+                                       _name + "Calc_Production_Rate" + std::to_string(i),
+                                       params);
         }
         else if (_reactants[i].size() == 2)
         {
@@ -316,8 +331,9 @@ AddScalarReactions::act()
           params.set<std::vector<VariableName>>("rate_coefficient") = {_aux_var_name[i]};
           params.set<Real>("coefficient") = 1; //_reaction_stoichiometric_coeff[i].back();
           params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
-          _problem->addAuxScalarKernel(
-              "ReactionRateTwoBodyScalar", _name + "Calc_Production_Rate" + std::to_string(i), params);
+          _problem->addAuxScalarKernel("ReactionRateTwoBodyScalar",
+                                       _name + "Calc_Production_Rate" + std::to_string(i),
+                                       params);
         }
 
         else if (_reactants[i].size() == 3)
@@ -330,8 +346,9 @@ AddScalarReactions::act()
           params.set<std::vector<VariableName>>("rate_coefficient") = {_aux_var_name[i]};
           params.set<Real>("coefficient") = 1; //_reaction_stoichiometric_coeff[i].back();
           params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
-          _problem->addAuxScalarKernel(
-              "ReactionRateThreeBodyScalar", _name + "Calc_Production_Rate" + std::to_string(i), params);
+          _problem->addAuxScalarKernel("ReactionRateThreeBodyScalar",
+                                       _name + "Calc_Production_Rate" + std::to_string(i),
+                                       params);
         }
       }
     }
@@ -479,8 +496,8 @@ AddScalarReactions::act()
                     _reactants[i][reactant_indices[k]]};
             }
             _problem->addScalarKernel(reactant_kernel_name,
-                                      _name + "kernel" + std::to_string(i) + "_" + std::to_string(j) + "_" +
-                                          _reaction[i],
+                                      _name + "kernel" + std::to_string(i) + "_" +
+                                          std::to_string(j) + "_" + _reaction[i],
                                       params);
           }
         }
@@ -518,8 +535,8 @@ AddScalarReactions::act()
               }
             }
             _problem->addScalarKernel(product_kernel_name,
-                                      _name + "_kernel_prod" + std::to_string(i) + "_" + std::to_string(j) +
-                                          "_" + _reaction[i],
+                                      _name + "_kernel_prod" + std::to_string(i) + "_" +
+                                          std::to_string(j) + "_" + _reaction[i],
                                       params);
           }
         }
