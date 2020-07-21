@@ -121,12 +121,12 @@
   [../]
 []
 
-
 [ChemicalReactions]
   [./ScalarNetwork]
     species = 'N N2 N2A N2B N2a1 N2C N+ N2+ N3+ N4+'
     aux_species = 'e'
     file_location = 'Example3'
+    interpolation_type = 'spline'
 
     # These are parameters required equation-based rate coefficients
     equation_variables = 'Te Teff'
@@ -170,7 +170,6 @@
   [../]
 []
 
-
 [AuxVariables]
   [./reduced_field]
     order = FIRST
@@ -195,7 +194,7 @@
 
 [AuxScalarKernels]
   [./field_calculation]
-    type = DataReadScalar
+    type = ScalarSplineInterpolation
     variable = reduced_field
     use_time = true
     property_file = 'Example3/reduced_field.txt'
@@ -203,7 +202,7 @@
   [../]
 
   [./temperature_calculation]
-    type = DataReadScalar
+    type = ScalarSplineInterpolation
     variable = Te
     scale_factor = 1.5e-1
     sampler = reduced_field
@@ -212,7 +211,7 @@
   [../]
 
   [./density_calculation]
-    type = DataReadScalar
+    type = ScalarSplineInterpolation
     variable = e
     use_time = true
     property_file = 'Example3/electron_density.txt'
