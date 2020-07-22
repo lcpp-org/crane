@@ -67,12 +67,12 @@
   [../]
 []
 
-
 [ChemicalReactions]
   [./ScalarNetwork]
     species = 'e Ar* Ar+ Ar Ar2+'
     reaction_coefficient_format = 'rate'
     file_location = 'Example2'
+    interpolation_type = 'spline'
 
     # These are parameters required equation-based rate coefficients
     equation_constants = 'Tgas J pi'
@@ -96,7 +96,6 @@
                  Ar2+ -> W                      : {1.52*(760/100)*(Tgas/273.16)*(Te/1.5)*((J/0.4)^2 + (pi/0.4)^2)}'
   [../]
 []
-
 
 [AuxVariables]
   [./all_neutral]
@@ -159,7 +158,7 @@
   [../]
 
   [./mobility_calculation]
-    type = DataReadScalar
+    type = ScalarSplineInterpolation
     variable = mobility
     sampler = reduced_field
     property_file = 'Example2/electron_mobility.txt'
@@ -167,7 +166,7 @@
   [../]
 
   [./temperature_calculation]
-    type = DataReadScalar
+    type = ScalarSplineInterpolation
     variable = Te
     sampler = reduced_field
     property_file = 'Example2/electron_temperature.txt'

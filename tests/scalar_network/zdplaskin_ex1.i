@@ -48,6 +48,7 @@
   [./ScalarNetwork]
     species = 'e Ar+ Ar'
     file_location = 'Example1'
+    interpolation_type = 'spline'
     reactions = 'e + Ar -> e + e + Ar+          : EEDF
                  e + Ar+ + Ar -> Ar + Ar       : 1e-25'
 
@@ -61,7 +62,6 @@
     initial_condition = 51e-21
   [../]
 []
-
 
 [Executioner]
   type = Transient

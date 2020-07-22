@@ -14,6 +14,7 @@ class AddScalarReactions : public ChemicalReactionsBase
 {
 public:
   AddScalarReactions(InputParameters params);
+  const std::string _interpolation_type;
   // AddScalarReactions(InputParameters params) : ChemicalReactionsBase(params) {};
 
   virtual void act();
