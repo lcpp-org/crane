@@ -318,7 +318,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
       _threshold_energy[i] = std::stod(threshold_energy_string[i]);
     }
     _aux_var_name[i] =
-        _name + "rate_constant" + std::to_string(i); // Stores name of rate coefficients
+        _name + "reaction_rate" + std::to_string(i); // Stores name of rate coefficients
     _reaction_coefficient_name[i] = "rate_constant" + std::to_string(i);
     if (rate_coefficient_string[i] == std::string("EEDF"))
     {
