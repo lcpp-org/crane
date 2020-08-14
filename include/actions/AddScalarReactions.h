@@ -20,4 +20,5 @@ public:
   virtual void act();
 
 //protected:
+  std::vector<std::string> _aux_scalar_var_name;
 };
