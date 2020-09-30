@@ -127,10 +127,9 @@
   [../]
 []
 
-
 [ChemicalReactions]
-  [./ScalarNetwork]
-    species = 'e N N2 N2A N2B N2a1 N2C N+ N2+ N3+ N4+'
+  [ScalarNetwork]
+    species = 'N N2 N2A N2B N2a1 N2C N+ N2+ N3+ N4+'
     aux_species = 'e'
     file_location = 'Example4'
 
@@ -173,9 +172,8 @@
                  N2C + N2 -> N2 + N2a1      : 1.0e-11
                  N + N + N2 -> N2A + N2     : 1.7e-33
                  N + N + N2 -> N2B + N2     : 2.4e-33'
-  [../]
+  []
 []
-
 
 [AuxVariables]
   [./reduced_field]
@@ -201,7 +199,7 @@
 
 [AuxScalarKernels]
   [./field_calculation]
-    type = DataReadScalar
+    type = ScalarLinearInterpolation
     variable = reduced_field
     # scale_factor = 1e-21
     use_time = true
@@ -211,21 +209,19 @@
   [../]
 
   [./temperature_calculation]
-    type = DataReadScalar
+    type = ScalarLinearInterpolation
     variable = Te
     scale_factor = 1.5e-1
     sampler = reduced_field
     property_file = 'Example4/electron_temperature.txt'
-    # execute_on = 'TIMESTEP_BEGIN'
     execute_on = 'TIMESTEP_BEGIN'
   [../]
 
   [./density_calculation]
-    type = DataReadScalar
+    type = ScalarLinearInterpolation
     variable = e
     use_time = true
     property_file = 'Example4/electron_density.txt'
-    # execute_on = 'INITIAL TIMESTEP_END'
     execute_on = 'TIMESTEP_BEGIN'
   [../]
 
@@ -243,26 +239,10 @@
 [Executioner]
   type = Transient
   end_time = 2.5e-3
-  solve_type = NEWTON
-  # scheme = crank-nicolson
-  # scheme = newmark-beta
-  # dtmin = 1e-20
-  # dtmax = 1e-5
-  # petsc_options_iname = '-snes_linesearch_type'
-  # petsc_options_value = 'l2'
-  # petsc_options_iname = '-pc_type -pc_factor_shift_type -pc_factor_shift_amount -ksp_type -snes_linesearch_minlambda'
-  # petsc_options_value = 'lu NONZERO 1.e-10 preonly 1e-3'
+  solve_type = LINEAR
   line_search = basic
   nl_rel_tol = 1e-5
-  # nl_abs_tol = 7e-5
-  # dt = 1e-5
   dtmax = 1e-5
-  # [./TimeStepper]
-  #   type = CSVTimeSequenceStepper
-  #   file_name = 'Example4/reduced_field.txt'
-  #   delimiter = ' '
-  #   column_index = 0
-  # [../]
   [./TimeStepper]
     type = IterationAdaptiveDT
     cutback_factor = 0.4

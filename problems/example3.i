@@ -149,7 +149,9 @@
   [../]
 
   [./mobility_calculation]
-    type = DataReadScalar
+    # Reads data from tabulated file with a linear interpolatoin
+    # (Similarly, use ScalarSplineInterpolation to read with a cubic spline.)
+    type = ScalarLinearInterpolation
     variable = mobility
     sampler = reduced_field
     property_file = 'Example3/electron_mobility.txt'
@@ -157,7 +159,7 @@
   [../]
 
   [./temperature_calculation]
-    type = DataReadScalar
+    type = ScalarLinearInterpolation
     variable = Te
     sampler = reduced_field
     property_file = 'Example3/electron_temperature.txt'
@@ -181,7 +183,7 @@
 [Executioner]
   type = Transient
   end_time = 1e-3
-  solve_type = JFNK
+  solve_type = LINEAR
   dtmin = 1e-20
   dtmax = 1e-5
   line_search = none
@@ -205,4 +207,8 @@
 [Outputs]
   csv = true
   # interval = 10
+  [Console]
+    type = Console
+    execute_scalars_on = none
+  []
 []
