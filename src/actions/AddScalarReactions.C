@@ -89,7 +89,7 @@ AddScalarReactions::AddScalarReactions(InputParameters params)
   _aux_scalar_var_name.resize(_num_reactions);
   for (unsigned int i = 0; i < _num_reactions; ++i)
   {
-    _aux_scalar_var_name[i] = "rate_constant"+Moose::stringify(i);
+    _aux_scalar_var_name[i] = "rate_constant" + Moose::stringify(i);
   }
 }
 
@@ -468,10 +468,12 @@ AddScalarReactions::act()
               find_other = std::find(_aux_species.begin(),
                                      _aux_species.end(),
                                      _reactants[i][reactant_indices[k]]) != _aux_species.end();
+            /*
             if (find_other)
               continue;
             else
               reactant_indices.erase(reactant_indices.begin() + k);
+              */
             /*
             find_other =
                 std::find(_species.begin(), _species.end(), _reactants[i][reactant_indices[k]]) !=
@@ -492,12 +494,12 @@ AddScalarReactions::act()
             params.set<Real>("coefficient") = _species_count[i][j];
             params.set<std::vector<VariableName>>("rate_coefficient") = {_aux_scalar_var_name[i]};
             params.set<bool>("rate_constant_equation") = true;
-            if (find_other)
-            {
-              for (unsigned int k = 0; k < reactant_indices.size(); ++k)
-                params.set<std::vector<VariableName>>(other_variables[k]) = {
-                    _reactants[i][reactant_indices[k]]};
-            }
+            // if (find_other)
+            //{
+            for (unsigned int k = 0; k < reactant_indices.size(); ++k)
+              params.set<std::vector<VariableName>>(other_variables[k]) = {
+                  _reactants[i][reactant_indices[k]]};
+            //}
             _problem->addScalarKernel(reactant_kernel_name,
                                       _name + "kernel" + std::to_string(i) + "_" +
                                           std::to_string(j) + "_" + _reaction[i],
@@ -528,14 +530,14 @@ AddScalarReactions::act()
             params.set<Real>("coefficient") = _species_count[i][j];
             for (unsigned int k = 0; k < _reactants[i].size(); ++k)
             {
-              if (include_species[k])
+              // if (include_species[k])
+              //{
+              params.set<std::vector<VariableName>>(other_variables[k]) = {_reactants[i][k]};
+              if (_species[j] == _reactants[i][k])
               {
-                params.set<std::vector<VariableName>>(other_variables[k]) = {_reactants[i][k]};
-                if (_species[j] == _reactants[i][k])
-                {
-                  params.set<bool>(other_variables[k] + "_eq_u") = true;
-                }
+                params.set<bool>(other_variables[k] + "_eq_u") = true;
               }
+              //}
             }
             _problem->addScalarKernel(product_kernel_name,
                                       _name + "_kernel_prod" + std::to_string(i) + "_" +
