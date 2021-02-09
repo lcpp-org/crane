@@ -519,7 +519,12 @@ AddZapdosReactions::addEEDFCoefficient(const unsigned & reaction_num)
 {
   std::string material_name;
   if (_coefficient_format == "townsend")
-    material_name = _ad_prepend + "EEDFRateConstantTownsend";
+  {
+    if (_interpolation_type == "spline")
+      material_name = _ad_prepend + "EEDFRateConstantTownsend";
+    else if (_interpolation_type == "linear")
+      material_name = "TownsendCoefficientLinear";
+  }
   else
     material_name = _ad_prepend + "ZapdosEEDFRateConstant";
 
