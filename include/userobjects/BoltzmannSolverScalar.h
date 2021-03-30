@@ -44,7 +44,7 @@ public:
 protected:
   std::string _file_name;
   std::size_t _nargs;
-  std::vector<VariableValue *> _args;
+  std::vector<const VariableValue *> _args;
   std::vector<std::stringstream> _fractions_string;
   std::string _cross_sections;
   const VariableValue & _reduced_field;
