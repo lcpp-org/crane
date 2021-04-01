@@ -86,7 +86,6 @@ AddReactions::AddReactions(InputParameters params) : ChemicalReactionsBase(param
 void
 AddReactions::act()
 {
-  int v_index;
   std::vector<int> other_index;
   std::vector<int> reactant_indices;
   std::vector<std::string> other_variables;
@@ -94,10 +93,7 @@ AddReactions::act()
   other_variables[0] = "v";
   other_variables[1] = "w";
   other_variables[2] = "x";
-  bool find_other;
-  bool find_aux;
   std::vector<bool> include_species;
-  unsigned int target; // stores index of target species for electron-impact reactions
   std::string product_kernel_name;
   std::string reactant_kernel_name;
   std::string energy_kernel_name;
