@@ -283,9 +283,10 @@ AddZapdosReactions::act()
       // First all EEDF-based reactions are added.
       for (unsigned int i = 0; i < _num_eedf_reactions; ++i)
       {
+        std::cout << _ad_prepend + "ReactionRateEEDF" + _townsend_append + _log_append << std::endl;
         if (_coefficient_format == "townsend")
           addAuxRate(
-              "ReactionRateEEDF" + _townsend_append + _log_append, _eedf_reaction_number[i], true);
+              _ad_prepend + "ReactionRateEEDF" + _townsend_append + _log_append, _eedf_reaction_number[i], true);
         else
         {
           kernel_name = getKernelName(_reactants[_eedf_reaction_number[i]].size(), false, true);
@@ -374,11 +375,23 @@ AddZapdosReactions::getElectronImpactKernelName(const bool & energy_kernel,
   }
   else
     name += "Reaction";
+  return (_ad_prepend + name + _townsend_append + _log_append);
+  
+  /*
+  std::string name = "Interpolate";
+  if (energy_kernel)
+  {
+    if (elastic_kernel)
+      name += "Elastic";
+    else
+      name += "Energy";
+  }
+  */
 
   if (is_aux)
     name += "Rate";
 
-  return (_ad_prepend + name + _townsend_append + _log_append);
+  return (name + _townsend_append + _log_append);
 }
 
 std::string
