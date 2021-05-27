@@ -44,10 +44,6 @@ InterpolatedCoefficientSpline::InterpolatedCoefficientSpline(const InputParamete
         getParam<bool>("townsend")
             ? "alpha" + getParam<std::string>("number") + "_" + getParam<std::string>("reaction")
             : "k" + getParam<std::string>("number") + "_" + getParam<std::string>("reaction"))),
-    /*
-      _rate_coefficient(declareADProperty<Real>("k" + getParam<std::string>("number") + "_" +
-                                                getParam<std::string>("reaction"))),
-                                                */
     _em(adCoupledValue("electrons")),
     _mean_en(adCoupledValue("mean_energy"))
 {
@@ -85,4 +81,11 @@ InterpolatedCoefficientSpline::computeQpProperties()
                                         std::exp(_mean_en[_qp].value() - _em[_qp].value())) *
                                     std::exp(_mean_en[_qp].value() - _em[_qp].value()) *
                                     (_mean_en[_qp].derivatives() - _em[_qp].derivatives());
+
+  // Safeguard agains zero values resulting from extrapolation
+  if (_coefficient[_qp].value() < 0)
+  {
+    _coefficient[_qp].value() = 0;
+    _coefficient[_qp].derivatives() = 0;
+  }
 }

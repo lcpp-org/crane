@@ -27,7 +27,7 @@ public:
 protected:
   virtual void computeQpProperties();
 
-  LinearInterpolation _coefficient_interpolation;
+  std::unique_ptr<LinearInterpolation> _coefficient_interpolation;
 
   ADMaterialProperty<Real> & _coefficient;
   const ADVariableValue & _em;

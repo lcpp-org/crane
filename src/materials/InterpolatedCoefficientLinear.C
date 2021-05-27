@@ -69,16 +69,24 @@ InterpolatedCoefficientLinear::InterpolatedCoefficientLinear(const InputParamete
   else
     mooseError("Unable to open file");
 
-  _coefficient_interpolation.setData(val_x, rate_coefficient);
+  _coefficient_interpolation =
+      libmesh_make_unique<LinearInterpolation>(val_x, rate_coefficient, true);
 }
 
 void
 InterpolatedCoefficientLinear::computeQpProperties()
 {
   _coefficient[_qp].value() =
-      _coefficient_interpolation.sample(std::exp(_mean_en[_qp].value() - _em[_qp].value()));
-  _coefficient[_qp].derivatives() = _coefficient_interpolation.sampleDerivative(
+      _coefficient_interpolation->sample(std::exp(_mean_en[_qp].value() - _em[_qp].value()));
+  _coefficient[_qp].derivatives() = _coefficient_interpolation->sampleDerivative(
                                         std::exp(_mean_en[_qp].value() - _em[_qp].value())) *
                                     std::exp(_mean_en[_qp].value() - _em[_qp].value()) *
                                     (_mean_en[_qp].derivatives() - _em[_qp].derivatives());
+
+  // Safeguard agains zero values resulting from extrapolation
+  if (_coefficient[_qp].value() < 0)
+  {
+    _coefficient[_qp].value() = 0;
+    _coefficient[_qp].derivatives() = 0;
+  }
 }
