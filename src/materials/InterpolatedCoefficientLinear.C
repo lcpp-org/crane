@@ -1,13 +1,13 @@
-#include "TownsendCoefficientLinear.h"
+#include "InterpolatedCoefficientLinear.h"
 #include "MooseUtils.h"
 
 // MOOSE includes
 #include "MooseVariable.h"
 
-registerADMooseObject("CraneApp", TownsendCoefficientLinear);
+registerADMooseObject("CraneApp", InterpolatedCoefficientLinear);
 
 InputParameters
-TownsendCoefficientLinear::validParams()
+InterpolatedCoefficientLinear::validParams()
 {
   InputParameters params = ADMaterial::validParams();
   params.addRequiredParam<FileName>(
@@ -15,12 +15,13 @@ TownsendCoefficientLinear::validParams()
   params.addRequiredParam<std::string>("reaction", "The full reaction equation.");
   params.addRequiredParam<std::string>(
       "file_location", "The name of the file that stores the reaction rate tables.");
-  params.addParam<std::string>(
-      "reaction_coefficient_format",
-      "townsend",
-      "The format of the reaction coefficient. Options: rate or townsend.");
   params.addRequiredCoupledVar("mean_energy", "The electron mean energy in log form.");
   params.addRequiredCoupledVar("electrons", "The electron density.");
+  params.addParam<bool>("townsend",
+                        false,
+                        "Whether the tabulated data is a townsend coefficient or rate coefficient. "
+                        "If true, the name of the Material property will begin with 'alpha'. If "
+                        "false (default), it will begin with 'k'.");
   params.addParam<std::string>(
       "number",
       "",
@@ -37,14 +38,14 @@ TownsendCoefficientLinear::validParams()
   return params;
 }
 
-TownsendCoefficientLinear::TownsendCoefficientLinear(const InputParameters & parameters)
+InterpolatedCoefficientLinear::InterpolatedCoefficientLinear(const InputParameters & parameters)
   : ADMaterial(parameters),
-    _coefficient_format(getParam<std::string>("reaction_coefficient_format")),
-    _townsend_coefficient(declareADProperty<Real>("alpha" + getParam<std::string>("number") + "_" +
-                                                  getParam<std::string>("reaction"))),
-    _massIncident(getMaterialProperty<Real>("mass" + (*getVar("electrons", 0)).name())),
+    _coefficient(declareADProperty<Real>(
+        getParam<bool>("townsend")
+            ? "alpha" + getParam<std::string>("number") + "_" + getParam<std::string>("reaction")
+            : "k" + getParam<std::string>("number") + "_" + getParam<std::string>("reaction"))),
     _em(adCoupledValue("electrons")),
-    _mean_en(isCoupled("mean_energy") ? adCoupledValue("mean_energy") : _em)
+    _mean_en(adCoupledValue("mean_energy"))
 {
   std::vector<Real> val_x;
   std::vector<Real> rate_coefficient;
@@ -72,19 +73,12 @@ TownsendCoefficientLinear::TownsendCoefficientLinear(const InputParameters & par
 }
 
 void
-TownsendCoefficientLinear::computeQpProperties()
+InterpolatedCoefficientLinear::computeQpProperties()
 {
-
-  _townsend_coefficient[_qp].value() =
+  _coefficient[_qp].value() =
       _coefficient_interpolation.sample(std::exp(_mean_en[_qp].value() - _em[_qp].value()));
-  _townsend_coefficient[_qp].derivatives() = _coefficient_interpolation.sampleDerivative(std::exp(
-                                                 _mean_en[_qp].value() - _em[_qp].value())) *
-                                             std::exp(_mean_en[_qp].value() - _em[_qp].value()) *
-                                             (_mean_en[_qp].derivatives() - _em[_qp].derivatives());
-
-  if (_townsend_coefficient[_qp].value() < 0)
-  {
-    _townsend_coefficient[_qp].value() = 0;
-    _townsend_coefficient[_qp].derivatives() = 0;
-  }
+  _coefficient[_qp].derivatives() = _coefficient_interpolation.sampleDerivative(
+                                        std::exp(_mean_en[_qp].value() - _em[_qp].value())) *
+                                    std::exp(_mean_en[_qp].value() - _em[_qp].value()) *
+                                    (_mean_en[_qp].derivatives() - _em[_qp].derivatives());
 }

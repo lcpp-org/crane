@@ -18,22 +18,18 @@
 //#include "SplineInterpolation.h"
 #include "LinearInterpolation.h"
 
-class TownsendCoefficientLinear : public ADMaterial
+class InterpolatedCoefficientLinear : public ADMaterial
 {
 public:
   static InputParameters validParams();
-  TownsendCoefficientLinear(const InputParameters & parameters);
+  InterpolatedCoefficientLinear(const InputParameters & parameters);
 
 protected:
   virtual void computeQpProperties();
 
-  //SplineInterpolation _coefficient_interpolation;
   LinearInterpolation _coefficient_interpolation;
-  
-  std::string _coefficient_format;
-  ADMaterialProperty<Real> & _townsend_coefficient;
-  const MaterialProperty<Real> & _massIncident;
+
+  ADMaterialProperty<Real> & _coefficient;
   const ADVariableValue & _em;
   const ADVariableValue & _mean_en;
-
 };
