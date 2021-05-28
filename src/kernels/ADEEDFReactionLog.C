@@ -28,8 +28,7 @@ ADEEDFReactionLog::validParams()
   return params;
 }
 
-ADEEDFReactionLog::ADEEDFReactionLog(
-    const InputParameters & parameters)
+ADEEDFReactionLog::ADEEDFReactionLog(const InputParameters & parameters)
   : ADKernel(parameters),
     _reaction_coeff(getADMaterialProperty<Real>("k" + getParam<std::string>("number") + "_" +
                                                 getParam<std::string>("reaction"))),

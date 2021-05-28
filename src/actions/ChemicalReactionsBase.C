@@ -114,6 +114,10 @@ validParams<ChemicalReactionsBase>()
                         1,
                         "Multiplies constant and parsed function rate coefficients by "
                         "convert_to_meters^(n*(n-1)), where `n` is the number of reactants.");
+  params.addParam<std::string>("interpolation_type",
+                               "spline",
+                               "Type of interpolation to be used for tabulated rate coefficients. "
+                               "Options: 'linear' or 'spline'. Default: 'spline'.");
   params.addClassDescription(
       "This Action automatically adds the necessary kernels and materials for a reaction network.");
   return params;
@@ -149,11 +153,18 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     _use_ad(getParam<bool>("use_ad")),
     //_name(getParam<std::string>("name")),
     _mole_factor(getParam<bool>("convert_to_moles")),
-    _rate_factor(getParam<Real>("convert_to_meters"))
+    _rate_factor(getParam<Real>("convert_to_meters")),
+    _interpolation_type(getParam<std::string>("interpolation_type"))
 {
+  // Check interpolation type
+  if ((_interpolation_type != "spline") && (_interpolation_type != "linear"))
+    mooseError("[Reactions] block: An interpolation_type of " + _interpolation_type +
+               " is invalid! Only 'spline' or 'linear' interpolations are possible. 'spline' is "
+               "used by default.");
+
   if (isParamValid("name"))
   {
-    _name += "_";
+    _name = getParam<std::string>("name") + "_";
   }
   else
     _name = "";
@@ -457,8 +468,8 @@ ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
     exp_factor = _reactants[i].size() - 1;
     if (_rate_type[i] == "Equation")
     {
-      _rate_equation_string[i] +=
-          "*" + Moose::stringify(std::pow(N_A, exp_factor) * std::pow(_rate_factor, (3 * exp_factor)));
+      _rate_equation_string[i] += "*" + Moose::stringify(std::pow(N_A, exp_factor) *
+                                                         std::pow(_rate_factor, (3 * exp_factor)));
     }
     else if (_rate_type[i] == "Constant")
     {

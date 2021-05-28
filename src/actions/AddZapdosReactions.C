@@ -64,6 +64,14 @@ AddZapdosReactions::AddZapdosReactions(InputParameters params)
     _use_ad(getParam<bool>("use_ad"))
 
 {
+  if (_num_eedf_reactions > 0 && !isParamValid("electron_density"))
+    mooseError(
+        "[Reactions]: Input parameter electron_density must be set to use EEDF-type reactions.");
+
+  if (_num_eedf_reactions > 0 && !isParamValid("electron_energy"))
+    mooseError(
+        "[Reactions]: Input parameter electron_energy must be set to use EEDF-type reactions.");
+
   if (_coefficient_format == "townsend")
   {
     // This adds the appropriate kernel name to EEDF-related reactions. Otherwise it is a blank
@@ -115,7 +123,7 @@ AddZapdosReactions::act()
       ////////////////////////////
       // WHAT IS THIS USED FOR? //
       ////////////////////////////
-      _reaction_coefficient_name[i] = "alpha_" + _reaction[i];
+      //_reaction_coefficient_name[i] = "alpha_" + _reaction[i];
       if (_rate_type[i] == "EEDF")
       {
         addEEDFCoefficient(i);
@@ -176,7 +184,6 @@ AddZapdosReactions::act()
         {
           kernel_name = getElectronImpactKernelName(false, false, false);
           addEEDFKernel(_eedf_reaction_number[i], j, kernel_name, electron_index, target_index);
-          //_ad_prepend + "ElectronImpactReaction" + _townsend_append + _log_append,
         }
       }
 
@@ -283,9 +290,11 @@ AddZapdosReactions::act()
       // First all EEDF-based reactions are added.
       for (unsigned int i = 0; i < _num_eedf_reactions; ++i)
       {
+        std::cout << _ad_prepend + "ReactionRateEEDF" + _townsend_append + _log_append << std::endl;
         if (_coefficient_format == "townsend")
-          addAuxRate(
-              "ReactionRateEEDF" + _townsend_append + _log_append, _eedf_reaction_number[i], true);
+          addAuxRate(_ad_prepend + "ReactionRateEEDF" + _townsend_append + _log_append,
+                     _eedf_reaction_number[i],
+                     true);
         else
         {
           kernel_name = getKernelName(_reactants[_eedf_reaction_number[i]].size(), false, true);
@@ -374,11 +383,23 @@ AddZapdosReactions::getElectronImpactKernelName(const bool & energy_kernel,
   }
   else
     name += "Reaction";
+  return (_ad_prepend + name + _townsend_append + _log_append);
+
+  /*
+  std::string name = "Interpolate";
+  if (energy_kernel)
+  {
+    if (elastic_kernel)
+      name += "Elastic";
+    else
+      name += "Energy";
+  }
+  */
 
   if (is_aux)
     name += "Rate";
 
-  return (_ad_prepend + name + _townsend_append + _log_append);
+  return (name + _townsend_append + _log_append);
 }
 
 std::string
@@ -519,9 +540,25 @@ AddZapdosReactions::addEEDFCoefficient(const unsigned & reaction_num)
 {
   std::string material_name;
   if (_coefficient_format == "townsend")
-    material_name = _ad_prepend + "EEDFRateConstantTownsend";
+  {
+    if (_interpolation_type == "spline")
+    {
+      // material_name = _ad_prepend + "EEDFRateConstantTownsend";
+      if (!_use_ad)
+        material_name = "EEDFRateConstantTownsend";
+      else
+        material_name = "InterpolatedCoefficientSpline";
+    }
+    else if (_interpolation_type == "linear")
+      material_name = "InterpolatedCoefficientLinear";
+  }
   else
-    material_name = _ad_prepend + "ZapdosEEDFRateConstant";
+  {
+    if (_interpolation_type == "spline")
+      material_name = _ad_prepend + "ZapdosEEDFRateConstant";
+    else if (_interpolation_type == "linear")
+      material_name = "InterpolatedCoefficientLinear";
+  }
 
   auto params = _factory.getValidParams(material_name);
   params.set<std::string>("reaction") = _reaction[reaction_num];
@@ -540,6 +577,11 @@ AddZapdosReactions::addEEDFCoefficient(const unsigned & reaction_num)
 
   params.set<std::string>("number") = Moose::stringify(reaction_num);
   params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
+
+  // The "townsend" ID changes the name of the material property, but this is only done
+  // in the AD case.
+  if (_coefficient_format == "townsend" && _use_ad)
+    params.set<bool>("townsend") = true;
 
   if (_use_ad)
   {

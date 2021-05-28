@@ -87,4 +87,6 @@ protected:
   bool _mole_factor;
   Real N_A; 
   Real _rate_factor;
+
+  std::string _interpolation_type;
 };

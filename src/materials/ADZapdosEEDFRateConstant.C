@@ -64,14 +64,8 @@ ADZapdosEEDFRateConstant::computeQpProperties()
 {
   _rate_coefficient[_qp].value() =
       _coefficient_interpolation.sample(std::exp(_mean_en[_qp].value() - _em[_qp].value()));
-  _rate_coefficient[_qp].derivatives() =
-      _coefficient_interpolation.sample(std::exp(_mean_en[_qp].value() - _em[_qp].value())) *
-      std::exp(_mean_en[_qp].value() - _em[_qp].value()) *
-      (_mean_en[_qp].derivatives() - _em[_qp].derivatives());
-
-  if (_rate_coefficient[_qp] < 0.0)
-  {
-    _rate_coefficient[_qp].value() = 0.0;
-    _rate_coefficient[_qp].derivatives() = 0.0;
-  }
+  _rate_coefficient[_qp].derivatives() = _coefficient_interpolation.sampleDerivative(
+                                             std::exp(_mean_en[_qp].value() - _em[_qp].value())) *
+                                         std::exp(_mean_en[_qp].value() - _em[_qp].value()) *
+                                         (_mean_en[_qp].derivatives() - _em[_qp].derivatives());
 }
