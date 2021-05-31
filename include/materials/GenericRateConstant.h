@@ -1,36 +1,24 @@
-/****************************************************************/
-/*                      DO NOT MODIFY THIS HEADER               */
-/* MOOSE - Multiphysics Object Oriented Simulation Environment  */
-/*                                                              */
-/*              (c) 2010 Battelle Energy Alliance, LLC          */
-/*                      ALL RIGHTS RESERVED                     */
-/*                                                              */
-/*              Prepared by Battelle Energy Alliance, LLC       */
-/*              Under Contract No. DE-AC07-05ID14517            */
-/*              With the U. S. Department of Energy             */
-/*                                                              */
-/*              See COPYRIGHT for full restrictions             */
-/****************************************************************/
 #pragma once
 
 #include "Material.h"
 
-class GenericRateConstant;
-
-template <>
-InputParameters validParams<GenericRateConstant>();
-
-class GenericRateConstant : public Material
+template <bool is_ad>
+class GenericRateConstantTempl : public Material
 {
 public:
-  GenericRateConstant(const InputParameters & parameters);
+  GenericRateConstantTempl(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
-  virtual void computeQpProperties();
+  virtual void computeQpProperties() override;
 
-  MaterialProperty<Real> & _reaction_rate;
+  GenericMaterialProperty<Real, is_ad> & _reaction_rate;
   MaterialProperty<Real> & _d_k_d_en;
 
   Real _rate_value;
 
 };
+
+typedef GenericRateConstantTempl<false> GenericRateConstant;
+typedef GenericRateConstantTempl<true> ADGenericRateConstant;
