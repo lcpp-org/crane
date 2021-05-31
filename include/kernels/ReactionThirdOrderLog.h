@@ -1,40 +1,23 @@
-/****************************************************************/
-/*               DO NOT MODIFY THIS HEADER                      */
-/* MOOSE - Multiphysics Object Oriented Simulation Environment  */
-/*                                                              */
-/*           (c) 2010 Battelle Energy Alliance, LLC             */
-/*                   ALL RIGHTS RESERVED                        */
-/*                                                              */
-/*          Prepared by Battelle Energy Alliance, LLC           */
-/*            Under Contract No. DE-AC07-05ID14517              */
-/*            With the U. S. Department of Energy               */
-/*                                                              */
-/*            See COPYRIGHT for full restrictions               */
-/****************************************************************/
-
 #pragma once
 
-#include "Kernel.h"
+#include "GenericKernel.h"
 
-// Forward Declaration
-class ReactionThirdOrderLog;
-
-template <>
-InputParameters validParams<ReactionThirdOrderLog>();
-
-class ReactionThirdOrderLog : public Kernel
+template <bool is_ad>
+class ReactionThirdOrderLogTempl : public GenericKernel<is_ad>
 {
 public:
-  ReactionThirdOrderLog(const InputParameters & parameters);
+  ReactionThirdOrderLogTempl(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
-  virtual Real computeQpResidual();
+  virtual GenericReal<is_ad> computeQpResidual();
   virtual Real computeQpJacobian();
   virtual Real computeQpOffDiagJacobian(unsigned int jvar);
 
-  const VariableValue & _v;
-  const VariableValue & _w;
-  const VariableValue & _x;
+  const GenericVariableValue<is_ad> & _v;
+  const GenericVariableValue<is_ad> & _w;
+  const GenericVariableValue<is_ad> & _x;
   unsigned int _v_id;
   unsigned int _w_id;
   unsigned int _x_id;
@@ -42,6 +25,11 @@ protected:
   bool _w_eq_u;
   bool _x_eq_u;
 
-  const MaterialProperty<Real> & _reaction_coeff;
+  const GenericMaterialProperty<Real, is_ad> & _reaction_coeff;
   Real _stoichiometric_coeff;
+
+  usingGenericKernelMembers;
 };
+
+typedef ReactionThirdOrderLogTempl<false> ReactionThirdOrderLog;
+typedef ReactionThirdOrderLogTempl<true> ADReactionThirdOrderLog;

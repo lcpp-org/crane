@@ -1,15 +1,15 @@
 #include "ReactionSecondOrderLog.h"
 
-// MOOSE includes
-#include "MooseVariable.h"
+using MetaPhysicL::raw_value;
 
 registerMooseObject("CraneApp", ReactionSecondOrderLog);
+registerMooseObject("CraneApp", ADReactionSecondOrderLog);
 
-template <>
+template <bool is_ad>
 InputParameters
-validParams<ReactionSecondOrderLog>()
+ReactionSecondOrderLogTempl<is_ad>::validParams()
 {
-  InputParameters params = validParams<Kernel>();
+  InputParameters params = Kernel::validParams();
   params.addRequiredCoupledVar("v", "The first variable that is reacting to create u.");
   params.addRequiredCoupledVar("w", "The second variable that is reacting to create u.");
   params.addRequiredParam<std::string>("reaction", "The full reaction equation.");
@@ -26,29 +26,33 @@ validParams<ReactionSecondOrderLog>()
   return params;
 }
 
-ReactionSecondOrderLog::ReactionSecondOrderLog(const InputParameters & parameters)
-  : Kernel(parameters),
-    _v(coupledValue("v")),
-    _w(coupledValue("w")),
+template <bool is_ad>
+ReactionSecondOrderLogTempl<is_ad>::ReactionSecondOrderLogTempl(const InputParameters & parameters)
+  : GenericKernel<is_ad>(parameters),
+    _v(this->template coupledGenericValue<is_ad>("v")),
+    _w(this->template coupledGenericValue<is_ad>("w")),
     _v_id(coupled("v")),
     _w_id(coupled("w")),
-    _reaction_coeff(getMaterialProperty<Real>("k" + getParam<std::string>("number") + "_" +
-                                              getParam<std::string>("reaction"))),
-    _stoichiometric_coeff(getParam<Real>("coefficient")),
-    _v_eq_u(getParam<bool>("_v_eq_u")),
-    _w_eq_u(getParam<bool>("_w_eq_u"))
+    _reaction_coeff(this->template getGenericMaterialProperty<Real, is_ad>(
+        "k" + this->template getParam<std::string>("number") + "_" +
+        this->template getParam<std::string>("reaction"))),
+    _stoichiometric_coeff(this->template getParam<Real>("coefficient")),
+    _v_eq_u(this->template getParam<bool>("_v_eq_u")),
+    _w_eq_u(this->template getParam<bool>("_w_eq_u"))
 {
 }
 
-Real
-ReactionSecondOrderLog::computeQpResidual()
+template <bool is_ad>
+GenericReal<is_ad>
+ReactionSecondOrderLogTempl<is_ad>::computeQpResidual()
 {
   return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] *
          std::exp(_v[_qp] + _w[_qp]);
 }
 
+template <bool is_ad>
 Real
-ReactionSecondOrderLog::computeQpJacobian()
+ReactionSecondOrderLogTempl<is_ad>::computeQpJacobian()
 {
   Real power;
   power = 0.0;
@@ -65,13 +69,14 @@ ReactionSecondOrderLog::computeQpJacobian()
   }
   else
   {
-    return -_test[_i][_qp] * _stoichiometric_coeff * power * _reaction_coeff[_qp] *
-           std::exp(_v[_qp] + _w[_qp]) * _phi[_j][_qp];
+    return -_test[_i][_qp] * _stoichiometric_coeff * power *
+           raw_value(_reaction_coeff[_qp] * std::exp(_v[_qp] + _w[_qp])) * _phi[_j][_qp];
   }
 }
 
+template <bool is_ad>
 Real
-ReactionSecondOrderLog::computeQpOffDiagJacobian(unsigned int jvar)
+ReactionSecondOrderLogTempl<is_ad>::computeQpOffDiagJacobian(unsigned int jvar)
 {
   Real power;
   power = 0;
@@ -82,6 +87,9 @@ ReactionSecondOrderLog::computeQpOffDiagJacobian(unsigned int jvar)
   if (!_w_eq_u && jvar == _w_id)
     power += 1;
 
-  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] *
-         std::exp(_v[_qp] + _w[_qp]) * power * _phi[_j][_qp];
+  return -_test[_i][_qp] * _stoichiometric_coeff *
+         raw_value(_reaction_coeff[_qp] * std::exp(_v[_qp] + _w[_qp])) * power * _phi[_j][_qp];
 }
+
+template class ReactionSecondOrderLogTempl<false>;
+template class ReactionSecondOrderLogTempl<true>;

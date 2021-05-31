@@ -1,15 +1,15 @@
 #include "ReactionThirdOrderLog.h"
 
-// MOOSE includes
-#include "MooseVariable.h"
+using MetaPhysicL::raw_value;
 
 registerMooseObject("CraneApp", ReactionThirdOrderLog);
+registerMooseObject("CraneApp", ADReactionThirdOrderLog);
 
-template <>
+template <bool is_ad>
 InputParameters
-validParams<ReactionThirdOrderLog>()
+ReactionThirdOrderLogTempl<is_ad>::validParams()
 {
-  InputParameters params = validParams<Kernel>();
+  InputParameters params = Kernel::validParams();
   params.addRequiredCoupledVar("v", "The first variable that is reacting.");
   params.addRequiredCoupledVar("w", "The second variable that is reacting.");
   params.addRequiredCoupledVar("x", "The third variable that is reacting.");
@@ -28,32 +28,36 @@ validParams<ReactionThirdOrderLog>()
   return params;
 }
 
-ReactionThirdOrderLog::ReactionThirdOrderLog(const InputParameters & parameters)
-  : Kernel(parameters),
-    _v(coupledValue("v")),
-    _w(coupledValue("w")),
-    _x(coupledValue("x")),
+template <bool is_ad>
+ReactionThirdOrderLogTempl<is_ad>::ReactionThirdOrderLogTempl(const InputParameters & parameters)
+  : GenericKernel<is_ad>(parameters),
+    _v(this->template coupledGenericValue<is_ad>("v")),
+    _w(this->template coupledGenericValue<is_ad>("w")),
+    _x(this->template coupledGenericValue<is_ad>("x")),
     _v_id(coupled("v")),
     _w_id(coupled("w")),
     _x_id(coupled("x")),
-    _v_eq_u(getParam<bool>("_v_eq_u")),
-    _w_eq_u(getParam<bool>("_w_eq_u")),
-    _x_eq_u(getParam<bool>("_x_eq_u")),
-    _reaction_coeff(getMaterialProperty<Real>("k" + getParam<std::string>("number") + "_" +
-                                              getParam<std::string>("reaction"))),
-    _stoichiometric_coeff(getParam<Real>("coefficient"))
+    _v_eq_u(this->template getParam<bool>("_v_eq_u")),
+    _w_eq_u(this->template getParam<bool>("_w_eq_u")),
+    _x_eq_u(this->template getParam<bool>("_x_eq_u")),
+    _reaction_coeff(this->template getGenericMaterialProperty<Real, is_ad>(
+        "k" + this->template getParam<std::string>("number") + "_" +
+        this->template getParam<std::string>("reaction"))),
+    _stoichiometric_coeff(this->template getParam<Real>("coefficient"))
 {
 }
 
-Real
-ReactionThirdOrderLog::computeQpResidual()
+template <bool is_ad>
+GenericReal<is_ad>
+ReactionThirdOrderLogTempl<is_ad>::computeQpResidual()
 {
   return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] *
          std::exp(_v[_qp] + _w[_qp] + _x[_qp]);
 }
 
+template <bool is_ad>
 Real
-ReactionThirdOrderLog::computeQpJacobian()
+ReactionThirdOrderLogTempl<is_ad>::computeQpJacobian()
 {
   Real power;
 
@@ -65,12 +69,13 @@ ReactionThirdOrderLog::computeQpJacobian()
   if (_x_eq_u)
     power += 1;
 
-  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * power *
-         std::exp(_v[_qp] + _w[_qp] + _x[_qp]) * _phi[_j][_qp];
+  return -_test[_i][_qp] * _stoichiometric_coeff * raw_value(_reaction_coeff[_qp] * power *
+         std::exp(_v[_qp] + _w[_qp] + _x[_qp])) * _phi[_j][_qp];
 }
 
+template <bool is_ad>
 Real
-ReactionThirdOrderLog::computeQpOffDiagJacobian(unsigned int jvar)
+ReactionThirdOrderLogTempl<is_ad>::computeQpOffDiagJacobian(unsigned int jvar)
 {
   Real power;
   power = 0;
@@ -84,6 +89,9 @@ ReactionThirdOrderLog::computeQpOffDiagJacobian(unsigned int jvar)
   if (!_x_eq_u && jvar == _x_id)
     power += 1;
 
-  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] *
-         std::exp(_v[_qp] + _w[_qp] + _x[_qp]) * power * _phi[_j][_qp];
+  return -_test[_i][_qp] * _stoichiometric_coeff * raw_value(_reaction_coeff[_qp] *
+         std::exp(_v[_qp] + _w[_qp] + _x[_qp])) * power * _phi[_j][_qp];
 }
+
+template class ReactionThirdOrderLogTempl<false>;
+template class ReactionThirdOrderLogTempl<true>;

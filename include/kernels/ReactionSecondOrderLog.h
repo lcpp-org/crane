@@ -1,45 +1,33 @@
-/****************************************************************/
-/*               DO NOT MODIFY THIS HEADER                      */
-/* MOOSE - Multiphysics Object Oriented Simulation Environment  */
-/*                                                              */
-/*           (c) 2010 Battelle Energy Alliance, LLC             */
-/*                   ALL RIGHTS RESERVED                        */
-/*                                                              */
-/*          Prepared by Battelle Energy Alliance, LLC           */
-/*            Under Contract No. DE-AC07-05ID14517              */
-/*            With the U. S. Department of Energy               */
-/*                                                              */
-/*            See COPYRIGHT for full restrictions               */
-/****************************************************************/
-
 #pragma once
 
-#include "Kernel.h"
+#include "GenericKernel.h"
 
-// Forward Declaration
-class ReactionSecondOrderLog;
-
-template <>
-InputParameters validParams<ReactionSecondOrderLog>();
-
-class ReactionSecondOrderLog : public Kernel
+template <bool is_ad>
+class ReactionSecondOrderLogTempl : public GenericKernel<is_ad>
 {
 public:
-  ReactionSecondOrderLog(const InputParameters & parameters);
+  ReactionSecondOrderLogTempl(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
-  virtual Real computeQpResidual();
+  virtual GenericReal<is_ad> computeQpResidual();
   virtual Real computeQpJacobian();
   virtual Real computeQpOffDiagJacobian(unsigned int jvar);
 
-  const VariableValue & _v;
-  const VariableValue & _w;
+  const GenericVariableValue<is_ad> & _v;
+  const GenericVariableValue<is_ad> & _w;
   unsigned int _v_id;
   unsigned int _w_id;
 
   // The reaction coefficient
-  const MaterialProperty<Real> & _reaction_coeff;
+  const GenericMaterialProperty<Real, is_ad> & _reaction_coeff;
   Real _stoichiometric_coeff;
   bool _v_eq_u;
   bool _w_eq_u;
+
+  usingGenericKernelMembers;
 };
+
+typedef ReactionSecondOrderLogTempl<false> ReactionSecondOrderLog;
+typedef ReactionSecondOrderLogTempl<true> ADReactionSecondOrderLog;
