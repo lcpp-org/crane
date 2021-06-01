@@ -2,30 +2,20 @@
 
 registerMooseObject("CraneApp", TimeDerivativeLog);
 
-template <>
 InputParameters
-validParams<TimeDerivativeLog>()
+TimeDerivativeLog::validParams()
 {
-  InputParameters params = validParams<TimeKernel>();
-  params.addParam<bool>("lumping", false, "True for mass matrix lumping, false otherwise");
+  InputParameters params = ADTimeDerivative::validParams();
   return params;
 }
 
 TimeDerivativeLog::TimeDerivativeLog(const InputParameters & parameters)
-  : TimeKernel(parameters), _lumping(getParam<bool>("lumping"))
-
+  : ADTimeDerivative(parameters)
 {
 }
 
-Real
-TimeDerivativeLog::computeQpResidual()
+ADReal
+TimeDerivativeLog::precomputeQpResidual()
 {
-  return _test[_i][_qp] * std::exp(_u[_qp]) * _u_dot[_qp];
-}
-
-Real
-TimeDerivativeLog::computeQpJacobian()
-{
-  return _test[_i][_qp] * (std::exp(_u[_qp]) * _phi[_j][_qp] * _u_dot[_qp] +
-                           std::exp(_u[_qp]) * _du_dot_du[_qp] * _phi[_j][_qp]);
+  return std::exp(_u[_qp]) * ADTimeDerivative::precomputeQpResidual();
 }
