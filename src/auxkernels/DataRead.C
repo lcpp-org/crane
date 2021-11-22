@@ -16,11 +16,10 @@
 
 registerMooseObject("CraneApp", DataRead);
 
-template <>
 InputParameters
-validParams<DataRead>()
+DataRead::validParams()
 {
-  InputParameters params = validParams<AuxKernel>();
+  InputParameters params = AuxKernel::validParams();
   params.addCoupledVar("sampler", 0, "The variable with which the data will be sampled.");
   params.addParam<bool>("use_time", false, "Whether or not to sample with time.");
   params.addParam<bool>("use_log", false, "Whether or not to return the natural logarithm of the sampled data.");

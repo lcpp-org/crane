@@ -17,15 +17,12 @@
 /* #include "LinearInterpolation.h" */
 #include "SplineInterpolation.h"
 
-class ZapdosEEDFRateConstant;
-
-template <>
-InputParameters validParams<ZapdosEEDFRateConstant>();
-
 class ZapdosEEDFRateConstant : public Material
 {
 public:
   ZapdosEEDFRateConstant(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual void computeQpProperties();

@@ -2,15 +2,12 @@
 
 #include "AuxScalarKernel.h"
 
-class DensityLogConvertScalar;
-
-template <>
-InputParameters validParams<DensityLogConvertScalar>();
-
 class DensityLogConvertScalar : public AuxScalarKernel
 {
 public:
   DensityLogConvertScalar(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
   virtual ~DensityLogConvertScalar() {}
 

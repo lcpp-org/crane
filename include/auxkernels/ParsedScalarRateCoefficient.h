@@ -18,12 +18,6 @@
 #include "FunctionParserUtils.h"
 // #include "ValueProvider.h"
 
-// Forward Declarations
-class ParsedScalarRateCoefficient;
-
-template <>
-InputParameters validParams<ParsedScalarRateCoefficient>();
-
 /**
  * Constant auxiliary value
  */
@@ -31,6 +25,8 @@ class ParsedScalarRateCoefficient : public AuxScalarKernel, public FunctionParse
 {
 public:
   ParsedScalarRateCoefficient(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
   virtual ~ParsedScalarRateCoefficient() {}
 

@@ -16,16 +16,12 @@
 
 #include "AuxScalarKernel.h"
 
-// Forward Declaration
-class ReactionRateTwoBodyScalar;
-
-template <>
-InputParameters validParams<ReactionRateTwoBodyScalar>();
-
 class ReactionRateTwoBodyScalar : public AuxScalarKernel
 {
 public:
   ReactionRateTwoBodyScalar(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual Real computeValue();

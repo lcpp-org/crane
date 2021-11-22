@@ -16,11 +16,10 @@
 
 registerMooseObject("CraneApp", ObjTest);
 
-template <>
 InputParameters
-validParams<ObjTest>()
+ObjTest::validParams()
 {
-  InputParameters params = validParams<GeneralUserObject>();
+  InputParameters params = GeneralUserObject::validParams();
   params.addRequiredParam<Real>("reaction_coefficient", "The area of the electrode or plasma.");
   return params;
 }

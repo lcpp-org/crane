@@ -16,16 +16,12 @@
 
 #include "Kernel.h"
 
-// Forward Declaration
-class ReactionFirstOrder;
-
-template <>
-InputParameters validParams<ReactionFirstOrder>();
-
 class ReactionFirstOrder : public Kernel
 {
 public:
   ReactionFirstOrder(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   Real computeQpResidual() override;

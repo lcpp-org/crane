@@ -6,11 +6,10 @@
 
 registerMooseObject("CraneApp", HeatCapacityRatio);
 
-template <>
 InputParameters
-validParams<HeatCapacityRatio>()
+HeatCapacityRatio::validParams()
 {
-  InputParameters params = validParams<SpeciesSum>();
+  InputParameters params = SpeciesSum::validParams();
   params.addRequiredParam<std::vector<std::string>>("species", "The list of gaseous species contributing to gas temperature.");
   params.addRequiredParam<std::string>("file_location", "The name of the file that stores the reaction rate tables.");
   params.addCoupledVar("gas_temperature", "The temperature of the background gas. Needed for rate constant calculation. Default: 300 K.");

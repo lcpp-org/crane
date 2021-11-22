@@ -2,11 +2,10 @@
 
 registerMooseObject("CraneApp", EEDFEnergyLog);
 
-template <>
 InputParameters
-validParams<EEDFEnergyLog>()
+EEDFEnergyLog::validParams()
 {
-  InputParameters params = validParams<Kernel>();
+  InputParameters params = Kernel::validParams();
   params.addRequiredCoupledVar("electrons", "The electron density.");
   params.addRequiredParam<std::string>("reaction", "The reaction that is adding/removing energy.");
   params.addRequiredParam<Real>("threshold_energy", "Energy required for reaction to take place.");

@@ -32,14 +32,13 @@ registerMooseAction("CraneApp", AddGeneralReactions, "add_material");
 registerMooseAction("CraneApp", AddGeneralReactions, "add_kernel");
 registerMooseAction("CraneApp", AddGeneralReactions, "add_function");
 
-template <>
 InputParameters
-validParams<AddGeneralReactions>()
+AddGeneralReactions::validParams()
 {
   MooseEnum families(AddVariableAction::getNonlinearVariableFamilies());
   MooseEnum orders(AddVariableAction::getNonlinearVariableOrders());
 
-  InputParameters params = validParams<ChemicalReactionsBase>();
+  InputParameters params = ChemicalReactionsBase::validParams();
   params.addRequiredParam<std::string>(
       "reaction_coefficient_format",
       "The format of the reaction coefficient. Options: rate or townsend.");

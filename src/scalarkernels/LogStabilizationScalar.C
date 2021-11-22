@@ -2,11 +2,10 @@
 
 registerMooseObject("CraneApp", LogStabilizationScalar);
 
-template <>
 InputParameters
-validParams<LogStabilizationScalar>()
+LogStabilizationScalar::validParams()
 {
-  InputParameters params = validParams<ODEKernel>();
+  InputParameters params = ODEKernel::validParams();
   params.addRequiredParam<Real>("offset",
                                 "The offset parameter that goes into the exponential function");
   return params;

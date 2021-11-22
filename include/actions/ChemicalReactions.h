@@ -3,16 +3,13 @@
 #include "AddVariableAction.h"
 #include "Action.h"
 
-class ChemicalReactions;
-
-template <>
-InputParameters validParams<ChemicalReactions>();
-
 // class ChemicalReactions : public AddVariableAction
 class ChemicalReactions : public Action
 {
 public:
   ChemicalReactions(InputParameters params);
+
+  static InputParameters validParams();
 
   virtual void act();
 

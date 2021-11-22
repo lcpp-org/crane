@@ -2,11 +2,10 @@
 
 registerMooseObject("CraneApp", ODETimeDerivativeLog);
 
-template <>
 InputParameters
-validParams<ODETimeDerivativeLog>()
+ODETimeDerivativeLog::validParams()
 {
-  InputParameters params = validParams<ODETimeKernel>();
+  InputParameters params = ODETimeKernel::validParams();
   params.addParam<bool>("lumping", false, "True for mass matrix lumping, false otherwise");
   return params;
 }

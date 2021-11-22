@@ -16,11 +16,10 @@
 
 registerMooseObject("CraneApp", EEDFRateCoefficientScalar);
 
-template <>
 InputParameters
-validParams<EEDFRateCoefficientScalar>()
+EEDFRateCoefficientScalar::validParams()
 {
-  InputParameters params = validParams<AuxScalarKernel>();
+  InputParameters params = AuxScalarKernel::validParams();
   params.addRequiredParam<UserObjectName>("rate_provider", "The name of the UserObject that supplies the rate constant for this timestep.");
   params.addRequiredParam<int>("reaction_number", "The number of the reaction (as defined by the reactions list added to the ChemicalReactions action.)");
   params.addParam<bool>("sample_value", false, "Whether or not to sample outputs. (If output_table = false in BoltzmannSolverScalar, this should be false.)");

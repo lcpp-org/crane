@@ -17,17 +17,14 @@
 #include "GeneralUserObject.h"
 #include "SplineInterpolation.h"
 
-// Forward Declarations
-class PolynomialCoefficients;
 // class Function;
-
-template <>
-InputParameters validParams<PolynomialCoefficients>();
 
 class PolynomialCoefficients : public GeneralUserObject
 {
 public:
   PolynomialCoefficients(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
   Real delta_a(const int i) const;
   Real power_coefficient() const;

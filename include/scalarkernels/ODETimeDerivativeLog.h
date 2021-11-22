@@ -16,16 +16,12 @@
 
 #include "ODETimeKernel.h"
 
-// Forward Declaration
-class ODETimeDerivativeLog;
-
-template <>
-InputParameters validParams<ODETimeDerivativeLog>();
-
 class ODETimeDerivativeLog : public ODETimeKernel
 {
 public:
   ODETimeDerivativeLog(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
   /* virtual void computeJacobian(); */
 

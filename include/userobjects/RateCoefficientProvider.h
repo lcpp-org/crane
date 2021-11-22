@@ -17,17 +17,14 @@
 #include "GeneralUserObject.h"
 #include "SplineInterpolation.h"
 
-// Forward Declarations
-class RateCoefficientProvider;
 // class Function;
-
-template <>
-InputParameters validParams<RateCoefficientProvider>();
 
 class RateCoefficientProvider : public GeneralUserObject
 {
 public:
   RateCoefficientProvider(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
   Real reaction_coefficient() const;
   Real reaction_coefficient_derivative() const;

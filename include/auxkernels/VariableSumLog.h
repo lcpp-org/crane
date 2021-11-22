@@ -17,15 +17,12 @@
 #include "AuxScalarKernel.h"
 // #include "SplineInterpolation.h"
 
-class VariableSumLog;
-
-template <>
-InputParameters validParams<VariableSumLog>();
-
 class VariableSumLog : public AuxScalarKernel
 {
 public:
   VariableSumLog(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual Real computeValue();

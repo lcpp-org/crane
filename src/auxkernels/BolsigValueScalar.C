@@ -16,11 +16,10 @@
 
 registerMooseObject("CraneApp", BolsigValueScalar);
 
-template <>
 InputParameters
-validParams<BolsigValueScalar>()
+BolsigValueScalar::validParams()
 {
-  InputParameters params = validParams<AuxScalarKernel>();
+  InputParameters params = AuxScalarKernel::validParams();
   params.addRequiredParam<UserObjectName>("data_provider", "The name of the UserObject that supplies the rate constant for this timestep.");
   params.addRequiredParam<std::string>("data_type", "Choose the electron diffusivity or mobility to fetch from Bolsig+ results. Options: diffusivity or mobility.");
   params.addParam<bool>("sample_value", false, "Whether or not to sample outputs. (If output_table = false in BoltzmannSolverScalar, this should be false.)");

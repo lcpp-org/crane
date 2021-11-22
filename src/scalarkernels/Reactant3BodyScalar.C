@@ -2,11 +2,10 @@
 
 registerMooseObject("CraneApp", Reactant3BodyScalar);
 
-template <>
 InputParameters
-validParams<Reactant3BodyScalar>()
+Reactant3BodyScalar::validParams()
 {
-  InputParameters params = validParams<ODEKernel>();
+  InputParameters params = ODEKernel::validParams();
   params.addRequiredCoupledVar("v", "Coupled variable 1.");
   params.addRequiredCoupledVar("w", "Coupled variable 2.");
   params.addCoupledVar("rate_coefficient", 0, "Coupled reaction coefficient (if equation-based).");

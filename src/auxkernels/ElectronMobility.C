@@ -3,11 +3,10 @@
 
 registerMooseObject("CraneApp", ElectronMobility);
 
-template <>
 InputParameters
-validParams<ElectronMobility>()
+ElectronMobility::validParams()
 {
- InputParameters params = validParams<AuxScalarKernel>();
+ InputParameters params = AuxScalarKernel::validParams();
  params.addRequiredParam<std::string>("file_location", "The name of the file that stores the mobility table.");
  params.addCoupledVar("reduced_field", "The electron mobility.");
  return params;

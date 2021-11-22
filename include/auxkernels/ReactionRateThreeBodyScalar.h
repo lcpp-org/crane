@@ -16,16 +16,12 @@
 
 #include "AuxScalarKernel.h"
 
-// Forward Declaration
-class ReactionRateThreeBodyScalar;
-
-template <>
-InputParameters validParams<ReactionRateThreeBodyScalar>();
-
 class ReactionRateThreeBodyScalar : public AuxScalarKernel
 {
 public:
   ReactionRateThreeBodyScalar(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual Real computeValue();

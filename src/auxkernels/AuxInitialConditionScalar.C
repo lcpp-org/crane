@@ -16,11 +16,10 @@
 
 registerMooseObject("CraneApp", AuxInitialConditionScalar);
 
-template <>
 InputParameters
-validParams<AuxInitialConditionScalar>()
+AuxInitialConditionScalar::validParams()
 {
-  InputParameters params = validParams<AuxScalarKernel>();
+  InputParameters params = AuxScalarKernel::validParams();
   params.addParam<Real>("initial_condition", 0, "The initial value of the auxiliary variable.");
   return params;
 }

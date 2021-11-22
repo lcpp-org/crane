@@ -18,15 +18,12 @@
 #include "SplineInterpolation.h"
 #include "LinearInterpolation.h"
 
-class DataRead;
-
-template <>
-InputParameters validParams<DataRead>();
-
 class DataRead : public AuxKernel
 {
 public:
   DataRead(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual Real computeValue();

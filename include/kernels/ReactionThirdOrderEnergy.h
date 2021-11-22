@@ -16,16 +16,12 @@
 
 #include "Kernel.h"
 
-// Forward Declaration
-class ReactionThirdOrderEnergy;
-
-template <>
-InputParameters validParams<ReactionThirdOrderEnergy>();
-
 class ReactionThirdOrderEnergy : public Kernel
 {
 public:
   ReactionThirdOrderEnergy(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual Real computeQpResidual();

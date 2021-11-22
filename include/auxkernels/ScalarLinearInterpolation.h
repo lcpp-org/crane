@@ -17,15 +17,12 @@
 #include "AuxScalarKernel.h"
 #include "LinearInterpolation.h"
 
-class ScalarLinearInterpolation;
-
-template <>
-InputParameters validParams<ScalarLinearInterpolation>();
-
 class ScalarLinearInterpolation : public AuxScalarKernel
 {
 public:
   ScalarLinearInterpolation(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual Real computeValue();

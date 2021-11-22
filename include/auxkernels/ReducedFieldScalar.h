@@ -11,12 +11,6 @@
 
 #include "AuxScalarKernel.h"
 
-// Forward Declarations
-class ReducedFieldScalar;
-
-template <>
-InputParameters validParams<ReducedFieldScalar>();
-
 /**
  * Explicit solve of ODE:
  *
@@ -26,6 +20,8 @@ class ReducedFieldScalar : public AuxScalarKernel
 {
 public:
   ReducedFieldScalar(const InputParameters & parameters);
+  static InputParameters validParams();
+
   virtual ~ReducedFieldScalar();
 
 protected:

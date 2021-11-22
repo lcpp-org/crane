@@ -11,11 +11,10 @@
 
 registerMooseObject("CraneApp", ReducedFieldScalar);
 
-template <>
 InputParameters
-validParams<ReducedFieldScalar>()
+ReducedFieldScalar::validParams()
 {
-  InputParameters params = validParams<AuxScalarKernel>();
+  InputParameters params = AuxScalarKernel::validParams();
   params.addCoupledVar("electron_density", "The electron density.");
   params.addCoupledVar("gas_density", "The gas density.");
   // params.addRequiredParam<UserObjectName>("electron_temperature",

@@ -17,17 +17,14 @@
 #include "GeneralUserObject.h"
 #include "SplineInterpolation.h"
 
-// Forward Declarations
-class BoltzmannSolverScalar;
 // class Function;
-
-template <>
-InputParameters validParams<BoltzmannSolverScalar>();
 
 class BoltzmannSolverScalar : public GeneralUserObject
 {
 public:
   BoltzmannSolverScalar(const InputParameters & parameters);
+  static InputParameters validParams();
+
   Real test(const int i) const;
   Real electron_mobility() const;
   Real electron_temperature() const;

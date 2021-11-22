@@ -3,15 +3,12 @@
 #include "ODEKernel.h"
 // #include "RateCoefficientProvider.h"
 
-class Reactant3BodyScalar;
-
-template <>
-InputParameters validParams<Reactant3BodyScalar>();
-
 class Reactant3BodyScalar : public ODEKernel
 {
 public:
   Reactant3BodyScalar(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual Real computeQpResidual();

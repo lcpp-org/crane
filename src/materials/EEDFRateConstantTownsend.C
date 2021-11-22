@@ -6,11 +6,10 @@
 
 registerMooseObject("CraneApp", EEDFRateConstantTownsend);
 
-template <>
 InputParameters
-validParams<EEDFRateConstantTownsend>()
+EEDFRateConstantTownsend::validParams()
 {
-  InputParameters params = validParams<Material>();
+  InputParameters params = Material::validParams();
   params.addRequiredParam<FileName>(
       "property_file", "The file containing interpolation tables for material properties.");
   params.addRequiredParam<std::string>("reaction", "The full reaction equation.");

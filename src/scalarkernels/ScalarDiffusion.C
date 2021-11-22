@@ -2,11 +2,10 @@
 
 registerMooseObject("CraneApp", ScalarDiffusion);
 
-template <>
 InputParameters
-validParams<ScalarDiffusion>()
+ScalarDiffusion::validParams()
 {
-  InputParameters params = validParams<ODEKernel>();
+  InputParameters params = ODEKernel::validParams();
   params.addRequiredParam<Real>("rate", "The rate of diffusion.");
   return params;
 }

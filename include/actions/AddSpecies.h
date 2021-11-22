@@ -3,15 +3,12 @@
 #include "AddVariableAction.h"
 #include "Action.h"
 
-class AddSpecies;
-
-template <>
-InputParameters validParams<AddSpecies>();
-
 class AddSpecies : public AddVariableAction
 {
 public:
   AddSpecies(const InputParameters & params);
+
+  static InputParameters validParams();
 
   virtual void act() override;
 

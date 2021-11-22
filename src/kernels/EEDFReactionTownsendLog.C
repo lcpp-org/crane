@@ -5,11 +5,10 @@
 
 registerMooseObject("CraneApp", EEDFReactionTownsendLog);
 
-template <>
 InputParameters
-validParams<EEDFReactionTownsendLog>()
+EEDFReactionTownsendLog::validParams()
 {
-  InputParameters params = validParams<Kernel>();
+  InputParameters params = Kernel::validParams();
   params.addRequiredCoupledVar("mean_energy", "The electron mean energy.");
   params.addRequiredCoupledVar("potential", "The potential.");
   params.addRequiredCoupledVar("electrons", "The electron density.");

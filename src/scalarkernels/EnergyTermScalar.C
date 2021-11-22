@@ -2,11 +2,10 @@
 
 registerMooseObject("CraneApp", EnergyTermScalar);
 
-template <>
 InputParameters
-validParams<EnergyTermScalar>()
+EnergyTermScalar::validParams()
 {
-  InputParameters params = validParams<ODEKernel>();
+  InputParameters params = ODEKernel::validParams();
   // params.addRequiredCoupledVar("gas_density", "The gas density.");
   params.addCoupledVar("v", 0, "Coupled variable 1.");
   params.addCoupledVar("w", 0, "Coupled variable 2.");

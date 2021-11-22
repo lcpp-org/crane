@@ -16,15 +16,12 @@
 #include "Material.h"
 #include "SplineInterpolation.h"
 
-class DiffusionRateTemp;
-
-template <>
-InputParameters validParams<DiffusionRateTemp>();
-
 class DiffusionRateTemp : public Material
 {
 public:
   DiffusionRateTemp(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual void computeQpProperties();

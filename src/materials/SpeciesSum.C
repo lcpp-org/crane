@@ -6,11 +6,10 @@
 
 registerMooseObject("CraneApp", SpeciesSum);
 
-template <>
 InputParameters
-validParams<SpeciesSum>()
+SpeciesSum::validParams()
 {
-  InputParameters params = validParams<Material>();
+  InputParameters params = Material::validParams();
   params.addCoupledVar("coupled_vars", "The coupled variables to sum.");
   return params;
 }

@@ -2,11 +2,10 @@
 
 registerMooseObject("CraneApp", Product3BodyScalarLog);
 
-template <>
 InputParameters
-validParams<Product3BodyScalarLog>()
+Product3BodyScalarLog::validParams()
 {
-  InputParameters params = validParams<ODEKernel>();
+  InputParameters params = ODEKernel::validParams();
   params.addCoupledVar("v", 0, "Coupled variable 1.");
   params.addCoupledVar("w", 0, "Coupled variable 2.");
   params.addCoupledVar("x", 0, "Coupled variable 3.");

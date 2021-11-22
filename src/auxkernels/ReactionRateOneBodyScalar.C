@@ -16,11 +16,10 @@
 
 registerMooseObject("CraneApp", ReactionRateOneBodyScalar);
 
-template <>
 InputParameters
-validParams<ReactionRateOneBodyScalar>()
+ReactionRateOneBodyScalar::validParams()
 {
-  InputParameters params = validParams<AuxScalarKernel>();
+  InputParameters params = AuxScalarKernel::validParams();
   params.addRequiredCoupledVar("v", "The first variable that is reacting to create u.");
   params.addCoupledVar("rate_coefficient", 0, "Coupled reaction coefficient (if equation-based).");
   params.addRequiredParam<Real>("coefficient", "The stoichiometric coeffient.");

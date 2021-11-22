@@ -2,11 +2,10 @@
 
 registerMooseObject("CraneApp", LogStabilization);
 
-template <>
 InputParameters
-validParams<LogStabilization>()
+LogStabilization::validParams()
 {
-  InputParameters params = validParams<Kernel>();
+  InputParameters params = Kernel::validParams();
   params.addRequiredParam<Real>("offset",
                                 "The offset parameter that goes into the exponential function");
   return params;

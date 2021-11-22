@@ -17,15 +17,12 @@
 #include "AuxScalarKernel.h"
 // #include "SplineInterpolation.h"
 
-class MoleFraction;
-
-template <>
-InputParameters validParams<MoleFraction>();
-
 class MoleFraction : public AuxScalarKernel
 {
 public:
   MoleFraction(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual Real computeValue();

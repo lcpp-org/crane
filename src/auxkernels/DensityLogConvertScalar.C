@@ -2,11 +2,10 @@
 
 registerMooseObject("CraneApp", DensityLogConvertScalar);
 
-template <>
 InputParameters
-validParams<DensityLogConvertScalar>()
+DensityLogConvertScalar::validParams()
 {
-  InputParameters params = validParams<AuxScalarKernel>();
+  InputParameters params = AuxScalarKernel::validParams();
   params.addRequiredCoupledVar("density_log", "The log of a density variable.");
   params.addRequiredParam<bool>("use_moles", "Whether to convert from units of moles to #.");
   return params;

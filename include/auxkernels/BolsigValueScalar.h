@@ -18,15 +18,12 @@
 #include "SplineInterpolation.h"
 #include "BoltzmannSolverScalar.h"
 
-class BolsigValueScalar;
-
-template <>
-InputParameters validParams<BolsigValueScalar>();
-
 class BolsigValueScalar : public AuxScalarKernel
 {
 public:
   BolsigValueScalar(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual Real computeValue();

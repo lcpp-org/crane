@@ -2,11 +2,10 @@
 
 registerMooseObject("CraneApp", Reactant1BodyScalarLog);
 
-template <>
 InputParameters
-validParams<Reactant1BodyScalarLog>()
+Reactant1BodyScalarLog::validParams()
 {
-  InputParameters params = validParams<ODEKernel>();
+  InputParameters params = ODEKernel::validParams();
   params.addCoupledVar("rate_coefficient", 0, "Coupled reaction coefficient (if equation-based).");
   params.addRequiredParam<Real>("coefficient", "The stoichiometric coefficient.");
   params.addParam<bool>(

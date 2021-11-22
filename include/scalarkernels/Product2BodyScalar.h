@@ -3,15 +3,12 @@
 #include "ODEKernel.h"
 // #include "RateCoefficientProvider.h"
 
-class Product2BodyScalar;
-
-template <>
-InputParameters validParams<Product2BodyScalar>();
-
 class Product2BodyScalar : public ODEKernel
 {
 public:
   Product2BodyScalar(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual Real computeQpResidual();

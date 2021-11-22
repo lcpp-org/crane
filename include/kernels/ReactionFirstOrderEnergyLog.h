@@ -16,16 +16,12 @@
 
 #include "Kernel.h"
 
-// Forward Declaration
-class ReactionFirstOrderEnergyLog;
-
-template <>
-InputParameters validParams<ReactionFirstOrderEnergyLog>();
-
 class ReactionFirstOrderEnergyLog : public Kernel
 {
 public:
   ReactionFirstOrderEnergyLog(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual Real computeQpResidual();

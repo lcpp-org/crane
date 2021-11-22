@@ -16,11 +16,10 @@
 
 registerMooseObject("CraneApp", MoleFraction);
 
-template <>
 InputParameters
-validParams<MoleFraction>()
+MoleFraction::validParams()
 {
-  InputParameters params = validParams<AuxScalarKernel>();
+  InputParameters params = AuxScalarKernel::validParams();
   params.addCoupledVar("neutral_density", "The neutral gas density (calculated by VariableSum).");
   params.addCoupledVar("species_density", "The species density (nonlinear variable).");
   return params;

@@ -18,15 +18,12 @@
 #include "SplineInterpolation.h"
 #include "BoltzmannSolverScalar.h"
 
-class EEDFRateCoefficientScalar;
-
-template <>
-InputParameters validParams<EEDFRateCoefficientScalar>();
-
 class EEDFRateCoefficientScalar : public AuxScalarKernel
 {
 public:
   EEDFRateCoefficientScalar(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual Real computeValue();

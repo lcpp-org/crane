@@ -3,12 +3,6 @@
 #include "AuxScalarKernel.h"
 #include "FunctionParserUtils.h"
 
-// Forward Declarations
-class ParsedAuxScalar;
-
-template <>
-InputParameters validParams<ParsedAuxScalar>();
-
 /**
  * AuxKernel that evaluates a parsed function expression
  */
@@ -16,6 +10,8 @@ class ParsedAuxScalar : public AuxScalarKernel, public FunctionParserUtils<false
 {
 public:
   ParsedAuxScalar(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual Real computeValue() override;

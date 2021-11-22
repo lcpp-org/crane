@@ -6,11 +6,10 @@
 
 registerMooseObject("CraneApp", SuperelasticReactionRate);
 
-template <>
 InputParameters
-validParams<SuperelasticReactionRate>()
+SuperelasticReactionRate::validParams()
 {
-  InputParameters params = validParams<Material>();
+  InputParameters params = Material::validParams();
   params.addRequiredParam<std::string>("reaction", "The full reaction equation.");
   params.addRequiredParam<std::string>("original_reaction", "The original (reversible) reaction from which this reaction was derived.");
   params.addRequiredParam<std::vector<Real>>("stoichiometric_coeff", "The coefficients of each reactant and product.");

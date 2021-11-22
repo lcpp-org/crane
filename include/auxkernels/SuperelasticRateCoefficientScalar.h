@@ -18,15 +18,12 @@
 #include "SplineInterpolation.h"
 #include "PolynomialCoefficients.h"
 
-class SuperelasticRateCoefficientScalar;
-
-template <>
-InputParameters validParams<SuperelasticRateCoefficientScalar>();
-
 class SuperelasticRateCoefficientScalar : public AuxScalarKernel
 {
 public:
   SuperelasticRateCoefficientScalar(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual Real computeValue();

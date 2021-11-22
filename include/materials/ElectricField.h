@@ -16,15 +16,12 @@
 #include "Material.h"
 #include "SplineInterpolation.h"
 
-class ElectricField;
-
-template <>
-InputParameters validParams<ElectricField>();
-
 class ElectricField : public Material
 {
 public:
   ElectricField(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual void initQpStatefulProperties() override;

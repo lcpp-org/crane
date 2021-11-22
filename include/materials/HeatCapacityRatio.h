@@ -16,15 +16,12 @@
 // #include "Material.h"
 #include "SpeciesSum.h"
 
-class HeatCapacityRatio;
-
-template <>
-InputParameters validParams<HeatCapacityRatio>();
-
 class HeatCapacityRatio : public SpeciesSum
 {
 public:
   HeatCapacityRatio(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual void computeQpProperties();

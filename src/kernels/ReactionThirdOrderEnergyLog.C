@@ -5,11 +5,10 @@
 
 registerMooseObject("CraneApp", ReactionThirdOrderEnergyLog);
 
-template <>
 InputParameters
-validParams<ReactionThirdOrderEnergyLog>()
+ReactionThirdOrderEnergyLog::validParams()
 {
-  InputParameters params = validParams<Kernel>();
+  InputParameters params = Kernel::validParams();
   params.addRequiredCoupledVar("v", "The first variable that is reacting.");
   params.addRequiredCoupledVar("w", "The second variable that is reacting.");
   params.addRequiredCoupledVar("x", "The third variable that is reacting.");

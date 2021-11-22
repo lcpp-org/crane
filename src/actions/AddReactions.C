@@ -32,14 +32,13 @@ registerMooseAction("CraneApp", AddReactions, "add_material");
 registerMooseAction("CraneApp", AddReactions, "add_kernel");
 registerMooseAction("CraneApp", AddReactions, "add_function");
 
-template <>
 InputParameters
-validParams<AddReactions>()
+AddReactions::validParams()
 {
   MooseEnum families(AddVariableAction::getNonlinearVariableFamilies());
   MooseEnum orders(AddVariableAction::getNonlinearVariableOrders());
 
-  InputParameters params = validParams<ChemicalReactionsBase>();
+  InputParameters params = ChemicalReactionsBase::validParams();
   params.addParam<std::vector<SubdomainName>>("block",
                                               "The subdomain that this action applies to.");
   params.addClassDescription(
