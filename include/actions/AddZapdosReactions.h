@@ -4,15 +4,12 @@
 #include "Action.h"
 #include "ChemicalReactionsBase.h"
 
-class AddZapdosReactions;
-
-template <>
-InputParameters validParams<AddZapdosReactions>();
-
 class AddZapdosReactions : public ChemicalReactionsBase
 {
 public:
   AddZapdosReactions(InputParameters params);
+
+  static InputParameters validParams();
 
   virtual void act();
 

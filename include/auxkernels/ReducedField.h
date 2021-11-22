@@ -3,16 +3,12 @@
 #include "AuxScalarKernel.h"
 #include "SplineInterpolation.h"
 
-// Forward Declarations
-class ReducedField;
-
-template <>
-InputParameters validParams<ReducedField>();
-
 class ReducedField : public AuxScalarKernel
 {
 public:
   ReducedField(const InputParameters & parameters);
+  static InputParameters validParams();
+
   virtual ~ReducedField();
 
 protected:

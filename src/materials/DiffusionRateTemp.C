@@ -6,11 +6,10 @@
 
 registerMooseObject("CraneApp", DiffusionRateTemp);
 
-template <>
 InputParameters
-validParams<DiffusionRateTemp>()
+DiffusionRateTemp::validParams()
 {
-  InputParameters params = validParams<Material>();
+  InputParameters params = Material::validParams();
   params.addRequiredParam<std::string>("file_location", "The name of the file that stores the mobility table.");
   // params.addRequiredParam<std::string>("reaction", "The full reaction equation.");
   // params.addRequiredParam<Real>("", "The value of the reaction rate (constant).");

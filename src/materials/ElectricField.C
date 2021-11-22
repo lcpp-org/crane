@@ -6,11 +6,10 @@
 
 registerMooseObject("CraneApp", ElectricField);
 
-template <>
 InputParameters
-validParams<ElectricField>()
+ElectricField::validParams()
 {
-  InputParameters params = validParams<Material>();
+  InputParameters params = Material::validParams();
   params.addRequiredParam<std::string>("file_location", "The name of the file that stores the mobility table.");
   params.addParam<bool>("use_log", false, "Whether or not to use logarithmic form.");
   params.addCoupledVar("electron_density", "The electron density.");

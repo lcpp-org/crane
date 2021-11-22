@@ -17,15 +17,12 @@
 #include "AuxScalarKernel.h"
 #include "SplineInterpolation.h"
 
-class AuxInitialConditionScalar;
-
-template <>
-InputParameters validParams<AuxInitialConditionScalar>();
-
 class AuxInitialConditionScalar : public AuxScalarKernel
 {
 public:
   AuxInitialConditionScalar(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual Real computeValue();

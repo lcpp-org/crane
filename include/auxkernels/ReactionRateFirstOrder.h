@@ -16,15 +16,12 @@
 
 #include "AuxKernel.h"
 
-class ReactionRateFirstOrder;
-
-template <>
-InputParameters validParams<ReactionRateFirstOrder>();
-
 class ReactionRateFirstOrder : public AuxKernel
 {
 public:
   ReactionRateFirstOrder(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
   virtual ~ReactionRateFirstOrder() {}
   virtual Real computeValue();

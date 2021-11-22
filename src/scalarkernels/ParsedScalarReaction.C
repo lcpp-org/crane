@@ -3,11 +3,10 @@
 
 registerMooseObject("CraneApp", ParsedScalarReaction);
 
-template <>
 InputParameters
-validParams<ParsedScalarReaction>()
+ParsedScalarReaction::validParams()
 {
-  InputParameters params = validParams<ParsedODEKernel>();
+  InputParameters params = ParsedODEKernel::validParams();
   params.addParam<FileName>(
       "property_file", "", "The file containing interpolation tables for material properties.");
   params.addParam<std::string>(

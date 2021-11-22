@@ -11,11 +11,10 @@
 
 registerMooseObject("CraneApp", ODETimeDerivativeTemperature);
 
-template <>
 InputParameters
-validParams<ODETimeDerivativeTemperature>()
+ODETimeDerivativeTemperature::validParams()
 {
-  InputParameters params = validParams<ODETimeKernel>();
+  InputParameters params = ODETimeKernel::validParams();
   params.addRequiredParam<Real>("n_gas", "The gas density.");
   return params;
 }

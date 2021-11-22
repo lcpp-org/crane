@@ -12,11 +12,10 @@
 
 registerMooseObject("CraneApp", EEDFElasticLog);
 
-template <>
 InputParameters
-validParams<EEDFElasticLog>()
+EEDFElasticLog::validParams()
 {
-  InputParameters params = validParams<Kernel>();
+  InputParameters params = Kernel::validParams();
   params.addRequiredCoupledVar("electrons", "The electron density.");
   params.addRequiredCoupledVar("target", "The target species variable.");
   params.addRequiredParam<std::string>("reaction",

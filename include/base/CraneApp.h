@@ -10,15 +10,12 @@
 
 #include "MooseApp.h"
 
-class CraneApp;
-
-template <>
-InputParameters validParams<CraneApp>();
-
 class CraneApp : public MooseApp
 {
 public:
   CraneApp(InputParameters parameters);
+  static InputParameters validParams();
+
   virtual ~CraneApp();
 
   static void registerApps();

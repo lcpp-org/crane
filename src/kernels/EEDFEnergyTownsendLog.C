@@ -2,11 +2,10 @@
 
 registerMooseObject("CraneApp", EEDFEnergyTownsendLog);
 
-template <>
 InputParameters
-validParams<EEDFEnergyTownsendLog>()
+EEDFEnergyTownsendLog::validParams()
 {
-  InputParameters params = validParams<Kernel>();
+  InputParameters params = Kernel::validParams();
   params.addCoupledVar("potential", "The potential.");
   params.addRequiredCoupledVar("electrons", "The electron density.");
   params.addParam<bool>("elastic_collision", false, "If the collision is elastic.");

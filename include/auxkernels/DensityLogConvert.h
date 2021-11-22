@@ -2,15 +2,12 @@
 
 #include "AuxKernel.h"
 
-class DensityLogConvert;
-
-template <>
-InputParameters validParams<DensityLogConvert>();
-
 class DensityLogConvert : public AuxKernel
 {
 public:
   DensityLogConvert(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
   virtual ~DensityLogConvert() {}
 

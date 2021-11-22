@@ -16,11 +16,10 @@
 
 registerMooseObject("CraneApp", VariableSumLog);
 
-template <>
 InputParameters
-validParams<VariableSumLog>()
+VariableSumLog::validParams()
 {
-  InputParameters params = validParams<AuxScalarKernel>();
+  InputParameters params = AuxScalarKernel::validParams();
   params.addCoupledVar("args", "The variables to sum.");
   return params;
 }

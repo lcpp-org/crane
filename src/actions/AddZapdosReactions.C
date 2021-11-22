@@ -30,14 +30,13 @@ registerMooseAction("CraneApp", AddZapdosReactions, "add_aux_kernel");
 registerMooseAction("CraneApp", AddZapdosReactions, "add_material");
 registerMooseAction("CraneApp", AddZapdosReactions, "add_kernel");
 
-template <>
 InputParameters
-validParams<AddZapdosReactions>()
+AddZapdosReactions::validParams()
 {
   MooseEnum families(AddVariableAction::getNonlinearVariableFamilies());
   MooseEnum orders(AddVariableAction::getNonlinearVariableOrders());
 
-  InputParameters params = validParams<ChemicalReactionsBase>();
+  InputParameters params = ChemicalReactionsBase::validParams();
   params.addRequiredParam<std::string>(
       "reaction_coefficient_format",
       "The format of the reaction coefficient. Options: rate or townsend.");

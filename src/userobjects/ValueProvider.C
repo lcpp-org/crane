@@ -17,11 +17,10 @@
 
 registerMooseObject("CraneApp", ValueProvider);
 
-template <>
 InputParameters
-validParams<ValueProvider>()
+ValueProvider::validParams()
 {
-  InputParameters params = validParams<GeneralUserObject>();
+  InputParameters params = GeneralUserObject::validParams();
   params.addParam<FileName>("property_file", "",
       "The file containing interpolation tables for material properties.");
   params.addParam<std::string>("file_location", "", "The name of the file that stores the reaction rate tables.");

@@ -16,11 +16,10 @@
 
 registerMooseObject("CraneApp", ReactionRateThreeBodyScalar);
 
-template <>
 InputParameters
-validParams<ReactionRateThreeBodyScalar>()
+ReactionRateThreeBodyScalar::validParams()
 {
-  InputParameters params = validParams<AuxScalarKernel>();
+  InputParameters params = AuxScalarKernel::validParams();
   params.addRequiredCoupledVar("v", "The first variable that is reacting to create u.");
   params.addRequiredCoupledVar("w", "The second variable that is reacting to create u.");
   params.addRequiredCoupledVar("z", "The second variable that is reacting to create u.");

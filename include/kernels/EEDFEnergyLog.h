@@ -16,15 +16,12 @@
 
 #include "Kernel.h"
 
-class EEDFEnergyLog;
-
-template <>
-InputParameters validParams<EEDFEnergyLog>();
-
 class EEDFEnergyLog : public Kernel
 {
 public:
   EEDFEnergyLog(const InputParameters & parameters);
+  static InputParameters validParams();
+
   virtual ~EEDFEnergyLog();
 
 protected:

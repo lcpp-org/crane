@@ -12,11 +12,10 @@
 
 registerMooseObject("CraneApp", EEDFElasticTownsendLog);
 
-template <>
 InputParameters
-validParams<EEDFElasticTownsendLog>()
+EEDFElasticTownsendLog::validParams()
 {
-  InputParameters params = validParams<Kernel>();
+  InputParameters params = Kernel::validParams();
   params.addRequiredCoupledVar("potential", "The potential.");
   params.addRequiredCoupledVar("electrons", "The electron density.");
   params.addRequiredCoupledVar("target", "The target species variable.");

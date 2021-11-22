@@ -17,15 +17,12 @@
 #include "AuxScalarKernel.h"
 #include "SplineInterpolation.h"
 
-class ScalarSplineInterpolation;
-
-template <>
-InputParameters validParams<ScalarSplineInterpolation>();
-
 class ScalarSplineInterpolation : public AuxScalarKernel
 {
 public:
   ScalarSplineInterpolation(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual Real computeValue();

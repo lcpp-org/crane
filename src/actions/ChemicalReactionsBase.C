@@ -28,14 +28,13 @@
 
 registerMooseAction("CraneApp", ChemicalReactionsBase, "add_variable");
 
-template <>
 InputParameters
-validParams<ChemicalReactionsBase>()
+ChemicalReactionsBase::validParams()
 {
   MooseEnum families(AddVariableAction::getNonlinearVariableFamilies());
   MooseEnum orders(AddVariableAction::getNonlinearVariableOrders());
 
-  InputParameters params = validParams<AddVariableAction>();
+  InputParameters params = AddVariableAction::validParams();
   params.addParam<std::string>("name",
                                "The name of this reaction list. If multiple reaction blocks are "
                                "written, use this to supply a unique name to each one.");

@@ -6,11 +6,10 @@
 
 registerMooseObject("CraneApp", ElectricFieldCalculator);
 
-template <>
 InputParameters
-validParams<ElectricFieldCalculator>()
+ElectricFieldCalculator::validParams()
 {
-  InputParameters params = validParams<GeneralPostprocessor>();
+  InputParameters params = GeneralPostprocessor::validParams();
   params.addParam<FunctionName>("function", 1.0,
     "This postprocessor will calculate this function using the coupled variables.");
   params.addCoupledVar("gas_density", "The neutral gas density.");

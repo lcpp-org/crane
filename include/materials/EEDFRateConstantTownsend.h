@@ -17,15 +17,12 @@
 /* #include "LinearInterpolation.h" */
 #include "SplineInterpolation.h"
 
-class EEDFRateConstantTownsend;
-
-template <>
-InputParameters validParams<EEDFRateConstantTownsend>();
-
 class EEDFRateConstantTownsend : public Material
 {
 public:
   EEDFRateConstantTownsend(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual void computeQpProperties();

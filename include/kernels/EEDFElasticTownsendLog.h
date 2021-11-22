@@ -12,15 +12,12 @@
 
 #include "Kernel.h"
 
-class EEDFElasticTownsendLog;
-
-template <>
-InputParameters validParams<EEDFElasticTownsendLog>();
-
 class EEDFElasticTownsendLog : public Kernel
 {
 public:
   EEDFElasticTownsendLog(const InputParameters & parameters);
+  static InputParameters validParams();
+
   virtual ~EEDFElasticTownsendLog();
 
 protected:

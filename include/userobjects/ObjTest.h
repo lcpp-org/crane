@@ -16,16 +16,12 @@
 
 #include "GeneralUserObject.h"
 
-// Forward Declarations
-class ObjTest;
-
-template <>
-InputParameters validParams<ObjTest>();
-
 class ObjTest : public GeneralUserObject
 {
 public:
   ObjTest(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
   Real reaction_coefficient() const;
 

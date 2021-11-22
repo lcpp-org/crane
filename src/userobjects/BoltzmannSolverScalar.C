@@ -20,11 +20,10 @@
 
 registerMooseObject("CraneApp", BoltzmannSolverScalar);
 
-template <>
 InputParameters
-validParams<BoltzmannSolverScalar>()
+BoltzmannSolverScalar::validParams()
 {
-  InputParameters params = validParams<GeneralUserObject>();
+  InputParameters params = GeneralUserObject::validParams();
   params.addCoupledVar("mole_fractions",
                        "The AuxVariables representing the mole fractions of the species being "
                        "considered in Bolsig+.");

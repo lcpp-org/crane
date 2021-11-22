@@ -11,16 +11,12 @@
 
 #include "ODETimeKernel.h"
 
-// Forward Declaration
-class ODETimeDerivativeTemperature;
-
-template <>
-InputParameters validParams<ODETimeDerivativeTemperature>();
-
 class ODETimeDerivativeTemperature : public ODETimeKernel
 {
 public:
   ODETimeDerivativeTemperature(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual Real computeQpResidual() override;

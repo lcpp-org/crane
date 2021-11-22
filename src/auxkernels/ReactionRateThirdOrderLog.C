@@ -16,11 +16,10 @@
 
 registerMooseObject("CraneApp", ReactionRateThirdOrderLog);
 
-template <>
 InputParameters
-validParams<ReactionRateThirdOrderLog>()
+ReactionRateThirdOrderLog::validParams()
 {
-  InputParameters params = validParams<AuxKernel>();
+  InputParameters params = AuxKernel::validParams();
 
   params.addCoupledVar("v", "The first reactant.");
   params.addCoupledVar("w", "The second reactant.");

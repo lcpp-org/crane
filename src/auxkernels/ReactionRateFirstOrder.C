@@ -16,11 +16,10 @@
 
 registerMooseObject("CraneApp", ReactionRateFirstOrder);
 
-template <>
 InputParameters
-validParams<ReactionRateFirstOrder>()
+ReactionRateFirstOrder::validParams()
 {
-  InputParameters params = validParams<AuxKernel>();
+  InputParameters params = AuxKernel::validParams();
 
   params.addCoupledVar("v", "The first variable that is reacting to create u.");
   params.addRequiredParam<std::string>("reaction", "The full reaction equation.");

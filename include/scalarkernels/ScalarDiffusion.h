@@ -3,15 +3,12 @@
 #include "ODEKernel.h"
 #include "RateCoefficientProvider.h"
 
-class ScalarDiffusion;
-
-template <>
-InputParameters validParams<ScalarDiffusion>();
-
 class ScalarDiffusion : public ODEKernel
 {
 public:
   ScalarDiffusion(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   Real computeQpResidual() override;

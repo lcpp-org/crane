@@ -16,12 +16,11 @@
 
 registerMooseObject("CraneApp", ParsedScalarRateCoefficient);
 
-template <>
 InputParameters
-validParams<ParsedScalarRateCoefficient>()
+ParsedScalarRateCoefficient::validParams()
 {
-  InputParameters params = validParams<AuxScalarKernel>();
-  params += validParams<FunctionParserUtils<false>>();
+  InputParameters params = AuxScalarKernel::validParams();
+  params += FunctionParserUtils<false>::validParams();
   params.addClassDescription("Parsed function AuxKernel.");
 
   params.addRequiredCustomTypeParam<std::string>(

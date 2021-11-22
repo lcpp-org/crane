@@ -6,15 +6,12 @@
 #include "Action.h"
 #include "ChemicalReactionsBase.h"
 
-class AddGeneralReactions;
-
-template <>
-InputParameters validParams<AddGeneralReactions>();
-
 class AddGeneralReactions : public ChemicalReactionsBase
 {
 public:
   AddGeneralReactions(InputParameters params);
+
+  static InputParameters validParams();
 
   virtual void act();
 

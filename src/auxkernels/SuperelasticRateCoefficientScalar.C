@@ -16,11 +16,10 @@
 
 registerMooseObject("CraneApp", SuperelasticRateCoefficientScalar);
 
-template <>
 InputParameters
-validParams<SuperelasticRateCoefficientScalar>()
+SuperelasticRateCoefficientScalar::validParams()
 {
-  InputParameters params = validParams<AuxScalarKernel>();
+  InputParameters params = AuxScalarKernel::validParams();
   params.addRequiredCoupledVar("forward_coefficient", "The forward rate coefficient that is being reversed.");
   params.addCoupledVar("Tgas", 0, "The gas temperature in Kelvin (if it is a variable.).");
   params.addParam<Real>("Tgas_const", 0, "The gas temperature in Kelvin (if constant).");

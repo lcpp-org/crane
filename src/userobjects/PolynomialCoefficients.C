@@ -17,11 +17,10 @@
 
 registerMooseObject("CraneApp", PolynomialCoefficients);
 
-template <>
 InputParameters
-validParams<PolynomialCoefficients>()
+PolynomialCoefficients::validParams()
 {
-  InputParameters params = validParams<GeneralUserObject>();
+  InputParameters params = GeneralUserObject::validParams();
   params.addRequiredParam<std::vector<Real>>("stoichiometric_coeff", "The coefficients of each reactant and product.");
   params.addRequiredParam<std::vector<std::string>>("participants", "All reaction participants.");
   params.addRequiredParam<std::string>("file_location", "The name of the file that stores the reaction rate tables.");

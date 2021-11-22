@@ -12,15 +12,12 @@
 
 #include "Kernel.h"
 
-class EEDFElasticLog;
-
-template <>
-InputParameters validParams<EEDFElasticLog>();
-
 class EEDFElasticLog : public Kernel
 {
 public:
   EEDFElasticLog(const InputParameters & parameters);
+  static InputParameters validParams();
+
   virtual ~EEDFElasticLog();
 
 protected:

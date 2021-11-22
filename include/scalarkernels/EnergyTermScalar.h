@@ -3,15 +3,12 @@
 #include "ODEKernel.h"
 // #include "RateCoefficientProvider.h"
 
-class EnergyTermScalar;
-
-template <>
-InputParameters validParams<EnergyTermScalar>();
-
 class EnergyTermScalar : public ODEKernel
 {
 public:
   EnergyTermScalar(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual Real computeQpResidual();

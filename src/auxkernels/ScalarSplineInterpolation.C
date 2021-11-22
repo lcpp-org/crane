@@ -16,11 +16,10 @@
 
 registerMooseObject("CraneApp", ScalarSplineInterpolation);
 
-template <>
 InputParameters
-validParams<ScalarSplineInterpolation>()
+ScalarSplineInterpolation::validParams()
 {
-  InputParameters params = validParams<AuxScalarKernel>();
+  InputParameters params = AuxScalarKernel::validParams();
   params.addCoupledVar("sampler", 0, "The variable with which the data will be sampled.");
   params.addParam<bool>("use_time", false, "Whether or not to sample with time.");
   params.addParam<bool>(

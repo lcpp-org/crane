@@ -4,15 +4,12 @@
 #include "ParsedScalarReaction.h"
 #include "SplineInterpolation.h"
 
-class ParsedScalarReaction;
-
-template <>
-InputParameters validParams<ParsedScalarReaction>();
-
 class ParsedScalarReaction : public ParsedODEKernel
 {
 public:
   ParsedScalarReaction(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual Real computeQpResidual() override;

@@ -15,15 +15,12 @@
 
 #include "Material.h"
 
-class SuperelasticReactionRate;
-
-template <>
-InputParameters validParams<SuperelasticReactionRate>();
-
 class SuperelasticReactionRate : public Material
 {
 public:
   SuperelasticReactionRate(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual void computeQpProperties();

@@ -2,15 +2,12 @@
 
 #include "ODEKernel.h"
 
-class Product3BodyScalarLog;
-
-template <>
-InputParameters validParams<Product3BodyScalarLog>();
-
 class Product3BodyScalarLog : public ODEKernel
 {
 public:
   Product3BodyScalarLog(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual Real computeQpResidual();

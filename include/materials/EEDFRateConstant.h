@@ -17,15 +17,12 @@
 /* #include "LinearInterpolation.h" */
 #include "SplineInterpolation.h"
 
-class EEDFRateConstant;
-
-template <>
-InputParameters validParams<EEDFRateConstant>();
-
 class EEDFRateConstant : public Material
 {
 public:
   EEDFRateConstant(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual void computeQpProperties();

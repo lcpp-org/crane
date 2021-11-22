@@ -6,11 +6,10 @@ registerMooseAction("CraneApp", AddSpecies, "add_variable");
 registerMooseAction("CraneApp", AddSpecies, "add_kernel");
 registerMooseAction("CraneApp", AddSpecies, "add_scalar_kernel");
 
-template <>
 InputParameters
-validParams<AddSpecies>()
+AddSpecies::validParams()
 {
-  InputParameters params = validParams<AddVariableAction>();
+  InputParameters params = AddVariableAction::validParams();
   params.addRequiredParam<std::vector<NonlinearVariableName>>(
       "species", "The list of primary variables to add");
   params.addRequiredParam<std::vector<Real>>("initial_conditions", "The initial values of each species.");

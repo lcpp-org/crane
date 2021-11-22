@@ -32,14 +32,13 @@ registerMooseAction("CraneApp", AddScalarReactions, "add_scalar_kernel");
 registerMooseAction("CraneApp", AddScalarReactions, "add_function");
 registerMooseAction("CraneApp", AddScalarReactions, "add_user_object");
 
-template <>
 InputParameters
-validParams<AddScalarReactions>()
+AddScalarReactions::validParams()
 {
   MooseEnum families(AddVariableAction::getNonlinearVariableFamilies());
   MooseEnum orders(AddVariableAction::getNonlinearVariableOrders());
 
-  InputParameters params = validParams<ChemicalReactionsBase>();
+  InputParameters params = ChemicalReactionsBase::validParams();
   params.addParam<std::string>("boltzmann_input_file",
                                "The name of the input file being used for Bolsig+.");
   params.addParam<bool>("output_table",

@@ -16,15 +16,12 @@
 
 #include "ODEKernel.h"
 
-class LogStabilizationScalar;
-
-template <>
-InputParameters validParams<LogStabilizationScalar>();
-
 class LogStabilizationScalar : public ODEKernel
 {
 public:
   LogStabilizationScalar(const InputParameters & parameters);
+  static InputParameters validParams();
+
   virtual ~LogStabilizationScalar();
 
 protected:

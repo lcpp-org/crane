@@ -16,15 +16,12 @@
 
 #include "Kernel.h"
 
-class EEDFReactionLog;
-
-template <>
-InputParameters validParams<EEDFReactionLog>();
-
 class EEDFReactionLog : public Kernel
 {
 public:
   EEDFReactionLog(const InputParameters & parameters);
+  static InputParameters validParams();
+
   virtual ~EEDFReactionLog();
 
 protected:

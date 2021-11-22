@@ -11,9 +11,8 @@
 
 registerMooseObject("CraneApp", ParsedAuxScalar);
 
-template <>
 InputParameters
-validParams<ParsedAuxScalar>()
+ParsedAuxScalar::validParams()
 {
   InputParameters params = AuxScalarKernel::validParams();
   params += FunctionParserUtils<false>::validParams();

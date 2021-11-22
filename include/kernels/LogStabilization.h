@@ -16,15 +16,12 @@
 
 #include "Kernel.h"
 
-class LogStabilization;
-
-template <>
-InputParameters validParams<LogStabilization>();
-
 class LogStabilization : public Kernel
 {
 public:
   LogStabilization(const InputParameters & parameters);
+  static InputParameters validParams();
+
   virtual ~LogStabilization();
 
 protected:

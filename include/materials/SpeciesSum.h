@@ -15,15 +15,12 @@
 
 #include "Material.h"
 
-class SpeciesSum;
-
-template <>
-InputParameters validParams<SpeciesSum>();
-
 class SpeciesSum : public Material
 {
 public:
   SpeciesSum(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
 protected:
   virtual void computeQpProperties();

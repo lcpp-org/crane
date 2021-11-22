@@ -33,14 +33,13 @@ registerMooseAction("CraneApp", ChemicalReactions, "add_kernel");
 registerMooseAction("CraneApp", ChemicalReactions, "add_scalar_kernel");
 registerMooseAction("CraneApp", ChemicalReactions, "add_function");
 
-template <>
 InputParameters
-validParams<ChemicalReactions>()
+ChemicalReactions::validParams()
 {
   MooseEnum families(AddVariableAction::getNonlinearVariableFamilies());
   MooseEnum orders(AddVariableAction::getNonlinearVariableOrders());
 
-  InputParameters params = validParams<AddVariableAction>();
+  InputParameters params = AddVariableAction::validParams();
   params.addRequiredParam<std::vector<NonlinearVariableName>>(
       "species", "List of (tracked) species included in reactions (both products and reactants)");
   params.addParam<std::vector<Real>>("reaction_coefficient", "The reaction coefficients.");

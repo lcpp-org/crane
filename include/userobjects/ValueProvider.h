@@ -17,17 +17,14 @@
 #include "GeneralUserObject.h"
 #include "SplineInterpolation.h"
 
-// Forward Declarations
-class ValueProvider;
 // class Function;
-
-template <>
-InputParameters validParams<ValueProvider>();
 
 class ValueProvider : public GeneralUserObject
 {
 public:
   ValueProvider(const InputParameters & parameters);
+
+  static InputParameters validParams();
 
   Real electron_temperature(const Real E_N) const;
 

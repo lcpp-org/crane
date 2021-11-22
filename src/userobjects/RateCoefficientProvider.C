@@ -17,11 +17,10 @@
 
 registerMooseObject("CraneApp", RateCoefficientProvider);
 
-template <>
 InputParameters
-validParams<RateCoefficientProvider>()
+RateCoefficientProvider::validParams()
 {
-  InputParameters params = validParams<GeneralUserObject>();
+  InputParameters params = GeneralUserObject::validParams();
   params.addCoupledVar("reduced_field", 0, "The value of the reduced electric field [V m^2].");
   params.addParam<FileName>(
       "property_file", "", "The file containing interpolation tables for material properties.");
