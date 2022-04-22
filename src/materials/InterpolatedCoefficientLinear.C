@@ -70,7 +70,7 @@ InterpolatedCoefficientLinear::InterpolatedCoefficientLinear(const InputParamete
     mooseError("Unable to open file");
 
   _coefficient_interpolation =
-      libmesh_make_unique<LinearInterpolation>(val_x, rate_coefficient, true);
+      std::make_unique<LinearInterpolation>(val_x, rate_coefficient, true);
 }
 
 void
