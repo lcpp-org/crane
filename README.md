@@ -1,3 +1,6 @@
+[![DOI](https://zenodo.org/badge/144417481.svg)](https://zenodo.org/badge/latestdoi/144417481)
+
+
 CRANE
 =====
 
