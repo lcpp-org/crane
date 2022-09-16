@@ -67,7 +67,7 @@ trim(std::string & s)
   return ltrim(rtrim(s));
 }
 
-AddReactions::AddReactions(InputParameters params) : ChemicalReactionsBase(params)
+AddReactions::AddReactions(const InputParameters & params) : ChemicalReactionsBase(params)
 {
   if (_use_log)
     _log_append = "Log";

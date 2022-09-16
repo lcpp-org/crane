@@ -57,7 +57,7 @@ AddZapdosReactions::validParams()
   return params;
 }
 
-AddZapdosReactions::AddZapdosReactions(InputParameters params)
+AddZapdosReactions::AddZapdosReactions(const InputParameters & params)
   : ChemicalReactionsBase(params),
     _coefficient_format(getParam<std::string>("reaction_coefficient_format")),
     _use_ad(getParam<bool>("use_ad"))

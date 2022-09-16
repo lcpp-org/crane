@@ -52,7 +52,7 @@ AddGeneralReactions::validParams()
   return params;
 }
 
-AddGeneralReactions::AddGeneralReactions(InputParameters params)
+AddGeneralReactions::AddGeneralReactions(const InputParameters & params)
   : ChemicalReactionsBase(params),
     _coefficient_format(getParam<std::string>("reaction_coefficient_format"))
 {

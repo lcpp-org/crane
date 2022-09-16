@@ -115,7 +115,7 @@ ChemicalReactions::validParams()
 //   return ltrim(rtrim(s));
 // }
 
-ChemicalReactions::ChemicalReactions(InputParameters params)
+ChemicalReactions::ChemicalReactions(const InputParameters & params)
   : Action(params),
     _species(getParam<std::vector<NonlinearVariableName>>("species")),
     _species_energy(getParam<std::vector<NonlinearVariableName>>("species_energy")),
