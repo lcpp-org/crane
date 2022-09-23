@@ -7,7 +7,7 @@
 class ChemicalReactionsBase : public Action
 {
 public:
-  ChemicalReactionsBase(InputParameters params);
+  ChemicalReactionsBase(const InputParameters & params);
 
   static InputParameters validParams();
 

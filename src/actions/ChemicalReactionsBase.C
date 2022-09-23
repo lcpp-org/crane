@@ -137,7 +137,7 @@ file_exists(const std::string & name)
   }
 }
 
-ChemicalReactionsBase::ChemicalReactionsBase(InputParameters params)
+ChemicalReactionsBase::ChemicalReactionsBase(const InputParameters & params)
   : Action(params),
     _species(getParam<std::vector<NonlinearVariableName>>("species")),
     _electron_energy(getParam<std::vector<NonlinearVariableName>>("electron_energy")),

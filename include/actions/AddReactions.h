@@ -8,7 +8,7 @@
 class AddReactions : public ChemicalReactionsBase
 {
 public:
-  AddReactions(InputParameters params);
+  AddReactions(const InputParameters & params);
 
   static InputParameters validParams();
 

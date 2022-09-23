@@ -8,11 +8,11 @@
 class AddScalarReactions : public ChemicalReactionsBase
 {
 public:
-  AddScalarReactions(InputParameters params);
+  AddScalarReactions(const InputParameters & params);
   static InputParameters validParams();
 
   const std::string _interpolation_type;
-  // AddScalarReactions(InputParameters params) : ChemicalReactionsBase(params) {};
+  // AddScalarReactions(const InputParameters & params) : ChemicalReactionsBase(params) {};
 
   virtual void act();
 

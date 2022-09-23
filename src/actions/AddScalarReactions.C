@@ -81,7 +81,7 @@ AddScalarReactions::validParams()
   return params;
 }
 
-AddScalarReactions::AddScalarReactions(InputParameters params)
+AddScalarReactions::AddScalarReactions(const InputParameters & params)
   : ChemicalReactionsBase(params), _interpolation_type(getParam<std::string>("interpolation_type"))
 // _use_bolsig(getParam<bool>("use_bolsig"))
 {

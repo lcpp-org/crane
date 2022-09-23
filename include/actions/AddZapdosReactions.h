@@ -7,7 +7,7 @@
 class AddZapdosReactions : public ChemicalReactionsBase
 {
 public:
-  AddZapdosReactions(InputParameters params);
+  AddZapdosReactions(const InputParameters & params);
 
   static InputParameters validParams();
 
