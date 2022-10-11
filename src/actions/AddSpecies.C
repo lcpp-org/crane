@@ -12,10 +12,13 @@ AddSpecies::validParams()
   InputParameters params = AddVariableAction::validParams();
   params.addRequiredParam<std::vector<NonlinearVariableName>>(
       "species", "The list of primary variables to add");
-  params.addRequiredParam<std::vector<Real>>("initial_conditions", "The initial values of each species.");
+  params.addRequiredParam<std::vector<Real>>("initial_conditions",
+                                             "The initial values of each species.");
   params.addParam<std::vector<Real>>("scale_factors", "Specifies scale factors for each variable.");
   params.addParam<bool>("use_scalar", false, "Whether or not to use scalar variables.");
-  params.addParam<bool>("add_time_derivatives", false, "Whether or not to add time derivatives as part of this action.");
+  params.addParam<bool>("add_time_derivatives",
+                        false,
+                        "Whether or not to add time derivatives as part of this action.");
   params.addParam<bool>("use_log", false, "Whether or not to use logarithmic densities.");
   params.addClassDescription("Adds Variables for all primary species");
   return params;
@@ -46,10 +49,11 @@ AddSpecies::act()
       else
         scale_factor = 1.0;
 
-      if (_use_scalar)
-        _problem->addScalarVariable(_vars[i], _fe_type.order, scale_factor);
-      else
-        _problem->addVariable(_vars[i], _fe_type, scale_factor);
+      _moose_object_pars.applySpecificParameters(_pars, {"order", "family"});
+      _moose_object_pars.set<std::vector<Real>>("scaling") = {scale_factor};
+      const auto type = variableType(feType(_moose_object_pars));
+
+      _problem->addVariable(type, _vars[i], _moose_object_pars);
 
       createInitialConditions(_vars[i], _vals[i]);
     }
@@ -67,7 +71,7 @@ AddSpecies::act()
       {
         InputParameters params = _factory.getValidParams(time_kernel);
         params.set<NonlinearVariableName>("variable") = _vars[i];
-        _problem->addKernel(time_kernel, "dvar"+std::to_string(i)+"_dt", params);
+        _problem->addKernel(time_kernel, "dvar" + std::to_string(i) + "_dt", params);
       }
     }
     else if (_current_task == "add_scalar_kernel" && _use_scalar)
@@ -79,7 +83,7 @@ AddSpecies::act()
       {
         InputParameters params = _factory.getValidParams(time_kernel);
         params.set<NonlinearVariableName>("variable") = _vars[i];
-        _problem->addScalarKernel(time_kernel, "dvar"+std::to_string(i)+"_dt", params);
+        _problem->addScalarKernel(time_kernel, "dvar" + std::to_string(i) + "_dt", params);
       }
     }
   }
