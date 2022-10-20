@@ -1,1 +1,23 @@
-!template load file=stubs/moose_object.md.template name=ReducedFieldScalar syntax=/AuxScalarKernels/ReducedFieldScalar
+# ReducedFieldScalar
+
+!alert construction title=Undocumented Class
+The ReducedFieldScalar has not been documented. The content listed below should be used as a starting point for
+documenting the class, which includes the typical automatic documentation associated with a
+MooseObject; however, what is contained is ultimately determined by what is necessary to make the
+documentation clear for users.
+
+!syntax description /AuxScalarKernels/ReducedFieldScalar
+
+## Overview
+
+!! Replace these lines with information regarding the ReducedFieldScalar object.
+
+## Example Input File Syntax
+
+!! Describe and include an example of how to use the ReducedFieldScalar object.
+
+!syntax parameters /AuxScalarKernels/ReducedFieldScalar
+
+!syntax inputs /AuxScalarKernels/ReducedFieldScalar
+
+!syntax children /AuxScalarKernels/ReducedFieldScalar

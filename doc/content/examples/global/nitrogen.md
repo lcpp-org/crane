@@ -1,6 +1,6 @@
 # Nitrogen Example
 
-This example is based on a [ZDPlasKin example of a pure nitrogen discharge at atmospheric pressure](http://www.zdplaskin.laplace.univ-tlse.fr/index.html@p=332.html). The model includes 36 reactions between 10 species. 
+This example is based on a [ZDPlasKin example of a pure nitrogen discharge at atmospheric pressure](http://www.zdplaskin.laplace.univ-tlse.fr/index.html@p=332.html) [!citep](nitrogen_example, capitelli2000). The model includes 36 reactions between 10 species.
 
 ```
 [ChemicalReactions]
@@ -52,9 +52,9 @@ This example is based on a [ZDPlasKin example of a pure nitrogen discharge at at
 []
 ```
 
-In this example, the reduced electric field (`reduced_field`), electron temperature (`Te`), and electron density (`e`) are read into auxiliary variables with tabualted experimental data. The effective ion collision temperature `Teff` is also an auxiliary variable, but it is added as a parsed function. These variables are shown below. The `[AuxVariables]` block names the auxiliary variables, specifies their order, and denotes the family they belong to. (Since CRANE is being run alone in this example, all variables must be scalar.) 
+In this example, the reduced electric field (`reduced_field`), electron temperature (`Te`), and electron density (`e`) are read into auxiliary variables with tabualted experimental data. The effective ion collision temperature `Teff` is also an auxiliary variable, but it is added as a parsed function. These variables are shown below. The `[AuxVariables]` block names the auxiliary variables, specifies their order, and denotes the family they belong to. (Since CRANE is being run alone in this example, all variables must be scalar.)
 
-Values are supplied to the auxiliary variables with the `[AuxScalarKernels]` block. the `DataReadScalar` kernel will accept a csv or txt file as input, with the location denoted by `property_file`. The `scale_factor` parameter may be used to multiply each value by some factor; for example, if the csv file is tabulated in units of m$^{-3}$ s$^{-1}$ but the rest of the variables require units of cm$^{-3}$ s$^{-1}$, `scale_factor = 1e6` will convert the values appropriately.  
+Values are supplied to the auxiliary variables with the `[AuxScalarKernels]` block. the `DataReadScalar` kernel will accept a csv or txt file as input, with the location denoted by `property_file`. The `scale_factor` parameter may be used to multiply each value by some factor; for example, if the csv file is tabulated in units of m$^{-3}$ s$^{-1}$ but the rest of the variables require units of cm$^{-3}$ s$^{-1}$, `scale_factor = 1e6` will convert the values appropriately.
 
 ```
 [AuxVariables]
@@ -123,8 +123,4 @@ Values are supplied to the auxiliary variables with the `[AuxScalarKernels]` blo
 
 !media media/examples/nitrogen.png style=width:80%;margin-left:50px;float:center;id=fig:argon_example caption=Nitrogen species and electrons versus time. Solid lines are computed by CRANE, dotted lines by ZDPlasKin.
 
-## Citations
-
-[1] ZDPlasKin: http://www.zdplaskin.laplace.univ-tlse.fr/index.html@p=332.html
-
-[2] M Capitelli, C M Ferreira, B F Gordiets, and A I Osipov, *Plasma Kinetics in Atmospheric Gases*, Springer (2000).
+!bibtex bibliography

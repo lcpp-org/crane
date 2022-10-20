@@ -1,1 +1,23 @@
-!template load file=stubs/moose_object.md.template name=EnergyTermScalar syntax=/ScalarKernels/EnergyTermScalar
+# EnergyTermScalar
+
+!alert construction title=Undocumented Class
+The EnergyTermScalar has not been documented. The content listed below should be used as a starting point for
+documenting the class, which includes the typical automatic documentation associated with a
+MooseObject; however, what is contained is ultimately determined by what is necessary to make the
+documentation clear for users.
+
+!syntax description /ScalarKernels/EnergyTermScalar
+
+## Overview
+
+!! Replace these lines with information regarding the EnergyTermScalar object.
+
+## Example Input File Syntax
+
+!! Describe and include an example of how to use the EnergyTermScalar object.
+
+!syntax parameters /ScalarKernels/EnergyTermScalar
+
+!syntax inputs /ScalarKernels/EnergyTermScalar
+
+!syntax children /ScalarKernels/EnergyTermScalar

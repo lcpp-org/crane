@@ -1,6 +1,6 @@
 # Argon Microdischarge
 
-This example is based on a [ZDPlasKin example of an argon microdischarge at atmospheric pressure](http://www.zdplaskin.laplace.univ-tlse.fr/index.html@p=310.html). The model includes five species: Ar, Ar$^*$, Ar$^+$, Ar$_2^+$, and electrons. The number density versus time is shown in the plot below, with ZDPlasKin's results for comparison.
+This example is based on a [ZDPlasKin example of an argon microdischarge at atmospheric pressure](http://www.zdplaskin.laplace.univ-tlse.fr/index.html@p=310.html) [!citep](zdplaskin2008). The model includes five species: Ar, Ar$^*$, Ar$^+$, Ar$_2^+$, and electrons. The number density versus time is shown in the plot below, with ZDPlasKin's results for comparison.
 
 The reactions are included in the input file as shown below:
 
@@ -41,10 +41,6 @@ Rate coefficients are separated from the reaction notation by a colon character.
 !media media/examples/argon.png style=width:80%;margin-left:50px;float:center;id=fig:argon_example caption=Argon species and electrons versus time. Solid lines are computed by CRANE, dotted lines by ZDPlasKin.
 
 !alert note title=Plot Differences
-The profiles are not identical. The main difference between ZDPlasKin and CRANE is that a Boltzmann solver is not dynamically coupled to CRANE, but [BOLSIG+](http://www.bolsig.laplace.univ-tlse.fr/) is coupled and run with ZDPlasKin. Instead, electron-impact rate coefficients are tabulated prior to runtime.  
+The profiles are not identical. The main difference between ZDPlasKin and CRANE is that a Boltzmann solver is not dynamically coupled to CRANE, but [BOLSIG+](http://www.bolsig.laplace.univ-tlse.fr/) is coupled and run with ZDPlasKin. Instead, electron-impact rate coefficients are tabulated prior to runtime.
 
-
-
-## Citations:
-
-[1] Pancheshnyi S., Eismannn B., Hagelaar G. and Pitchford L. "ZDPLASKIN: A NEW TOOL FOR PLASMACHEMICAL SIMULATIONS", The Eleventh International Symposium on High Pressure, Low Temperature Plasma Chemistry (HAKONE XI), September 2008, Oleron Island, France.
+!bibtex bibliography
