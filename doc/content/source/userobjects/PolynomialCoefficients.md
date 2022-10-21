@@ -1,1 +1,23 @@
-!template load file=stubs/moose_object.md.template name=PolynomialCoefficients syntax=/UserObjects/PolynomialCoefficients
+# PolynomialCoefficients
+
+!alert construction title=Undocumented Class
+The PolynomialCoefficients has not been documented. The content listed below should be used as a starting point for
+documenting the class, which includes the typical automatic documentation associated with a
+MooseObject; however, what is contained is ultimately determined by what is necessary to make the
+documentation clear for users.
+
+!syntax description /UserObjects/PolynomialCoefficients
+
+## Overview
+
+!! Replace these lines with information regarding the PolynomialCoefficients object.
+
+## Example Input File Syntax
+
+!! Describe and include an example of how to use the PolynomialCoefficients object.
+
+!syntax parameters /UserObjects/PolynomialCoefficients
+
+!syntax inputs /UserObjects/PolynomialCoefficients
+
+!syntax children /UserObjects/PolynomialCoefficients

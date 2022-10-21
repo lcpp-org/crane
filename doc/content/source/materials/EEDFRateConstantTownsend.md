@@ -1,1 +1,23 @@
-!template load file=stubs/moose_object.md.template name=EEDFRateConstantTownsend syntax=/Materials/EEDFRateConstantTownsend
+# EEDFRateConstantTownsend
+
+!alert construction title=Undocumented Class
+The EEDFRateConstantTownsend has not been documented. The content listed below should be used as a starting point for
+documenting the class, which includes the typical automatic documentation associated with a
+MooseObject; however, what is contained is ultimately determined by what is necessary to make the
+documentation clear for users.
+
+!syntax description /Materials/EEDFRateConstantTownsend
+
+## Overview
+
+!! Replace these lines with information regarding the EEDFRateConstantTownsend object.
+
+## Example Input File Syntax
+
+!! Describe and include an example of how to use the EEDFRateConstantTownsend object.
+
+!syntax parameters /Materials/EEDFRateConstantTownsend
+
+!syntax inputs /Materials/EEDFRateConstantTownsend
+
+!syntax children /Materials/EEDFRateConstantTownsend
