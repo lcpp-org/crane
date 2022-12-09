@@ -24,7 +24,7 @@ After installing MOOSE, make sure you have the following folder on your local ma
 
 `cd crane`
 
-'git submodule update --init moose'
+`git submodule update --init moose`
 
 `make -jn` 
 
