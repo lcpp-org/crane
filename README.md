@@ -24,6 +24,8 @@ After installing MOOSE, make sure you have the following folder on your local ma
 
 `cd crane`
 
+'git submodule update --init moose'
+
 `make -jn` 
 
 where `n` is the number of logical processors on your computer. 
