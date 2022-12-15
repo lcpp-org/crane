@@ -70,7 +70,6 @@
 [ChemicalReactions]
   [./ScalarNetwork]
     species = 'e Ar* Ar+ Ar Ar2+'
-    reaction_coefficient_format = 'rate'
     file_location = 'Example2'
     interpolation_type = 'spline'
 
