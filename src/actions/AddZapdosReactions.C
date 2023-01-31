@@ -627,15 +627,15 @@ void
 AddZapdosReactions::addFunctionRateCoefficient(const unsigned & reaction_num)
 {
   InputParameters params = _factory.getValidParams("DerivativeParsedMaterial");
-  params.set<std::string>("f_name") =
+  params.set<std::string>("property_name") =
       "k" + Moose::stringify(reaction_num) + "_" + _reaction[reaction_num];
-  params.set<std::vector<VariableName>>("args") =
+  params.set<std::vector<VariableName>>("coupled_variables") =
       getParam<std::vector<VariableName>>("equation_variables");
   params.set<std::vector<std::string>>("constant_names") =
       getParam<std::vector<std::string>>("equation_constants");
   params.set<std::vector<std::string>>("constant_expressions") =
       getParam<std::vector<std::string>>("equation_values");
-  params.set<std::string>("function") = _rate_equation_string[reaction_num];
+  params.set<std::string>("expression") = _rate_equation_string[reaction_num];
   params.set<unsigned int>("derivative_order") = 1;
   params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
   _problem->addMaterial("DerivativeParsedMaterial",
