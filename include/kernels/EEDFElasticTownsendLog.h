@@ -1,8 +1,8 @@
-//* This file is part of Zapdos, an open-source
-//* application for the simulation of plasmas
-//* https://github.com/shannon-lab/zapdos
+//* This file is part of Crane, an open-source
+//* application for plasma chemistry and thermochemistry
+//* https://github.com/lcpp-org/crane
 //*
-//* Zapdos is powered by the MOOSE Framework
+//* Crane is powered by the MOOSE Framework
 //* https://www.mooseframework.org
 //*
 //* Licensed under LGPL 2.1, please see LICENSE for details
