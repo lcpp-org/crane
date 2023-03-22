@@ -42,5 +42,7 @@ If all the tests pass, CRANE has been successfully installed.
 To update CRANE, it is recommended to use fetch and rebase:
 
 `cd ~/projects/crane`
+
 `git fetch origin`
+
 `git rebase origin/master`
