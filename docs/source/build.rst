@@ -17,22 +17,28 @@ After installing MOOSE, make sure you have the following folder on your local ma
 
 **Step 2.** After installing the MOOSE environment, execute the following commands:
 
-``cd ~/projects``
 
-``git clone https://github.com/lcpp-org/crane``
+.. code-block:: bash
+    
+    cd ~/projects
+    git clone https://github.com/lcpp-org/crane
+    cd crane
+    git submodule update --init moose
 
-``cd crane``
+and then make,
 
-``git submodule update --init moose``
+.. code-block:: bash
 
-``make -jn`` 
+   make -jn
 
 where ``n`` is the number of logical processors on your computer. 
 
 **Step 3.**
 Run tests to make sure CRANE is installed properly. 
 
-``./run_tests``
+.. code-block:: bash
+    
+    ./run_tests
 
 If all the tests pass, CRANE has been successfully installed. 
 
@@ -40,8 +46,8 @@ If all the tests pass, CRANE has been successfully installed.
 
 To update CRANE, it is recommended to use fetch and rebase:
 
-``cd ~/projects/crane``
-
-``git fetch origin``
-
-``git rebase origin/master``
+.. code-block:: bash
+    
+    cd ~/projects/crane
+    git fetch origin
+    git rebase origin/master
