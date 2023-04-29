@@ -7,8 +7,8 @@ filename = 'TwoReactionArgon_out.csv'
 data = pd.read_csv(filename)
 
 # use rate coefficients to determine steady-state value
-ion_coeff = 2.138669725318e-12 #cm3/s at 30 Td 
-recomb_coeff = 1e-25 #cm6/s
+ion_coeff = data.loc[3].at["rate_constant0"] #cm3/s at 30 Td
+recomb_coeff = data.loc[3].at["rate_constant1"] #cm6/s
 
 ss_n = ion_coeff/recomb_coeff # steady-state prediction cm^-3
 

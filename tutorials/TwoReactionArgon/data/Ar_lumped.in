@@ -7,8 +7,8 @@ workingConditions:
   reducedField: logspace(-3,3,100)            % in Td
   electronTemperature: linspace(0.03, 5, 100) % in eV
   excitationFrequency: 0                      % in Hz
-  gasPressure: 133.32                         % in Pa
-  gasTemperature: 300                         % in K   (average gas temperature)
+  gasPressure: 101325                         % in Pa
+  gasTemperature: 295                         % in K   (average gas temperature)
   wallTemperature: 390                        % in K   (wall temperature)
   extTemperature: 300                         % in K   (external temperature)
   surfaceSiteDensity: 1e19                    % in m-2 (used for surface kinetics)
