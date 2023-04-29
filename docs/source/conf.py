@@ -16,7 +16,11 @@ extensions = [
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
-    'sphinx.ext.intersphinx'
+    'sphinx.ext.autosectionlabel',
+    'sphinx.ext.intersphinx',
+    'sphinxcontrib.bibtex',
+    'sphinxcontrib.pseudocode',
+    'sphinx_copybutton'
 ]
 
 intersphinx_mapping = {
