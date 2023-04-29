@@ -34,6 +34,7 @@
     order = FIRST
     initial_condition = 2.5e19 #cm^-3
     scaling = 2.5e-19
+    # 1 atm/760 torr at 295 K
     # the scaling factor is introduced in order to make the values of the densities more similar
     # necessary for a smooth numerical solution and convergence, but does not effect final result.
   []
