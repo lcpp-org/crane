@@ -24,6 +24,36 @@ study of plasmas due to its massively parallel operation and its ability
 to natively treat multi-phase systems (such as plasma-liquid
 interactions). 
 
+CRANE aims to further expand the plasma simulation capabilities of the
+MOOSE framework by including a chemical kinetics solver. Using the MOOSE
+framework's *Actions* system, CRANE allows lists of chemical reactions
+to be added to the input file in a simple human-readable format to
+construct reaction networks. It may be run alone as a 0D model or it can
+leverage the coupling capabilities of the framework and be compiled into
+other MOOSE applications as a submodule, providing separately-developed
+software with the capability to solve reaction networks. Using CRANE
+alone requires no C++ programming from the user, and directly coupling
+applications requires only modifying the main application's Makefile and
+adding two lines to the applications main C++ file. In this way all of
+the functionality of CRANE becomes available to the parent application
+through the text-based input files used by MOOSE applications.
+
+The ability to couple different codes together represents a significant
+advantage both for CRANE and for MOOSE applications in general. By
+compiling `Zapdos <https://shannon-lab.github.io/zapdos/>`_ 
+and CRANE together, a user is able to simulate a
+fully-coupled system of multispecies drift-diffusion-reaction equations.
+A large number of reactions may be easily added to a Zapdos-CRANE
+simulation without writing any code, allowing a user to model a plasma
+discharge with necessarily large reaction networks, such as nitrogen and
+oxygen plasmas. Since the dimensionality
+and parallel capabilities of a problem are handled internally by MOOSE,
+a coupled Zapdos-CRANE model may be easily scaled into multiple
+dimensions and parallelized from the input file and command line. Future
+plasma-relevant software that is developed in the MOOSE framework will
+have the ability to be coupled together with Zapdos and CRANE as well.
+
+
 
 Chemical Kinetics
 -----------------
