@@ -15,6 +15,5 @@ License v3.0.
 How to use
 ----------
 
-To use `BOLSIG+ <https://nl.lxcat.net/solvers/BolsigPlus/index.php>`_
-refer to the webpage and the documentation provided with the code, 
+To use BOLSIG+ refer to the webpage and the documentation provided with the code, 
 `How To Use <http://www.bolsig.laplace.univ-tlse.fr/how-to-use.html>`_.
