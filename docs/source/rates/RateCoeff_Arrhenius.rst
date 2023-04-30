@@ -1,7 +1,6 @@
 Arrhenius
 =========
 
-
 Arrhenius equation
 ------------------
 
