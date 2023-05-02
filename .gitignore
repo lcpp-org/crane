@@ -97,6 +97,9 @@ build
 # Allow png files in docs/source/figures
 !**/figures/*.png
 
+# Allow csv files in tutorials
+!**/tutorials/**/*.csv
+
 peacock_run_tmp.i
 yaml_dump*
 test/tests/outputs/format/dump.i

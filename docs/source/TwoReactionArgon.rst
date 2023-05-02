@@ -21,14 +21,14 @@ recombination. The rate coefficients of these reactions are denoted
 :math:`k_i` and :math:`k_r`, respectively.
 
 The goal of this tutorial is to demonstrate how to use CRANE to solve for the
-time evolution of the plasma density of each species, and compare the results
+time evolution of the plasma density and compare the results
 to the expected analytical steady-state value, :math:`n_p = k_i / k_r`.
 
-We will use this tutorial also to demonstrate how to pre-process the rate
-coefficient of tone of the two reactions in the system, and how to use tabulated
-rate coefficients into CRANE. The pre-processing of the rate coefficients is
+We will also use this tutorial to demonstrate how to pre-process the rate
+coefficientd of the two reactions in the system and how to use tabulated
+rate coefficients in CRANE. The pre-processing of the rate coefficients is
 performed using the `LoKI-B <https://github.com/IST-Lisbon/LoKI>`_ code
-from the IST Lisbon group.
+from the IST-Lisbon group.
 
 The tutorial is organized as follows:
 
@@ -36,7 +36,7 @@ The tutorial is organized as follows:
    coefficient :math:`k_i` as a function of the reduced electric field :math:`E/N`.
 
 2. We then use CRANE to solve the system of ordinary differential equations 
-   (ODEs) that describe the time evolution of the plasma density of each species. 
+   (ODEs) that describe the time evolution of the density of each species. 
 
 3. Finally, we compare the steady-state plasma density :math:`n_p` obtained from 
    CRANE to the analytical value :math:`n_p = k_i / k_r`.
@@ -45,9 +45,9 @@ The tutorial is organized as follows:
 Theory
 ------
 
-For each our three species under consideration, (:math:`\text{e}`, 
-:math:`\text{Ar}^{+}`, :math:`\text{Ar}`) we can write an ordinary differential 
-equation that describes the change in density due to the plasma-chemistry reactions:
+For each our three species under consideration (:math:`\text{e}`, 
+:math:`\text{Ar}^{+}`, :math:`\text{Ar}`), we can write an ordinary differential 
+equation that describes the change in density due to the plasma-chemical reactions:
 
 .. math::
     :label: ODE_system
@@ -64,7 +64,7 @@ and :math:`k_i` (:math:`\text{cm}^3/\text{s}`) and :math:`k_r` (:math:`\text{cm}
 are the rate coefficients of ionization and recombination. 
 It is immediately noticable that the equations describing the chemical kinetics 
 of the electrons and the ions are identical. 
-When combined with enforcing identical initial conditions on the two species, 
+When combined with enforcing of identical initial conditions on the two species, 
 this ensures that the quasineutrality of the plasma is maintained, i.e. :math:`n_e = n_i`.
 
 As part of the verification of this model, we can predict the steady-state 
@@ -76,46 +76,38 @@ from the set above to zero, and solving for :math:`n_p`
 
     \frac{d n_p}{d t} = k_i n_p n_{Ar} - k_r n_p n_p n_{Ar} = 0 \Rightarrow n_p = \frac{k_i}{k_r}.
 
-The equilibrium plasma density :math:`n_p`  determined by the ratio of
+The equilibrium plasma density :math:`n_p` is determined by the ratio of
 the ionization and recombination rate coefficients, :math:`k_i` and :math:`k_r` 
-respectively, will be used to verify the results obtained from CRANE.
+respectively. This result will be used to verify the results obtained from CRANE.
 
 
 Simulation Conditions 
 ---------------------
 
-The argon neutral gas is initially at atmospheric pressure, 
-:math:`p_{Ar} = 1` atm = 760 torr and room temperature, 
-:math:`T_{Ar} = 295` K. The corresponding neutral gas density is
+The neutral argon gas is initially at atmospheric pressure, 
+:math:`p_{Ar}` = 1 atm = 760 torr and room temperature, 
+:math:`T_{Ar}` = 295 K. The corresponding neutral gas density is
 obtained from the ideal gas law, :math:`n_{Ar} = p_{Ar}/(k_B T_{Ar})`, 
 where :math:`k_B` is the Boltzmann constant, which gives an initial 
-neutral gas density of :math:`n_{Ar} = 2.5 \times 10^{19} \; \text{cm}^{-3}`.
+neutral gas density of :math:`n_{Ar} = 2.5 \times 10^{19} \; \text{cm}^{-3}`. 
+Conversely, the ions and electrons start from a very low initial density of 
+:math:`n_{e,i}(t=0) = 1 \; \text{cm}^{-3}`. A reduced electric field :math:`E/N = 30` Td is 
+kept constant throughout the simulation to achieve breakdown and sustain the plasma to steady-state. 
 
-The ions and electrons start from a very low initial density of 
-:math:`n_{e,i}(t=0) = 1 \; \text{cm}^{-3}`.
-
-A reduced electric field :math:`E/N = 20` Td is 
-kept constant throughout the simulation to achieve 
-breakdown and sustain the plasma to steady-state. 
-
-In order to calculate the value of :math:`k_i`, we can either (1) solve 
-the EBE or (2) integrate the ionization cross-section over an assumed 
+In order to calculate the value of the ionization rate coefficient :math:`k_i`, 
+we can either (1) solve the EBE or (2) integrate the ionization cross-section over an assumed 
 electron energy distribution function (EEDF), such as a Maxwellian.
 We opt for the former as this is the most common practice, 
-which we will use going forward also in other tutorials. 
-
-The ionization rate coefficient :math:`k_i` of the first reaction 
-is calculated by solving the electron Boltzmann equation (EBE), 
-and the recombination rate coefficient :math:`k_r` of the second reaction 
+which we will use going forward also in other tutorials. On the other hand,
+the recombination rate coefficient :math:`k_r` of the second reaction 
 is assumed to be constant, :math:`k_r = 10^{-25} \; \text{cm}^6/\text{s}`. 
 
-For the solution of the electron Boltzmann equation (EBE) we use the
+For the solution of the electron Boltzmann equation (EBE), we use the
 solver `LoKI-B <https://github.com/IST-Lisbon/LoKI>`_ to obtain the
 rate coefficient :math:`k_i` as a function of the reduced electric field
-:math:`E/N`. The EBE is solved for a Maxwellian electron energy distribution
-function (EEDF) with a temperature of 1 eV. The EBE is solved for a range of
-:math:`E/N` values from 1 to 100 Td. The resulting rate coefficients are
-tabulated and saved in a .csv file, which is read by CRANE.
+:math:`E/N`. The EBE is solved for a range of :math:`E/N` values from 0.001 to 1000 Td.
+The resulting rate coefficients are then tabulated by LoKI-B, 
+and we pre-process these into a CRANE-acceptable format. 
 
 Summarizing the simulation conditions in a table:
 
@@ -128,13 +120,11 @@ Summarizing the simulation conditions in a table:
 +---------------------+-------------------+ 
 | Initial i density   | 1 cm^-3           |
 +---------------------+-------------------+ 
-| Reduced field E/N   | 20 Td             | 
+| Reduced field E/N   | 30 Td             | 
++---------------------+-------------------+ 
+| Ionization from EEDF| 2.13e-25 cm^3/s   | 
 +---------------------+-------------------+ 
 | Recombination k_r   | 1e-25 cm^6/s      | 
-+---------------------+-------------------+ 
-| Ionization from EEDF| Maxwellian, 1 eV  | 
-+---------------------+-------------------+ 
-| E/N range           | 1 - 100 Td        | 
 +---------------------+-------------------+ 
 
 
@@ -143,10 +133,9 @@ Find the Ionization Rate Coefficient using LoKI-B
 
 In this section, we solve the EBE and obtain the ionization rate coefficient
 :math:`k_i` as a function of the reduced electric field :math:`E/N`.
-The EBE is solved for a Maxwellian electron energy distribution function (EEDF)
-with a temperature of 1 eV. The EBE is solved for a range of :math:`E/N` values
-from 1 to 100 Td. The resulting rate coefficients are tabulated and saved in a
-.csv file, which is read by CRANE.
+The EBE is solved for a range of :math:`E/N` values from 0.001 to 1000 Td.
+The resulting rate coefficients are then tabulated by LoKI-B, 
+and we pre-process these into a CRANE-acceptable format. 
 
 Our computational tool of choice is `LoKI-B <https://github.com/IST-Lisbon/LoKI>`_, 
 which requires MATLAB. If you do not have access to MATLAB, you can use 
@@ -157,18 +146,19 @@ Cross-sections from LxCat
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The first step is to save the electron-impact cross-sections of interest in a
-tabulated format. The cross-sections can be obtained from the `LxCat database
-<https://www.lxcat.net>`_. The LxCat database contains a large number of
+tabulated format. The cross-sections can be obtained from the `LXCat database
+<https://www.lxcat.net>`_. The LXCat database contains a large number of
 electron-impact cross-sections for a wide range of species. The cross-sections
 are tabulated in a ``.txt`` file, which can be downloaded from the LxCat website.
 
 
 The ``.txt`` LxCat file contains a header with information about the cross-sections, 
-and the cross-sections are tabulated in a table. The table contains the electron
-energy in eV, the total cross-section in m^2, and the cross-sections for
-different processes in m^2. The first column of the table contains the
-electron energy in eV, and the first row contains the process names. The
-process names are in the format ``<species><process>``, where ``<species>`` is
+and the cross-sections of each process are tabulated separately. 
+Each table contains the cross section :math:`\sigma` (:math:`\text{m}^2`) in the second column
+as a function of electron energy :math:`\varepsilon` (:math:`eV`) in the first column for the given process.
+
+
+The process names are in the format ``<species><process>``, where ``<species>`` is
 the species name and ``<process>`` is the process name. For example, the
 process name ``Ar*`` corresponds to the metastable excitation process of
 argon. The process names are not standardized, and the same process can have
