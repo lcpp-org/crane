@@ -25,7 +25,7 @@ time evolution of the plasma density and compare the results
 to the expected analytical steady-state value, :math:`n_p = k_i / k_r`.
 
 We will also use this tutorial to demonstrate how to pre-process the rate
-coefficientd of the two reactions in the system and how to use tabulated
+coefficients of the two reactions in the system and how to use tabulated
 rate coefficients in CRANE. The pre-processing of the rate coefficients is
 performed using the `LoKI-B <https://github.com/IST-Lisbon/LoKI>`_ code
 from the IST-Lisbon group.
@@ -64,7 +64,7 @@ and :math:`k_i` (:math:`\text{cm}^3/\text{s}`) and :math:`k_r` (:math:`\text{cm}
 are the rate coefficients of ionization and recombination. 
 It is immediately noticable that the equations describing the chemical kinetics 
 of the electrons and the ions are identical. 
-When combined with enforcing of identical initial conditions on the two species, 
+When combined with the enforcing of identical initial conditions on the two species, 
 this ensures that the quasineutrality of the plasma is maintained, i.e. :math:`n_e = n_i`.
 
 As part of the verification of this model, we can predict the steady-state 
@@ -100,7 +100,7 @@ electron energy distribution function (EEDF), such as a Maxwellian.
 We opt for the former as this is the most common practice, 
 which we will use going forward also in other tutorials. On the other hand,
 the recombination rate coefficient :math:`k_r` of the second reaction 
-is assumed to be constant, :math:`k_r = 10^{-25} \; \text{cm}^6/\text{s}`. 
+is assumed to be constant with a value of :math:`k_r = 10^{-25} \; \text{cm}^6/\text{s}`. 
 
 For the solution of the electron Boltzmann equation (EBE), we use the
 solver `LoKI-B <https://github.com/IST-Lisbon/LoKI>`_ to obtain the
@@ -142,69 +142,55 @@ which requires MATLAB. If you do not have access to MATLAB, you can use
 `BOLSIG+ <https://nl.lxcat.net/solvers/BolsigPlus/index.php>`_. 
 The proper usage of LoKI-B or BOLSIG+ will not discussed here.
 
-Cross-sections from LxCat
+Cross Sections from LxCat
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The first step is to save the electron-impact cross-sections of interest in a
 tabulated format. The cross-sections can be obtained from the `LXCat database
 <https://www.lxcat.net>`_. The LXCat database contains a large number of
 electron-impact cross-sections for a wide range of species. The cross-sections
-are tabulated in a ``.txt`` file, which can be downloaded from the LxCat website.
+are tabulated in a ``.txt`` file, which can be downloaded from the LXCat website.
 
 
 The ``.txt`` LxCat file contains a header with information about the cross-sections, 
 and the cross-sections of each process are tabulated separately. 
 Each table contains the cross section :math:`\sigma` (:math:`\text{m}^2`) in the second column
 as a function of electron energy :math:`\varepsilon` (:math:`eV`) in the first column for the given process.
-
-
-The process names are in the format ``<species><process>``, where ``<species>`` is
-the species name and ``<process>`` is the process name. For example, the
-process name ``Ar*`` corresponds to the metastable excitation process of
-argon. The process names are not standardized, and the same process can have
-different names in different databases. The process names are parsed by LoKI-B
-to identify the cross-sections of interest. The cross-sections of interest are
-specified in the ``LoKI-B.inp`` file, which is read by LoKI-B. The cross-sections
-of interest are specified in the ``LoKI-B.inp`` file by the process names. The
-process names are specified in the ``LoKI-B.inp`` file in the format
-``<species><process>``, where ``<species>`` is the species name and
-``<process>`` is the process name. 
-
 For our simple problem, we nominally need just the ionization cross-section. 
 However, we will also include the metastable excitation cross-section,
 and importantly, the elastic momentum transfer cross-section.
 The elastic momentum transfer cross-section is needed to calculate the
-electron energy loss rate, which is needed to solve the EBE.
+electron energy loss rate, and therfore, necessary to obtain an accurate EEDF.
 
 LxCat has multiple databases for Ar. Here, we use the 
 `Morgan database <https://www.lxcat.net/Morgan>`_. 
-From the Morgan database we select cross-sections for the following processes:
+From the Morgan database, we select cross-sections for the following processes:
 
-* ``Ar*``: metastable excitation
-* ``Ar+``: ionization
-* ``Ar``: elastic momentum transfer
+* ``e + Ar -> e + Ar``: elastic momentum transfer
+* ``e + Ar -> e + Ar*``: metastable excitation
+* ``e + Ar -> e + e + Ar+``: ionization
   
 The cross-sections are tabulated in a ``.txt`` file, which can be downloaded
 from the LxCat website. We have saved the ``.txt`` file in the directory
-``crane/tutorials/TwoReactionArgon/data``. The file is renamed to
-``Ar_Morgan.txt``. The file is modified such that: (a) only the metastable
+``crane/tutorials/TwoReactionArgon/data`` as ``Ar_Morgan.txt``. 
+The file is modified such that: (a) only the metastable
 excitation pathway is included (i.e. we exclude the "total excitation"
-process) and is renamed from Ar* to Ar(eff), and (b) the first comment of each
+process), (b) Ar* is renamed to Ar(eff), and (c) the first comment of each
 process describes the reaction from the ground state Ar(1S0), which is parsed
 by LoKI-B.
 
 .. literalinclude:: ../../tutorials/TwoReactionArgon/data/Ar_Morgan.txt
-   :language: bash 
+   :language: text
    :lines: 50-65
    :caption: Ar_Morgan.txt (lines 50-65)
 
 .. literalinclude:: ../../tutorials/TwoReactionArgon/data/Ar_Morgan.txt
-   :language: bash 
+   :language: text
    :lines: 124-138
    :caption: Ar_Morgan.txt (lines 124-138)
 
 .. literalinclude:: ../../tutorials/TwoReactionArgon/data/Ar_Morgan.txt
-   :language: bash 
+   :language: text
    :lines: 155-168
    :caption: Ar_Morgan.txt (lines 155-168)
 
@@ -217,7 +203,7 @@ by LoKI-B.
     necessary to accurately reflect the relaxation of the electrons.
 
 
-Use LoKI-B to find the ionization rate coefficient
+Using LoKI-B to Find the Ionization Rate Coefficient
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Set up a LoKI-B input file ``Ar_lumped.in`` to solve for the EBE with the provided 
