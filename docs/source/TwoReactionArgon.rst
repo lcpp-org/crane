@@ -140,21 +140,21 @@ and we pre-process these into a CRANE-acceptable format.
 Our computational tool of choice is `LoKI-B <https://github.com/IST-Lisbon/LoKI>`_, 
 which requires MATLAB. If you do not have access to MATLAB, you can use 
 `BOLSIG+ <https://nl.lxcat.net/solvers/BolsigPlus/index.php>`_. 
-The proper usage of LoKI-B or BOLSIG+ will not discussed here.
+The proper usage of LoKI-B or BOLSIG+ is not discussed here.
 
 Cross Sections from LxCat
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The first step is to save the electron-impact cross-sections of interest in a
-tabulated format. The cross-sections can be obtained from the `LXCat database
+tabulated format. The cross-sections can be obtained from the online `LXCat database
 <https://www.lxcat.net>`_. The LXCat database contains a large number of
 electron-impact cross-sections for a wide range of species. The cross-sections
 are tabulated in a ``.txt`` file, which can be downloaded from the LXCat website.
 
 
-The ``.txt`` LxCat file contains a header with information about the cross-sections, 
+The ``.txt`` LXCat file contains a header with information about the cross-sections,
 and the cross-sections of each process are tabulated separately. 
-Each table contains the cross section :math:`\sigma` (:math:`\text{m}^2`) in the second column
+Each table contains the cross-section :math:`\sigma` (:math:`\text{m}^2`) in the second column
 as a function of electron energy :math:`\varepsilon` (:math:`eV`) in the first column for the given process.
 For our simple problem, we nominally need just the ionization cross-section. 
 However, we will also include the metastable excitation cross-section,
@@ -203,17 +203,28 @@ by LoKI-B.
     necessary to accurately reflect the relaxation of the electrons.
 
 
-Using LoKI-B to Find the Ionization Rate Coefficient
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Using LoKI-B to calculate the Ionization Rate Coefficient
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Set up a LoKI-B input file ``Ar_lumped.in`` to solve for the EBE with the provided 
-cross sections and operating conditions, and obtain the ionization rate coefficient.
+In this section, we set up a LoKI-B input file named ``Ar_lumped.in``
+that provides the necessary information of operating conditions and cross-sections
+to solve the EBE and obtain the ionization rate coefficient using LoKI-B. 
+This LoKI-B input file ``Ar_lumped.in`` that was used for this tutorial can be found in 
+``crane/tutorials/TwoReactionArgon/data/Ar_lumped.in``. 
+Please note that CRANE does not read or write this file in any way;
+``Ar_lumped.in`` must be copied into an appropriate location with LoKI-B, 
+an external software to CRANE. 
 
-The LoKI-B input file ``Ar_lumped.in`` that was used for this tutorial can 
-be found in ``crane/tutorials/TwoReactionArgon/data/Ar_lumped.in``. 
-The input file is reported below. The input file is divided into sections.
-The first section is the ``Species`` section, which specifies the species
-properties. The second section is the ``Processes`` section, which specifies
+The input file is reported below. For an explanation on the functionality 
+and use of each of the working conditions, electron kinetics configurations, outputs, etc., 
+please refer to the LoKI-B documentation. However, a brief explanation can be provided. 
+As shown, we have set the range of reduced electric field values to 0.001 to 1000,
+the excitation frequency is set to 0 for a direct-current field,
+the gas pressure is 101325 Pa = 1 atm, the gas temperature is 295 K, 
+the electron kinetics calculation is set up to solve the electron Boltzmann equation, 
+the input file points to the ``Ar_Morgan.txt`` file that contains the desired cross-sections,
+the population of the gases and states is listed, and after execution, the program outputs various 
+data files, including the rate coefficients for each process.
 
 .. literalinclude:: ../../tutorials/TwoReactionArgon/data/Ar_lumped.in
    :language: matlab  
@@ -227,7 +238,7 @@ in the directory ``LoKI/Code/Input/Argon``, and run LoKI in Matlab with the comm
     
    >> lokibcl('Argon/Argon_lumped.in')
 
-while in ``LoKI/Code`` will execute the input file.
+while in ``LoKI/Code`` to execute the input file.
 
 After the input file is executed, a new directory ``LoKI/Output/ArLumped`` is generated 
 which includes the output lookup table ``lookUpTableRateCoeff.txt``.
@@ -240,11 +251,11 @@ for each process versus the reduced electric field in Td.
    :caption: lookUpTableRateCoeff.txt (lines 1-16)
 
 
-Tabulate the ionization rate coefficient in CRANE format
+Tabulate the Ionization Rate Coefficient in CRANE Format
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Tabulate the ionization rate coefficient in a CRANE-acceptable format, 
-for example using the following Python script 
+To tabulate the ionization rate coefficient in a CRANE-acceptable format,
+the following Python script is a suitable example:
 
 .. literalinclude:: ../../tutorials/TwoReactionArgon/data/RateCoeffReader.py
    :language: python

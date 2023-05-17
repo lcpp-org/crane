@@ -1,16 +1,21 @@
-import pandas as pd 
-# import pandas for reading .txt file
+# import numpy for reading .txt file
+import numpy as np
 
-# grabbing column names first
-# convert to pandas data frame -> skiprows = row # with second set of ####
-df = pd.read_csv("lookUpTableRateCoeff.txt",delim_whitespace=True,skiprows=10,engine='python')
+# read and store tabulated data using genfromtxt, ignoring lines with #
+data = np.genfromtxt("lookUpTableRateCoeff.txt",comments='#')
 
-# switching to cm3/s
-df['R3_ine(m^3s^-1)'] = df['R3_ine(m^3s^-1)']*1e6
+# delete first line that contains non-acceptable string information
+data = data[1:,:]
 
-# write CRANE-compatible lookup table -> need to write such that it overwrites the text rather than appends to it
-with open(r'ionization.txt', 'w') as f:
-    dfAsString = df.to_string(header=False, index=False,columns=['RedField(Td)','R3_ine(m^3s^-1)'])
-    f.write(dfAsString)
+# select reduced electric field column 
+RedField = data[:,0] # Td
 
+# select ionization rate coefficient 
+kIon = data[:,3] # m^3/s
+# convert to cm3/s
+kIon = kIon*1e6 # cm^3/s
+
+# write CRANE-compatible lookup table
+with open(r'ionization.txt','w') as f:
+    np.savetxt(f,np.column_stack([RedField,kIon]),fmt='%.6e',delimiter=' ')
 
