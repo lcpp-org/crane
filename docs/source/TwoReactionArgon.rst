@@ -203,7 +203,7 @@ by LoKI-B.
     necessary to accurately reflect the relaxation of the electrons.
 
 
-Using LoKI-B to calculate the Ionization Rate Coefficient
+Using LoKI-B to Calculate the Ionization Rate Coefficient
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In this section, we set up a LoKI-B input file named ``Ar_lumped.in``
@@ -232,7 +232,7 @@ data files, including the rate coefficients for each process.
    :caption: Ar_lumped.in
 
 Place both ``Ar_lumped.in`` and the cross section file ``Ar_Morgan.txt`` 
-in the directory ``LoKI/Code/Input/Argon``, and run LoKI in Matlab with the command 
+in the directory ``LoKI/Code/Input/Argon``, and run LoKI-B in MATLAB with the command 
 
 .. code:: matlab 
     
@@ -273,7 +273,6 @@ is the ionization rate coefficient in :math:`\text{cm}^3/\text{s}`.
 Now that we have found the ionization rate coefficient and saved it in a file, 
 we are ready to build the CRANE input file for our problem. 
 
-
 Input File
 -----------
 
@@ -283,12 +282,99 @@ The input file ``TwoReactionArgon.i`` in ``crane/tutorials/TwoReactionArgon`` is
    :language: python 
    :lines: 1-
 
-(Follows a description of the input file sections)
+Mesh
+^^^^
+
+Because we are uninterested in transport and want to capture the "volume-averaged"
+plasma-chemical kinetics of this two-reaction system, 
+a single mesh element of arbitrary length is necessary and sufficient.
+
+Variables and ScalarKernels
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Here we introduce the various variables we wish to compute using CRANE. 
+In the context of MOOSE, variables are any quanitites that have a derivative associated with them
+that is numerically integrated over to obtain a value for a given timestep and/or mesh point. 
+As shown in Equation (2), we have three species with time derivatives,
+and therefore each is identified in CRANE as a separate variable with a unique name.
+The name is arbitrary, and can be chosen by the user. 
+Each variable is of family `SCALAR` to denote that is has no spatial derivative and no vector component, 
+with a default order of the finite element shape function of `FIRST`. 
+Additionally, the initial density of each of the species can be provided here. If not they are not provided here, 
+then a separate `ICs` block must be provided in the input file that specifies the value for each species.
+The density unit is arbitrary and is chosen by the user. 
+The user is responsible for ensuring consistency of units.
+Finally, a scaling factor is introduced for the `Ar` variable
+because its initial value is many order of magnitudes higher than the others'. 
+This scaling factor does not effect the final density, but makes computation feasible by 
+temporarily making the density values more similar.
+
+Since each of our variables are scalars with only time derivatives, 
+we can use a `ScalarKernels` block to set up all of the time deritatives for each of the species.
+Each sub-block must named `d<variable_name>_dt` in order to be properly used in CRANE.
+
+AuxVariables
+^^^^^^^^^^^^
+
+`AuxVariables` are variables with quantities that do not need to a spatial or time derivative in order to be computed.
+As such, this is an appropriate place to introduce the reduced electric field as `reduced_field`.
+We provide it with an initial value of 30 Td, and since there are no `AuxKernels` operating on `reduced_field`, 
+its value will remain at 30 Td. Like the density of species, the unit of the reduced electric field is
+arbitrary and chosen by the user. Again, make sure units are consistent, and that the unit you use here is identical
+to the unit used in any tabulated rate coefficients.
+
+ChemicalReactions
+^^^^^^^^^^^^^^^^^
+
+The `ChemicalReactions` block is unique to CRANE, and allows the user to conveniently list
+all of the reactions of interest along with a rate coefficient as a single string. 
+CRANE then parses this string, and along with the `ODETimeDeriative` ScalarKernels provided earlier,
+computes the change of each species' density over each timestep. 
+
+First, all species are listed within a single string. 
+These species must all be listed within the earlier `Variables` block, but not all variables have to be species.
+Second, for any tabulated rate coeffients, the folder containing them must be located. 
+In this case, `data`, which neighbors the input file, is selected.
+Third, the sampling variable for the tabulated rate coefficients is identified. In this case, it is `reduced_field`.
+Fourth, we apply spline interpolation to the tabulated rate coefficients to obtain values not directly tabulated.
+
+Finally, we list all of our reactions and their associated rate coefficient as a single string.
+The reactants and products are separated by an arrow `->`. 
+Stoichiometric coefficients cannot be written; i.e. `e + e + Ar` is acceptable, `2e + Ar` is not.
+The reaction and the rate coefficient are separated by a colon `:`.
+The usage of `EEDF` signals to CRANE that the rate coefficient for that particular reaction is tabulated.
+By default, it will look for a file of the exact same name as how the reaction is written. 
+This can be over-ridden by specifying the name of the final in parentheses behind `EEDF`.
+Otherwise, all reaction rate coefficents can be written in acceptable string format. 
+
+For more information on the usage of rate coefficients in CRANE, 
+please visit the `Rate Coefficients tutorial <https://crane-plasma-chemistry.readthedocs.io/en/latest/RateCoefficients.html>`_.
+
+Executioner and Preconditioning
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Here, we identify the execution options for the numerical solve. 
+To solve a time-dependent system, the `Transient` type is used and use the `newton` method.
+We set the end time as `0.75e-6` seconds, which is enough to reach steady-state.
+The timestep `dt` is set of `1e-10` seconds. 
+The selection of this time-step is quite sensitive to the densities and rate coefficients used. 
+Future tutorials will discuss how to overcome this sensitivity.
+
+Additionally, some preconditioning options are available in MOOSE to further assist in 
+numerical calculations. For more information, visit 
+`https://mooseframework.inl.gov/syntax/Preconditioning/index.html <https://mooseframework.inl.gov/syntax/Preconditioning/index.html>`_.
+
+Output
+^^^^^^
+
+The standard output file type for MOOSE is the exodus file with extension `.e`. 
+However, for 0D problems with only a solution as a function of time, 
+the use of `.csv` files is preferred, as these can be easily read by simple scripts.
 
 Running 
 --------
 
-Run CRANE with the command
+Run the input file in CRANE with the command
 
 .. code-block:: bash  
 
@@ -298,7 +384,7 @@ The output file ``TwoReactionArgon_out.csv`` is generated, which tabulates
 the value of each variable including rate coefficients for each timestep.
 
 .. .. literalinclude:: ../../tutorials/TwoReactionArgon/TwoReactionArgon_out.csv
-..    :language: python
+..    :language: txt
 ..    :lines: 1-10
 ..    :caption: TwoReactionArgon_out.csv (lines 1-10)
 
@@ -309,7 +395,7 @@ Visualizing the Results
 After the input file is excuted, the file ``TwoReactionArgon_out.csv`` is generated, 
 which tabulates the value of each variable including rate coefficients for each timestep.
 We can now plot the electron density :math:`n_e(t)` as a function of time, and 
-compare it with the steady-state prediction as solved in the Theory section.
+compare it with the steady-state prediction as solved in equation (3) in the Theory section.
 
 .. literalinclude:: ../../tutorials/TwoReactionArgon/plasma_density_plot.py
    :language: python
