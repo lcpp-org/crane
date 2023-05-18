@@ -316,11 +316,11 @@ Each sub-block must named `d<variable_name>_dt` in order to be properly used in 
 AuxVariables
 ^^^^^^^^^^^^
 
-`AuxVariables` are variables with quantities that do not need to a spatial or time derivative in order to be computed.
+`AuxVariables` are variables with quantities that do not need a spatial or time derivative in order to be computed.
 As such, this is an appropriate place to introduce the reduced electric field as `reduced_field`.
 We provide it with an initial value of 30 Td, and since there are no `AuxKernels` operating on `reduced_field`, 
 its value will remain at 30 Td. Like the density of species, the unit of the reduced electric field is
-arbitrary and chosen by the user. Again, make sure units are consistent, and that the unit you use here is identical
+arbitrary and chosen by the user. Again, make sure units are consistent and that the unit you use here is identical
 to the unit used in any tabulated rate coefficients.
 
 ChemicalReactions
@@ -328,7 +328,7 @@ ChemicalReactions
 
 The `ChemicalReactions` block is unique to CRANE, and allows the user to conveniently list
 all of the reactions of interest along with a rate coefficient as a single string. 
-CRANE then parses this string, and along with the `ODETimeDeriative` ScalarKernels provided earlier,
+CRANE then parses this string, and, along with the `ODETimeDeriative` ScalarKernels provided earlier,
 computes the change of each species' density over each timestep. 
 
 First, all species are listed within a single string. 
@@ -354,7 +354,7 @@ Executioner and Preconditioning
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Here, we identify the execution options for the numerical solve. 
-To solve a time-dependent system, the `Transient` type is used and use the `newton` method.
+To solve a time-dependent system, the `Transient` type is used and we use the `newton` method here.
 We set the end time as `0.75e-6` seconds, which is enough to reach steady-state.
 The timestep `dt` is set of `1e-10` seconds. 
 The selection of this time-step is quite sensitive to the densities and rate coefficients used. 
@@ -368,7 +368,7 @@ Output
 ^^^^^^
 
 The standard output file type for MOOSE is the exodus file with extension `.e`. 
-However, for 0D problems with only a solution as a function of time, 
+However, for zero-dimensional problems with a solution only as a function of time, 
 the use of `.csv` files is preferred, as these can be easily read by simple scripts.
 
 Running 
