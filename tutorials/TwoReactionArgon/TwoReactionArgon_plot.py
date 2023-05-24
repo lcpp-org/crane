@@ -32,14 +32,23 @@ k_rec = data[:,5] # cm^6 s^-1
 # both are constant, grab last timestep, divide to get steady-state density
 ss_n = k_ion[-1]/k_rec[-1] # cm^-3
 
+# early-time prediction
+def rise(t):
+    n_p0 = 1 # cm^-3
+    n_Ar = 2.5e19 # cm^-3
+    return n_p0*np.exp(n_Ar*k_ion*t)
+
 fig = plt.figure()
 plt.axhline(y=ss_n,color='blue',linestyle='--',label="Steady-State Prediction")
+plt.plot(time,rise(time),color='green',linestyle='--',label="Initial Growth Prediction")
 plt.plot(time, n_e, color='red', label='Computation Result')
 plt.yscale("log")
-plt.xscale("log")
+plt.xscale("linear")
 plt.xlabel("Time (s)")
 plt.ylabel("Plasma Density [cm${}^{-3}$]")
+plt.text(2e-7, 1e4, r'slope: $k_{ion}n_{Ar}$', fontsize=12)
+plt.text(3.5e-7, 1e14, r'value: $k_{ion}/k_{rec}$', fontsize=12)
 plt.legend()
 plt.grid(linestyle='--',alpha=0.9)
 plt.draw()
-plt.savefig("plasma_density.png",dpi=600)
+plt.savefig("TwoReactionArgon_density.png",dpi=600)

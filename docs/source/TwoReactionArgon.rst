@@ -80,6 +80,20 @@ The equilibrium plasma density :math:`n_p` is determined by the ratio of
 the ionization and recombination rate coefficients, :math:`k_i` and :math:`k_r` 
 respectively. This result will be used to verify the results obtained from CRANE.
 
+Additionally, we can predict the initial trend of the plasma-density growth.
+At early times, :math:`n_p` is small (near its initial condition of 1), 
+so the reaction rate of ionization is much greater than the reaction rate of recombination.
+As a result, at early times,
+
+.. math::
+    :label: tworeaction_early_analysis
+
+    \frac{d n_p}{d t} \simeq k_i n_p n_{Ar} \Rightarrow n_p(t) = n_{p0} \exp(k_i n_{Ar} t),
+
+where :math:`n_{p0} = 1 \; \text{cm}^{-3}` is the initial plasma density. 
+We expect that the plasma density will grow as predicted by this equation
+until it is sufficiently high such that recombination eventually brings the density to 
+a steady-state value.
 
 Simulation Conditions 
 ---------------------
@@ -122,7 +136,7 @@ Summarizing the simulation conditions in a table:
 +---------------------+-------------------+ 
 | Reduced field E/N   | 30 Td             | 
 +---------------------+-------------------+ 
-| Ionization from EEDF| 2.13e-25 cm^3/s   | 
+| Ionization from EEDF| 2.17e-12 cm^3/s   | 
 +---------------------+-------------------+ 
 | Recombination k_r   | 1e-25 cm^6/s      | 
 +---------------------+-------------------+ 
@@ -276,14 +290,15 @@ we are ready to build the CRANE input file for our problem.
 Input File
 -----------
 
-The input file ``TwoReactionArgon.i`` in ``crane/tutorials/TwoReactionArgon`` is shown below:
-
-.. literalinclude:: ../../tutorials/TwoReactionArgon/TwoReactionArgon.i
-   :language: python 
-   :lines: 1-
+The input file ``TwoReactionArgon.i`` in ``crane/tutorials/TwoReactionArgon``
+is shown, block-by-block, with an accompanying explanation.
 
 Mesh
 ^^^^
+
+.. literalinclude:: ../../tutorials/TwoReactionArgon/TwoReactionArgon.i
+   :language: toml
+   :lines: 1-7
 
 Because we are uninterested in transport and want to capture the "volume-averaged"
 plasma-chemical kinetics of this two-reaction system, 
@@ -291,6 +306,10 @@ a single mesh element of arbitrary length is necessary and sufficient.
 
 Variables and ScalarKernels
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. literalinclude:: ../../tutorials/TwoReactionArgon/TwoReactionArgon.i
+   :language: toml
+   :lines: 9-42
 
 Here we introduce the various variables we wish to compute using CRANE. 
 In the context of MOOSE, variables are any quanitites that have a derivative associated with them
@@ -316,6 +335,10 @@ Each sub-block must named `d<variable_name>_dt` in order to be properly used in 
 AuxVariables
 ^^^^^^^^^^^^
 
+.. literalinclude:: ../../tutorials/TwoReactionArgon/TwoReactionArgon.i
+   :language: toml
+   :lines: 44-49
+
 `AuxVariables` are variables with quantities that do not need a spatial or time derivative in order to be computed.
 As such, this is an appropriate place to introduce the reduced electric field as `reduced_field`.
 We provide it with an initial value of 30 Td, and since there are no `AuxKernels` operating on `reduced_field`, 
@@ -325,6 +348,10 @@ to the unit used in any tabulated rate coefficients.
 
 ChemicalReactions
 ^^^^^^^^^^^^^^^^^
+
+.. literalinclude:: ../../tutorials/TwoReactionArgon/TwoReactionArgon.i
+   :language: toml
+   :lines: 51-60
 
 The `ChemicalReactions` block is unique to CRANE, and allows the user to conveniently list
 all of the reactions of interest along with a rate coefficient as a single string. 
@@ -336,7 +363,7 @@ These species must all be listed within the earlier `Variables` block, but not a
 Second, for any tabulated rate coeffients, the folder containing them must be located. 
 In this case, `data`, which neighbors the input file, is selected.
 Third, the sampling variable for the tabulated rate coefficients is identified. In this case, it is `reduced_field`.
-Fourth, we apply spline interpolation to the tabulated rate coefficients to obtain values not directly tabulated.
+Fourth, we apply linear interpolation to the tabulated rate coefficients to obtain values not directly tabulated.
 
 Finally, we list all of our reactions and their associated rate coefficient as a single string.
 The reactants and products are separated by an arrow `->`. 
@@ -347,11 +374,22 @@ By default, it will look for a file of the exact same name as how the reaction i
 This can be over-ridden by specifying the name of the final in parentheses behind `EEDF`.
 Otherwise, all reaction rate coefficents can be written in acceptable string format. 
 
+.. warning:: 
+
+    Currently, CRANE requires all reactions that have tabulated rate coefficients, 
+    signified by the use of EEDF, to be placed BEFORE reactions with 
+    equation-based values for their rate coefficients. We are currently working to 
+    improve the flexibility of the reaction parser.
+
 For more information on the usage of rate coefficients in CRANE, 
 please visit the `Rate Coefficients tutorial <https://crane-plasma-chemistry.readthedocs.io/en/latest/RateCoefficients.html>`_.
 
 Executioner and Preconditioning
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. literalinclude:: ../../tutorials/TwoReactionArgon/TwoReactionArgon.i
+   :language: toml
+   :lines: 62-83
 
 Here, we identify the execution options for the numerical solve. 
 To solve a time-dependent system, the `Transient` type is used and we use the `newton` method here.
@@ -367,6 +405,10 @@ numerical calculations. For more information, visit
 Output
 ^^^^^^
 
+.. literalinclude:: ../../tutorials/TwoReactionArgon/TwoReactionArgon.i
+   :language: toml
+   :lines: 85-89
+
 The standard output file type for MOOSE is the exodus file with extension `.e`. 
 However, for zero-dimensional problems with a solution only as a function of time, 
 the use of `.csv` files is preferred, as these can be easily read by simple scripts.
@@ -374,7 +416,7 @@ the use of `.csv` files is preferred, as these can be easily read by simple scri
 Running 
 --------
 
-Run the input file in CRANE with the command
+While in ``crane/tutorials/TwoReactionArgon``, run the input file in CRANE with the command 
 
 .. code-block:: bash  
 
@@ -397,13 +439,14 @@ which tabulates the value of each variable including rate coefficients for each 
 We can now plot the electron density :math:`n_e(t)` as a function of time, and 
 compare it with the steady-state prediction as solved in equation (3) in the Theory section.
 
-.. literalinclude:: ../../tutorials/TwoReactionArgon/plasma_density_plot.py
+.. literalinclude:: ../../tutorials/TwoReactionArgon/TwoReactionArgon_plot.py
    :language: python
    :lines: 1-
 
-As expected, the plasma density reaches the predicted steady-state value:
+As expected, the plasma density reaches the predicted steady-state value
+and grows exponentially at early times with expected slope:
 
-.. figure:: figures/plasma_density.png
+.. figure:: figures/TwoReactionArgon_density.png
     :align: center
     :width: 500px
     :alt: 
@@ -411,5 +454,6 @@ As expected, the plasma density reaches the predicted steady-state value:
 
     The plasma density :math:`n_e` as a function of time. 
     The blue horizontal line is the expected steady-state value, 
+    the green line is the expected growth of the plasma density at early times,
     the red line is the numerical solution calculated by CRANE.
 
