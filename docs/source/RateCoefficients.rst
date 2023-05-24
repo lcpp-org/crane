@@ -7,3 +7,4 @@ Rate Coefficients
    rates/RateCoeff_Arrhenius
    rates/RateCoeff_BOLSIG
    rates/RateCoeff_LOKI
+   rates/GenMaxwellian
