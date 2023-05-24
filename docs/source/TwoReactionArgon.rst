@@ -80,6 +80,20 @@ The equilibrium plasma density :math:`n_p` is determined by the ratio of
 the ionization and recombination rate coefficients, :math:`k_i` and :math:`k_r` 
 respectively. This result will be used to verify the results obtained from CRANE.
 
+Additionally, we can predict the initial trend of the plasma-density growth.
+At early times, :math:`n_p` is small (near its initial condition of 1), 
+so the reaction rate of ionization is much greater than the reaction rate of recombination.
+As a result, at early times,
+
+.. math::
+    :label: tworeaction_early_analysis
+
+    \frac{d n_p}{d t} \simeq k_i n_p n_{Ar} \Rightarrow n_p(t) = n_{p0} \exp(k_i n_{Ar} t),
+
+where :math:`n_{p0} = 1 \; \text{cm}^{-3}` is the initial plasma density. 
+We expect that the plasma density will grow as predicted by this equation
+until it is sufficiently high such that recombination eventually brings the density to 
+a steady-state value.
 
 Simulation Conditions 
 ---------------------
@@ -122,7 +136,7 @@ Summarizing the simulation conditions in a table:
 +---------------------+-------------------+ 
 | Reduced field E/N   | 30 Td             | 
 +---------------------+-------------------+ 
-| Ionization from EEDF| 2.14e-12 cm^3/s   | 
+| Ionization from EEDF| 2.17e-12 cm^3/s   | 
 +---------------------+-------------------+ 
 | Recombination k_r   | 1e-25 cm^6/s      | 
 +---------------------+-------------------+ 
@@ -425,13 +439,14 @@ which tabulates the value of each variable including rate coefficients for each 
 We can now plot the electron density :math:`n_e(t)` as a function of time, and 
 compare it with the steady-state prediction as solved in equation (3) in the Theory section.
 
-.. literalinclude:: ../../tutorials/TwoReactionArgon/plasma_density_plot.py
+.. literalinclude:: ../../tutorials/TwoReactionArgon/TwoReactionArgon_plot.py
    :language: python
    :lines: 1-
 
-As expected, the plasma density reaches the predicted steady-state value:
+As expected, the plasma density reaches the predicted steady-state value
+and grows exponentially at early times with expected slope:
 
-.. figure:: figures/plasma_density.png
+.. figure:: figures/TwoReactionArgon_density.png
     :align: center
     :width: 500px
     :alt: 
@@ -439,5 +454,6 @@ As expected, the plasma density reaches the predicted steady-state value:
 
     The plasma density :math:`n_e` as a function of time. 
     The blue horizontal line is the expected steady-state value, 
+    the green line is the expected growth of the plasma density at early times,
     the red line is the numerical solution calculated by CRANE.
 
