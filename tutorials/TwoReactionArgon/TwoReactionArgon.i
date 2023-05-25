@@ -52,11 +52,11 @@
   [ScalarNetwork]
     species = 'e Ar+ Ar'
     file_location = 'data'
-    sampling_variable = 'reduced_field' 
+    sampling_variable = 'reduced_field'
     interpolation_type = 'linear'
     reactions = 'e + Ar -> e + e + Ar+         : EEDF (ionization)
                  e + Ar+ + Ar -> Ar + Ar       : 1e-25'
-   []
+  []
 []
 
 [Executioner]

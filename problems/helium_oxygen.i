@@ -5,204 +5,204 @@
 []
 
 [Variables]
-  [./e]
+  [e]
     order = FIRST
     family = SCALAR
     initial_condition = 1e11
     # scaling = 1e-11
-  [../]
+  []
 
-  [./He]
+  [He]
     order = FIRST
     family = SCALAR
     initial_condition = 1e18
     # scaling = 1e-12
-  [../]
+  []
 
-  [./He*]
+  [He*]
     order = FIRST
     family = SCALAR
     initial_condition = 0
     # scaling = 1e-14
-  [../]
+  []
 
-  [./He2*]
+  [He2*]
     order = FIRST
     family = SCALAR
     initial_condition = 0
     # scaling = 1e-10
-  [../]
+  []
 
-  [./He+]
+  [He+]
     order = FIRST
     family = SCALAR
     initial_condition = 0
     # scaling = 1e-16
-  [../]
+  []
 
-  [./He2+]
+  [He2+]
     order = FIRST
     family = SCALAR
     initial_condition = 0
     # scaling = 1e-13
-  [../]
+  []
 
-  [./O]
+  [O]
     order = FIRST
     family = SCALAR
     initial_condition = 0
     # scaling = 1e-16
-  [../]
+  []
 
-  [./O2]
+  [O2]
     order = FIRST
     family = SCALAR
     initial_condition = 1e16
     # scaling = 1e-10
-  [../]
+  []
 
-  [./O3]
+  [O3]
     order = FIRST
     family = SCALAR
     initial_condition = 0
     # scaling = 1e-11
-  [../]
+  []
 
-  [./O2+]
+  [O2+]
     order = FIRST
     family = SCALAR
     initial_condition = 0
     # scaling = 1e-9
-  [../]
+  []
 
-  [./O2-]
+  [O2-]
     order = FIRST
     family = SCALAR
     initial_condition = 0
     # scaling = 1e-7
-  [../]
+  []
 
-  [./O4+]
+  [O4+]
     order = FIRST
     family = SCALAR
     initial_condition = 0
-  [../]
+  []
 []
 
 [ScalarKernels]
-  [./de_dt]
+  [de_dt]
     type = ODETimeDerivative
     variable = e
-  [../]
+  []
 
-  [./dHe_dt]
+  [dHe_dt]
     type = ODETimeDerivative
     variable = He
-  [../]
+  []
 
-  [./dHe*_dt]
+  [dHe*_dt]
     type = ODETimeDerivative
     variable = He*
-  [../]
+  []
 
-  [./dHe2*_dt]
+  [dHe2*_dt]
     type = ODETimeDerivative
     variable = He2*
-  [../]
+  []
 
-  [./dHe+_dt]
+  [dHe+_dt]
     type = ODETimeDerivative
     variable = He+
-  [../]
+  []
 
-  [./dHe2+_dt]
+  [dHe2+_dt]
     type = ODETimeDerivative
     variable = He2+
-  [../]
+  []
 
-  [./dO_dt]
+  [dO_dt]
     type = ODETimeDerivative
     variable = O
-  [../]
+  []
 
-  [./dO2_dt]
+  [dO2_dt]
     type = ODETimeDerivative
     variable = O2
-  [../]
+  []
 
-  [./dO3_dt]
+  [dO3_dt]
     type = ODETimeDerivative
     variable = O3
-  [../]
+  []
 
-  [./dO2+_dt]
+  [dO2+_dt]
     type = ODETimeDerivative
     variable = O2+
-  [../]
+  []
 
-  [./dO2-_dt]
+  [dO2-_dt]
     type = ODETimeDerivative
     variable = O2-
-  [../]
+  []
 
-  [./dO4+_dt]
+  [dO4+_dt]
     type = ODETimeDerivative
     variable = O4+
-  [../]
+  []
 []
 
 [AuxVariables]
-  [./M]
+  [M]
     family = SCALAR
     order = FIRST
     initial_condition = 1e18
-  [../]
+  []
 
-  [./T0]
+  [T0]
     family = SCALAR
     order = FIRST
     initial_condition = 300
-  [../]
+  []
 
-  [./Teg]
+  [Teg]
     family = SCALAR
     order = FIRST
     initial_condition = 300
-  [../]
+  []
 []
 
 [AuxScalarKernels]
-  [./M_calculate]
+  [M_calculate]
     type = VariableSum
     variable = M
     args = 'He He* He2* O O2 O3'
     execute_on = 'TIMESTEP_BEGIN'
-  [../]
+  []
 
-  [./T0_calculate]
+  [T0_calculate]
     type = ParsedAuxScalar
     variable = T0
     constant_names = 'Tg'
     constant_expressions = '345'
     function = 'Tg/300'
     execute_on = 'INITIAL'
-  [../]
+  []
 
-  [./Teg_calculate]
+  [Teg_calculate]
     type = ParsedAuxScalar
     variable = Teg
     constant_names = 'Te Tg'
     constant_expressions = '2.5 345'
     function = '(Te*11600)/Tg'
     execute_on = 'INITIAL'
-  [../]
+  []
 []
 
 # Evil reaction:
 # O + O + O3 -> O2 + O3     : {4.6e-34 * exp(1050/Te)}
 # Look at that exponent!
 [ChemicalReactions]
-  [./ScalarNetwork]
+  [ScalarNetwork]
     species = 'e He He* He2* He+ He2+ O O2 O3 O2+ O2- O4+ M'
     aux_species = 'M'
     equation_constants = 'Tg Te'
@@ -300,7 +300,7 @@
     e + e + He+ -> He* + e                 : {6.0e-20 * (Teg)^(-4.0)}
     e + e + He2+ -> He + He* + e           : {1.0e-20 * (Teg)^(-4.0)}
     e + e + He2+ -> He2* + e               : {3.0e-20 * (Teg)^(-4.0)}'
-  [../]
+  []
 []
 
 [Executioner]
@@ -310,19 +310,19 @@
   petsc_options_value = 'basic'
   dtmax = 1e-5
   solve_type = LINEAR
-  [./TimeStepper]
+  [TimeStepper]
     type = IterationAdaptiveDT
     cutback_factor = 0.9
     dt = 1e-11
     growth_factor = 1.01
-  [../]
+  []
 []
 
 [Preconditioning]
-  [./smp]
+  [smp]
     type = SMP
     full = true
-  [../]
+  []
 []
 
 [Outputs]

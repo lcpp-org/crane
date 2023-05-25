@@ -5,45 +5,45 @@
 []
 
 [Variables]
-  [./e]
+  [e]
     family = SCALAR
     order = FIRST
     initial_condition = 1
-  [../]
+  []
 
-  [./Ar]
+  [Ar]
     family = SCALAR
     order = FIRST
     initial_condition = 2.5e19
     scaling = 2.5e-19
-  [../]
+  []
 
-  [./Ar+]
+  [Ar+]
     family = SCALAR
     order = FIRST
     initial_condition = 1
-  [../]
+  []
 []
 
 [ScalarKernels]
-  [./de_dt]
+  [de_dt]
     type = ODETimeDerivative
     variable = e
-  [../]
+  []
 
-  [./dAr_dt]
+  [dAr_dt]
     type = ODETimeDerivative
     variable = Ar
-  [../]
+  []
 
-  [./dAr+_dt]
+  [dAr+_dt]
     type = ODETimeDerivative
     variable = Ar+
-  [../]
+  []
 []
 
 [ChemicalReactions]
-  [./ScalarNetwork]
+  [ScalarNetwork]
     species = 'e Ar Ar+'
     file_location = 'Example5'
     sampling_variable = 'reduced_field'
@@ -52,17 +52,16 @@
     reactions = 'e + Ar -> e + e + Ar+   : EEDF
                  e + Ar+ + Ar -> Ar + Ar : 1e-25'
 
-   [../]
+  []
 []
 
 [AuxVariables]
-  [./reduced_field]
+  [reduced_field]
     order = FIRST
     family = SCALAR
     initial_condition = 50e-21
-  [../]
+  []
 []
-
 
 [Executioner]
   type = Transient
@@ -81,18 +80,18 @@
 []
 
 [Preconditioning]
-  [./smp]
+  [smp]
     type = SMP
     full = true
     # ksp_norm = none
-  [../]
+  []
 []
 
 [Outputs]
   csv = true
   interval = 10
-  [./console]
+  [console]
     type = Console
     #execute_scalars_on = 'none'
-  [../]
+  []
 []

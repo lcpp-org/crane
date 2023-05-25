@@ -5,131 +5,130 @@
 []
 
 [Variables]
-  [./N]
+  [N]
     family = SCALAR
     order = FIRST
     initial_condition = 0.0
     scaling = 1e-5
-  [../]
+  []
 
-  [./N2]
+  [N2]
     family = SCALAR
     order = FIRST
     initial_condition = 2.4474637681159418e+19
     scaling = 1e-10
-  [../]
+  []
 
-  [./N2A]
+  [N2A]
     family = SCALAR
     order = FIRST
     initial_condition = 0.0
     scaling = 1e-8
-  [../]
+  []
 
-  [./N2B]
+  [N2B]
     family = SCALAR
     order = FIRST
     initial_condition = 0.0
     scaling = 1e-5
-  [../]
+  []
 
-  [./N2a1]
+  [N2a1]
     family = SCALAR
     order = FIRST
     initial_condition = 0.0
-  [../]
+  []
 
-  [./N2C]
-    family = SCALAR
-    order = FIRST
-    initial_condition = 0.0
-    scaling = 1e-5
-  [../]
-
-  [./N+]
+  [N2C]
     family = SCALAR
     order = FIRST
     initial_condition = 0.0
     scaling = 1e-5
-  [../]
+  []
 
-  [./N2+]
+  [N+]
     family = SCALAR
     order = FIRST
     initial_condition = 0.0
     scaling = 1e-5
-  [../]
+  []
 
-  [./N3+]
+  [N2+]
     family = SCALAR
     order = FIRST
     initial_condition = 0.0
     scaling = 1e-5
-  [../]
+  []
 
-  [./N4+]
+  [N3+]
     family = SCALAR
     order = FIRST
     initial_condition = 0.0
     scaling = 1e-5
-  [../]
+  []
+
+  [N4+]
+    family = SCALAR
+    order = FIRST
+    initial_condition = 0.0
+    scaling = 1e-5
+  []
 []
 
 [ScalarKernels]
-  [./dN_dt]
+  [dN_dt]
     type = ODETimeDerivative
     variable = N
-  [../]
+  []
 
-  [./dN2_dt]
+  [dN2_dt]
     type = ODETimeDerivative
     variable = N2
-  [../]
+  []
 
-  [./dN2A_dt]
+  [dN2A_dt]
     type = ODETimeDerivative
     variable = N2A
-  [../]
+  []
 
-  [./dN2B_dt]
+  [dN2B_dt]
     type = ODETimeDerivative
     variable = N2B
-  [../]
+  []
 
-  [./dN2a_dt]
+  [dN2a_dt]
     type = ODETimeDerivative
     variable = N2a1
-  [../]
+  []
 
-  [./dN2C_dt]
+  [dN2C_dt]
     type = ODETimeDerivative
     variable = N2C
-  [../]
+  []
 
-  [./dN+_dt]
+  [dN+_dt]
     type = ODETimeDerivative
     variable = N+
-  [../]
+  []
 
-  [./dN2+_dt]
+  [dN2+_dt]
     type = ODETimeDerivative
     variable = N2+
-  [../]
+  []
 
-  [./dN3+_dt]
+  [dN3+_dt]
     type = ODETimeDerivative
     variable = N3+
-  [../]
+  []
 
-  [./dN4+_dt]
+  [dN4+_dt]
     type = ODETimeDerivative
     variable = N4+
-  [../]
+  []
 []
 
-
 [ChemicalReactions]
-  [./ScalarNetwork]
+  [ScalarNetwork]
     species = 'e N N2 N2A N2B N2a1 N2C N+ N2+ N3+ N4+'
     aux_species = 'e'
     file_location = 'Example4'
@@ -138,7 +137,6 @@
     # These are parameters required equation-based rate coefficients
     equation_variables = 'Te Teff'
     rate_provider_var = 'reduced_field'
-
 
     reactions = 'e + N2 -> e + N2A          : EEDF
                  e + N2 -> e + N2B          : EEDF
@@ -174,34 +172,33 @@
                  N2C + N2 -> N2 + N2a1      : 1.0e-11
                  N + N + N2 -> N2A + N2     : 1.7e-33
                  N + N + N2 -> N2B + N2     : 2.4e-33'
-  [../]
+  []
 []
 
-
 [AuxVariables]
-  [./reduced_field]
+  [reduced_field]
     order = FIRST
     family = SCALAR
-  [../]
+  []
 
-  [./e]
+  [e]
     order = FIRST
     family = SCALAR
-  [../]
+  []
 
-  [./Te]
+  [Te]
     order = FIRST
     family = SCALAR
-  [../]
+  []
 
-  [./Teff]
+  [Teff]
     order = FIRST
     family = SCALAR
-  [../]
+  []
 []
 
 [AuxScalarKernels]
-  [./field_calculation]
+  [field_calculation]
     type = DataReadScalar
     variable = reduced_field
     # scale_factor = 1e-21
@@ -209,9 +206,9 @@
     property_file = 'Example4/reduced_field.txt'
     # execute_on = 'INITIAL TIMESTEP_END'
     execute_on = 'TIMESTEP_BEGIN'
-  [../]
+  []
 
-  [./temperature_calculation]
+  [temperature_calculation]
     type = DataReadScalar
     variable = Te
     scale_factor = 1.5e-1
@@ -219,18 +216,18 @@
     property_file = 'Example4/electron_temperature.txt'
     # execute_on = 'TIMESTEP_BEGIN'
     execute_on = 'TIMESTEP_BEGIN'
-  [../]
+  []
 
-  [./density_calculation]
+  [density_calculation]
     type = DataReadScalar
     variable = e
     use_time = true
     property_file = 'Example4/electron_density.txt'
     # execute_on = 'INITIAL TIMESTEP_END'
     execute_on = 'TIMESTEP_BEGIN'
-  [../]
+  []
 
-  [./Teff_calculation]
+  [Teff_calculation]
     type = ParsedAuxScalar
     variable = Teff
     constant_names = 'Tgas'
@@ -238,7 +235,7 @@
     args = 'reduced_field'
     function = 'Tgas+(0.12*(reduced_field*1e21)^2)'
     execute_on = 'INITIAL NONLINEAR'
-  [../]
+  []
 []
 
 [Executioner]
@@ -258,34 +255,34 @@
   # nl_abs_tol = 7e-5
   # dt = 1e-5
   dtmax = 1e-5
-  # [./TimeStepper]
+  # [TimeStepper]
   #   type = CSVTimeSequenceStepper
   #   file_name = 'Example4/reduced_field.txt'
   #   delimiter = ' '
   #   column_index = 0
-  # [../]
-  [./TimeStepper]
+  # []
+  [TimeStepper]
     type = IterationAdaptiveDT
     cutback_factor = 0.4
     dt = 1e-8
     growth_factor = 1.2
     optimal_iterations = 15
-  [../]
+  []
 []
 
 [Preconditioning]
-  [./smp]
+  [smp]
     type = SMP
     full = true
     # ksp_norm = none
-  [../]
+  []
 []
 
 [Outputs]
   csv = true
-  [./console]
+  [console]
     type = Console
     execute_scalars_on = 'none'
     # execute_on = 'initial'
-  [../]
+  []
 []

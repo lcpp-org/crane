@@ -80,19 +80,19 @@
 
   steady_state_detection = true
   steady_state_tolerance = 1e-06
-  [./TimeStepper]
+  [TimeStepper]
     type = IterationAdaptiveDT
     cutback_factor = 0.9
     dt = 1e-8
     growth_factor = 1.01
-  [../]
+  []
 []
 
 [Preconditioning]
-  [./smp]
+  [smp]
     type = SMP
     full = true
-  [../]
+  []
 []
 
 [Outputs]
@@ -104,6 +104,6 @@
   # each timestep. Not necessary, but definitely recommended. 
   [Console]
     type = Console
-    execute_scalars_on = none 
+    execute_scalars_on = none
   []
 []

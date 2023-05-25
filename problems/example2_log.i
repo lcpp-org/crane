@@ -8,79 +8,78 @@
 
 [Variables]
   # ODE variables
-  [./e]
+  [e]
     family = SCALAR
     order = FIRST
     initial_condition = 13.815510557964274
     # scaling = 1e-6
-  [../]
+  []
 
-  [./Ar+]
+  [Ar+]
     family = SCALAR
     order = FIRST
     initial_condition = 13.815510557964274
     # scaling = 1e-6
-  [../]
+  []
 
-  [./Ar]
+  [Ar]
     family = SCALAR
     order = FIRST
     initial_condition = 42.61555555
     scaling = 42.61555555e-1
     # scaling = 3.2e-18
-  [../]
+  []
 
-  [./Ar*]
+  [Ar*]
     family = SCALAR
     order = FIRST
     initial_condition = 13.815510557964274
     # scaling = 1e-6
-  [../]
+  []
 
-  [./Ar2+]
+  [Ar2+]
     family = SCALAR
     order = FIRST
     initial_condition = 0
-  [../]
+  []
 []
 
 [ScalarKernels]
-  [./de_dt]
+  [de_dt]
     type = ODETimeDerivativeLog
     variable = e
-  [../]
+  []
 
-  [./dAr+_dt]
+  [dAr+_dt]
     type = ODETimeDerivativeLog
     variable = Ar+
-  [../]
+  []
 
-  [./dAr_dt]
+  [dAr_dt]
     type = ODETimeDerivativeLog
     variable = Ar
-  [../]
+  []
 
-  [./dAr*_dt]
+  [dAr*_dt]
     type = ODETimeDerivativeLog
     variable = Ar*
-  [../]
+  []
 
-  [./dAr2_dt]
+  [dAr2_dt]
     type = ODETimeDerivativeLog
     variable = Ar2+
-  [../]
+  []
 
   # Why is this necessary?!
-  [./Ar2_stabilization]
+  [Ar2_stabilization]
     type = LogStabilizationScalar
     variable = Ar2+
     offset = -35
-  [../]
+  []
 []
 
-
 [ChemicalReactions]
-  [./ScalarNetwork]
+  [ScalarNetwork]
     species = 'e Ar* Ar+ Ar Ar2+'
     reaction_coefficient_format = 'rate'
     file_location = 'Example2'
@@ -91,7 +90,6 @@
     equation_variables = 'Te'
     rate_provider_var = 'reduced_field'
     use_log = true
-
 
     reactions = 'e + Ar -> e + e + Ar+          : BOLOS
                  e + Ar -> Ar* + e              : BOLOS
@@ -106,35 +104,34 @@
                  e -> W                         : {1.52*(760/100)*(Tgas/273.16)*(Te/1.5)*((J/0.4)^2 + (pi/0.4)^2)}
                  Ar+ -> W                       : {1.52*(760/100)*(Tgas/273.16)*(Te/1.5)*((J/0.4)^2 + (pi/0.4)^2)}
                  Ar2+ -> W                      : {1.52*(760/100)*(Tgas/273.16)*(Te/1.5)*((J/0.4)^2 + (pi/0.4)^2)}'
-  [../]
+  []
 []
 
-
 [AuxVariables]
-  [./reduced_field]
+  [reduced_field]
     order = FIRST
     family = SCALAR
     initial_condition = 7.7667949e-20
-  [../]
+  []
 
-  [./mobility]
+  [mobility]
     order = FIRST
     family = SCALAR
-  [../]
+  []
 
-  [./Te]
+  [Te]
     order = FIRST
     family = SCALAR
-  [../]
+  []
 
-  [./current]
+  [current]
     order = FIRST
     family = SCALAR
-  [../]
+  []
 []
 
 [AuxScalarKernels]
-  [./reduced_field_calculate]
+  [reduced_field_calculate]
     type = ParsedAuxScalar
     variable = reduced_field
     constant_names = 'V d qe R'
@@ -142,9 +139,9 @@
     args = 'reduced_field Ar current'
     function = 'V/(d+R*current/(reduced_field*exp(Ar)*1e6))/(exp(Ar)*1e6)'
     execute_on = 'TIMESTEP_END'
-  [../]
+  []
 
-  [./e_drift]
+  [e_drift]
     type = ParsedAuxScalar
     # variable = Vdr
     variable = current
@@ -153,32 +150,32 @@
     args = 'reduced_field mobility Ar e'
     function = '(reduced_field * mobility * exp(Ar)*1e6) * 1.6e-19 * pi*(r^2.0) * (exp(e)*1e6)'
     execute_on = 'TIMESTEP_BEGIN'
-  [../]
+  []
 
-  [./mobility_calculation]
+  [mobility_calculation]
     type = DataReadScalar
     variable = mobility
     sampler = reduced_field
     property_file = 'Example2/electron_mobility.txt'
     execute_on = 'INITIAL TIMESTEP_BEGIN'
-  [../]
+  []
 
-  [./temperature_calculation]
+  [temperature_calculation]
     type = DataReadScalar
     variable = Te
     sampler = reduced_field
     property_file = 'Example2/electron_temperature.txt'
     execute_on = 'INITIAL TIMESTEP_BEGIN'
-  [../]
+  []
 []
 
 [UserObjects]
   active = 'value_provider'
 
-  [./value_provider]
+  [value_provider]
     type = ValueProvider
     property_file = 'Example2/electron_temperature.txt'
-  [../]
+  []
 []
 
 [Executioner]
@@ -189,19 +186,19 @@
   dtmax = 1e-5
   petsc_options_iname = '-snes_linesearch_type'
   petsc_options_value = 'basic'
-  [./TimeStepper]
+  [TimeStepper]
     type = IterationAdaptiveDT
     cutback_factor = 0.9
     dt = 1e-11
     growth_factor = 1.01
-  [../]
+  []
 []
 
 [Preconditioning]
-  [./smp]
+  [smp]
     type = SMP
     full = true
-  [../]
+  []
 []
 
 [Outputs]

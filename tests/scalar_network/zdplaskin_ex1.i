@@ -7,60 +7,60 @@
 []
 
 [Variables]
-  [./e]
+  [e]
     family = SCALAR
     order = FIRST
     initial_condition = 1
-  [../]
+  []
 
-  [./Ar+]
+  [Ar+]
     family = SCALAR
     order = FIRST
     initial_condition = 1
-  [../]
+  []
 
-  [./Ar]
+  [Ar]
     family = SCALAR
     order = FIRST
     initial_condition = 2.5e19
     scaling = 2.5e-19
-  [../]
+  []
 []
 
 [ScalarKernels]
-  [./de_dt]
+  [de_dt]
     type = ODETimeDerivative
     variable = e
-  [../]
+  []
 
-  [./dAr+_dt]
+  [dAr+_dt]
     type = ODETimeDerivative
     variable = Ar+
-  [../]
+  []
 
-  [./dAr_dt]
+  [dAr_dt]
     type = ODETimeDerivative
     variable = Ar
-  [../]
+  []
 []
 
 [ChemicalReactions]
-  [./ScalarNetwork]
+  [ScalarNetwork]
     species = 'e Ar+ Ar'
     file_location = 'Example1'
     interpolation_type = 'spline'
     reactions = 'e + Ar -> e + e + Ar+          : EEDF
                  e + Ar+ + Ar -> Ar + Ar       : 1e-25'
 
-   [../]
+  []
 []
 
 [AuxVariables]
-  [./reduced_field]
+  [reduced_field]
     order = FIRST
     family = SCALAR
     initial_condition = 51e-21
-  [../]
+  []
 []
 
 [Executioner]
@@ -77,20 +77,20 @@
 [Preconditioning]
   active = 'smp'
 
-  [./smp]
+  [smp]
     type = SMP
     full = true
-  [../]
+  []
 
-  [./fd]
+  [fd]
     type = FDP
     full = true
-  [../]
+  []
 []
 
 [Outputs]
-  [./out]
+  [out]
     type = Exodus
     execute_on = 'TIMESTEP_END'
-  [../]
+  []
 []
