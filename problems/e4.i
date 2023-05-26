@@ -255,18 +255,22 @@
   # nl_abs_tol = 7e-5
   # dt = 1e-5
   dtmax = 1e-5
-  # [TimeStepper]
-  #   type = CSVTimeSequenceStepper
-  #   file_name = 'Example4/reduced_field.txt'
-  #   delimiter = ' '
-  #   column_index = 0
+  # [TimeSteppers]
+  #   [time_sequence]
+  #     type = CSVTimeSequenceStepper
+  #     file_name = 'Example4/reduced_field.txt'
+  #     delimiter = ' '
+  #     column_index = 0
+  #   []
   # []
-  [TimeStepper]
-    type = IterationAdaptiveDT
-    cutback_factor = 0.4
-    dt = 1e-8
-    growth_factor = 1.2
-    optimal_iterations = 15
+  [TimeSteppers]
+    [adaptive]
+      type = IterationAdaptiveDT
+      cutback_factor = 0.4
+      dt = 1e-8
+      growth_factor = 1.2
+      optimal_iterations = 15
+    []
   []
 []
 

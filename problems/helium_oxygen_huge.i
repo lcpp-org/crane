@@ -171,11 +171,13 @@
   petsc_options_value = 'l2'
   dtmax = 1e-5
   solve_type = LINEAR
-  [TimeStepper]
-    type = IterationAdaptiveDT
-    cutback_factor = 0.9
-    dt = 1e-10
-    growth_factor = 1.01
+  [TimeSteppers]
+    [adaptive]
+      type = IterationAdaptiveDT
+      cutback_factor = 0.9
+      dt = 1e-10
+      growth_factor = 1.01
+    []
   []
 []
 
@@ -319,11 +321,13 @@
   petsc_options_value = 'l2'
   dtmax = 1e-5
   solve_type = LINEAR
-  [TimeStepper]
-    type = IterationAdaptiveDT
-    cutback_factor = 0.9
-    dt = 1e-10
-    growth_factor = 1.01
+  [TimeSteppers]
+    [adaptive]
+      type = IterationAdaptiveDT
+      cutback_factor = 0.9
+      dt = 1e-10
+      growth_factor = 1.01
+    []
   []
 []
 

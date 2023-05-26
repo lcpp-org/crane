@@ -242,12 +242,14 @@
   line_search = basic
   nl_rel_tol = 1e-5
   dtmax = 1e-5
-  [TimeStepper]
-    type = IterationAdaptiveDT
-    cutback_factor = 0.4
-    dt = 1e-8
-    growth_factor = 1.2
-    optimal_iterations = 15
+  [TimeSteppers]
+    [adaptive]
+      type = IterationAdaptiveDT
+      cutback_factor = 0.4
+      dt = 1e-8
+      growth_factor = 1.2
+      optimal_iterations = 15
+    []
   []
 []
 

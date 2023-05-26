@@ -310,11 +310,13 @@
   petsc_options_value = 'basic'
   dtmax = 1e-5
   solve_type = LINEAR
-  [TimeStepper]
-    type = IterationAdaptiveDT
-    cutback_factor = 0.9
-    dt = 1e-11
-    growth_factor = 1.01
+  [TimeSteppers]
+    [adaptive]
+      type = IterationAdaptiveDT
+      cutback_factor = 0.9
+      dt = 1e-11
+      growth_factor = 1.01
+    []
   []
 []
 

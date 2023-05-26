@@ -180,11 +180,13 @@
   dtmax = 1e-6
   line_search = none
   steady_state_detection = true
-  [TimeStepper]
-    type = IterationAdaptiveDT
-    cutback_factor = 0.9
-    dt = 1e-10
-    growth_factor = 1.01
+  [TimeSteppers]
+    [adaptive]
+      type = IterationAdaptiveDT
+      cutback_factor = 0.9
+      dt = 1e-10
+      growth_factor = 1.01
+    []
   []
   #[TimeIntegrator]
   #  type = LStableDirk2

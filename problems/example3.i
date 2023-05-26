@@ -186,11 +186,13 @@
   line_search = none
   trans_ss_check = true
   steady_state_start_time = 1e-4
-  [TimeStepper]
-    type = IterationAdaptiveDT
-    cutback_factor = 0.9
-    dt = 1e-10
-    growth_factor = 1.01
+  [TimeSteppers]
+    [adaptive]
+      type = IterationAdaptiveDT
+      cutback_factor = 0.9
+      dt = 1e-10
+      growth_factor = 1.01
+    []
   []
 []
 

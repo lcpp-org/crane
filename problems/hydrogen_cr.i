@@ -1,9 +1,9 @@
 # MODEL DESCRIPTION:
 #
-# This model is based on a simplified hydrogen collisional radiative model 
+# This model is based on a simplified hydrogen collisional radiative model
 # found in Rehman's PhD thesis:
 #
-#   Rehman, T. "Studies on plasma-chemical reduction", PhD, Technische 
+#   Rehman, T. "Studies on plasma-chemical reduction", PhD, Technische
 #     Universiteit Eindhoven (2018)
 #     URL:  www.tue.nl/taverne
 #
@@ -60,7 +60,7 @@
   [ScalarNetwork]
     species = 'H H* H+'
 
-    # Note that these are transition frequencies, not really "reactions" 
+    # Note that these are transition frequencies, not really "reactions"
     # in the traditional sense
     reactions = 'H -> H*          : 2.7e10
                  H -> H+          : 9.0e8
@@ -80,11 +80,13 @@
 
   steady_state_detection = true
   steady_state_tolerance = 1e-06
-  [TimeStepper]
-    type = IterationAdaptiveDT
-    cutback_factor = 0.9
-    dt = 1e-8
-    growth_factor = 1.01
+  [TimeSteppers]
+    [adaptive]
+      type = IterationAdaptiveDT
+      cutback_factor = 0.9
+      dt = 1e-8
+      growth_factor = 1.01
+    []
   []
 []
 
@@ -96,12 +98,12 @@
 []
 
 [Outputs]
-  # Prints CSV output every 10 timesteps. 
+  # Prints CSV output every 10 timesteps.
   csv = true
   interval = 10
 
   # This option prevents all of the scalar variables from being printed
-  # each timestep. Not necessary, but definitely recommended. 
+  # each timestep. Not necessary, but definitely recommended.
   [Console]
     type = Console
     execute_scalars_on = none

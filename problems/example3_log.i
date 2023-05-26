@@ -294,11 +294,13 @@
   dtmax = 1e-5
   petsc_options_iname = '-snes_linesearch_type'
   petsc_options_value = 'basic'
-  [TimeStepper]
-    type = CSVTimeSequenceStepper
-    file_name = 'Example3/reduced_field.txt'
-    delimiter = ' '
-    column_index = 0
+  [TimeSteppers]
+    [time_sequence]
+      type = CSVTimeSequenceStepper
+      file_name = 'Example3/reduced_field.txt'
+      delimiter = ' '
+      column_index = 0
+    []
   []
 []
 

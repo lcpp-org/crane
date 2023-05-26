@@ -294,11 +294,13 @@
 
   steady_state_detection = true
   steady_state_tolerance = 1e-06
-  [TimeStepper]
-    type = IterationAdaptiveDT
-    cutback_factor = 0.9
-    dt = 1e-8
-    growth_factor = 1.01
+  [TimeSteppers]
+    [adaptive]
+      type = IterationAdaptiveDT
+      cutback_factor = 0.9
+      dt = 1e-8
+      growth_factor = 1.01
+    []
   []
 []
 
