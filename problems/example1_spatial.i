@@ -10,37 +10,37 @@
 
 [Variables]
   # ODE variables
-  [./x]
+  [x]
     initial_condition = 10
-  [../]
+  []
 
-  [./y]
+  [y]
     initial_condition = 10
-  [../]
+  []
 
-  [./dummy]
+  [dummy]
     initial_condition = 5
-  [../]
+  []
 []
 
 [Kernels]
   # Time derivatives
-  [./dx_dt]
+  [dx_dt]
     type = TimeDerivative
     variable = x
-  [../]
-  [./dy_dt]
+  []
+  [dy_dt]
     type = TimeDerivative
     variable = y
-  [../]
-  [./ddummy_dt]
+  []
+  [ddummy_dt]
     type = TimeDerivative
     variable = dummy
-  [../]
+  []
 []
 
 [Reactions]
-  [./test01]
+  [test01]
     species = 'x y dummy'
     reaction_coefficient_format = 'rate'
     equation_variables = 'H2O'
@@ -51,14 +51,14 @@
                  y + x -> x + y + y  : 0.1
                  y -> z  : 0.4
                  x + y -> dummy : {1e-5*H2O}'
-  [../]
+  []
 []
 
 [AuxVariables]
-  [./H2O]
+  [H2O]
     order = FIRST
     initial_condition = 100
-  [../]
+  []
 []
 
 [Executioner]
@@ -73,10 +73,10 @@
 []
 
 [Preconditioning]
-  [./smp]
+  [smp]
     type = SMP
     full = true
-  [../]
+  []
 []
 
 [Outputs]

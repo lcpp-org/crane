@@ -8,72 +8,71 @@
 
 [Variables]
   # ODE variables
-  [./e]
+  [e]
     family = SCALAR
     order = FIRST
     initial_condition = 1e6
     # scaling = 1e-2
-  [../]
+  []
 
-  [./Ar+]
+  [Ar+]
     family = SCALAR
     order = FIRST
     initial_condition = 1e6
     # scaling = 1e-2
-  [../]
+  []
 
-  [./Ar]
+  [Ar]
     family = SCALAR
     order = FIRST
     initial_condition = 3.21883e18
     scaling = 1e-15
-  [../]
+  []
 
-  [./Ar*]
+  [Ar*]
     family = SCALAR
     order = FIRST
     initial_condition = 1e6
     # scaling = 1e-2
-  [../]
+  []
 
-  [./Ar2+]
+  [Ar2+]
     family = SCALAR
     order = FIRST
     initial_condition = 1
     # scaling = 1e-2
-  [../]
+  []
 []
 
 [ScalarKernels]
-  [./de_dt]
+  [de_dt]
     type = ODETimeDerivative
     variable = e
-  [../]
+  []
 
-  [./dAr+_dt]
+  [dAr+_dt]
     type = ODETimeDerivative
     variable = Ar+
-  [../]
+  []
 
-  [./dAr_dt]
+  [dAr_dt]
     type = ODETimeDerivative
     variable = Ar
-  [../]
+  []
 
-  [./dAr*_dt]
+  [dAr*_dt]
     type = ODETimeDerivative
     variable = Ar*
-  [../]
+  []
 
-  [./dAr2_dt]
+  [dAr2_dt]
     type = ODETimeDerivative
     variable = Ar2+
-  [../]
+  []
 []
 
-
 [ChemicalReactions]
-  [./ScalarNetwork]
+  [ScalarNetwork]
     species = 'e Ar* Ar+ Ar Ar2+'
     reaction_coefficient_format = 'rate'
     file_location = 'Example3'
@@ -84,7 +83,6 @@
     equation_variables = 'Te'
     rate_provider_var = 'reduced_field'
     sampling_variable = 'reduced_field'
-
 
     reactions = 'e + Ar -> e + e + Ar+          : EEDF
                  e + Ar -> Ar* + e              : EEDF
@@ -99,35 +97,34 @@
                  e -> W                         : {1.52*(760/100)*(Tgas/273.16)*(Te/1.5)*((J/0.4)^2 + (pi/0.4)^2)}
                  Ar+ -> W                       : {1.52*(760/100)*(Tgas/273.16)*(Te/1.5)*((J/0.4)^2 + (pi/0.4)^2)}
                  Ar2+ -> W                      : {1.52*(760/100)*(Tgas/273.16)*(Te/1.5)*((J/0.4)^2 + (pi/0.4)^2)}'
-  [../]
+  []
 []
 
-
 [AuxVariables]
-  [./reduced_field]
+  [reduced_field]
     order = FIRST
     family = SCALAR
     initial_condition = 7.7667949e-20
-  [../]
+  []
 
-  [./mobility]
+  [mobility]
     order = FIRST
     family = SCALAR
-  [../]
+  []
 
-  [./Te]
+  [Te]
     order = FIRST
     family = SCALAR
-  [../]
+  []
 
-  [./current]
+  [current]
     order = FIRST
     family = SCALAR
-  [../]
+  []
 []
 
 [AuxScalarKernels]
-  [./reduced_field_calculate]
+  [reduced_field_calculate]
     type = ParsedAuxScalar
     variable = reduced_field
     constant_names = 'V d qe R'
@@ -135,9 +132,9 @@
     args = 'reduced_field Ar current'
     function = 'V/(d+R*current/(reduced_field*Ar*1e6))/(Ar*1e6)'
     execute_on = 'TIMESTEP_END'
-  [../]
+  []
 
-  [./e_drift]
+  [e_drift]
     type = ParsedAuxScalar
     # variable = Vdr
     variable = current
@@ -146,9 +143,9 @@
     args = 'reduced_field mobility Ar e'
     function = '(reduced_field * mobility * Ar*1e6) * 1.6e-19 * pi*(r^2.0) * (e*1e6)'
     execute_on = 'TIMESTEP_BEGIN'
-  [../]
+  []
 
-  [./mobility_calculation]
+  [mobility_calculation]
     # Reads data from tabulated file with a linear interpolatoin
     # (Similarly, use ScalarSplineInterpolation to read with a cubic spline.)
     type = ScalarLinearInterpolation
@@ -156,15 +153,15 @@
     sampler = reduced_field
     property_file = 'Example3/electron_mobility.txt'
     execute_on = 'INITIAL TIMESTEP_BEGIN'
-  [../]
+  []
 
-  [./temperature_calculation]
+  [temperature_calculation]
     type = ScalarLinearInterpolation
     variable = Te
     sampler = reduced_field
     property_file = 'Example3/electron_temperature.txt'
     execute_on = 'INITIAL TIMESTEP_BEGIN'
-  [../]
+  []
 []
 
 [Debug]
@@ -174,10 +171,10 @@
 [UserObjects]
   active = 'value_provider'
 
-  [./value_provider]
+  [value_provider]
     type = ValueProvider
     property_file = 'Example3/electron_temperature.txt'
-  [../]
+  []
 []
 
 [Executioner]
@@ -189,19 +186,21 @@
   line_search = none
   trans_ss_check = true
   steady_state_start_time = 1e-4
-  [./TimeStepper]
-    type = IterationAdaptiveDT
-    cutback_factor = 0.9
-    dt = 1e-10
-    growth_factor = 1.01
-  [../]
+  [TimeSteppers]
+    [adaptive]
+      type = IterationAdaptiveDT
+      cutback_factor = 0.9
+      dt = 1e-10
+      growth_factor = 1.01
+    []
+  []
 []
 
 [Preconditioning]
-  [./smp]
+  [smp]
     type = SMP
     full = true
-  [../]
+  []
 []
 
 [Outputs]

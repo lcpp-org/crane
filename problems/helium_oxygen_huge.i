@@ -16,7 +16,7 @@
 # O + O + O3 -> O2 + O3     : {4.6e-34 * exp(1050/Te)}
 # Look at that exponential!
 [ChemicalReactions]
-  [./ScalarNetwork]
+  [ScalarNetwork]
     species = 'e He He* He_2* He+ He_2+ O O_2 O_3 O_2+ O_2- O_4+ M'
     aux_species = 'M'
     equation_constants = 'Tg Te'
@@ -114,54 +114,54 @@
     e + e + He+ -> He* + e     : {6.0e-20 * (Teg)^(-4.0)}
     e + e + He_2+ -> He + He* + e     : {1.0e-20 * (Teg)^(-4.0)}
     e + e + He_2+ -> He_2* + e     : {3.0e-20 * (Teg)^(-4.0)}'
-  [../]
+  []
 []
 
 [AuxVariables]
-  [./M]
+  [M]
     family = SCALAR
     order = FIRST
     initial_condition = 1e18
-  [../]
+  []
 
-  [./T0]
+  [T0]
     family = SCALAR
     order = FIRST
     initial_condition = 300
-  [../]
+  []
 
-  [./Teg]
+  [Teg]
     family = SCALAR
     order = FIRST
     initial_condition = 300
-  [../]
+  []
 []
 
 [AuxScalarKernels]
-  # [./M_calculate]
+  # [M_calculate]
   #   type = VariableSum
   #   variable = M
   #   args = 'He He* He2* O O2 O3'
   #   execute_on = 'TIMESTEP_BEGIN'
-  # [../]
+  # []
 
-  [./T0_calculate]
+  [T0_calculate]
     type = ParsedAuxScalar
     variable = T0
     constant_names = 'Tg'
     constant_expressions = '345'
     function = 'Tg/300'
     execute_on = 'INITIAL'
-  [../]
+  []
 
-  [./Teg_calculate]
+  [Teg_calculate]
     type = ParsedAuxScalar
     variable = Teg
     constant_names = 'Te Tg'
     constant_expressions = '2.5 345'
     function = '(Te*11600)/Tg'
     execute_on = 'INITIAL'
-  [../]
+  []
 []
 
 [Executioner]
@@ -171,27 +171,29 @@
   petsc_options_value = 'l2'
   dtmax = 1e-5
   solve_type = LINEAR
-  [./TimeStepper]
-    type = IterationAdaptiveDT
-    cutback_factor = 0.9
-    dt = 1e-10
-    growth_factor = 1.01
-  [../]
+  [TimeSteppers]
+    [adaptive]
+      type = IterationAdaptiveDT
+      cutback_factor = 0.9
+      dt = 1e-10
+      growth_factor = 1.01
+    []
+  []
 []
 
 [Preconditioning]
-  [./smp]
+  [smp]
     type = SMP
     full = true
-  [../]
+  []
 []
 
 [Outputs]
   # console = false
   csv = true
-  # [./Console]
+  # [Console]
   #   output_screen = false
-  # [../]
+  # []
 []
 [Mesh]
   type = GeneratedMesh
@@ -211,7 +213,7 @@
 # O + O + O3 -> O2 + O3     : {4.6e-34 * exp(1050/Te)}
 # Look at that exponent!
 [ChemicalReactions]
-  [./ScalarNetwork]
+  [ScalarNetwork]
     species = 'e He He* He_2* He+ He_2+ O O_2 O_3 O_2+ O_2- O_4+ M'
     aux_species = 'M'
     equation_constants = 'Tg Te'
@@ -309,7 +311,7 @@
     e + e + He+ -> He* + e     : {6.0e-20 * (Teg)^(-4.0)}
     e + e + He_2+ -> He + He* + e     : {1.0e-20 * (Teg)^(-4.0)}
     e + e + He_2+ -> He_2* + e     : {3.0e-20 * (Teg)^(-4.0)}'
-  [../]
+  []
 []
 
 [Executioner]
@@ -319,25 +321,27 @@
   petsc_options_value = 'l2'
   dtmax = 1e-5
   solve_type = LINEAR
-  [./TimeStepper]
-    type = IterationAdaptiveDT
-    cutback_factor = 0.9
-    dt = 1e-10
-    growth_factor = 1.01
-  [../]
+  [TimeSteppers]
+    [adaptive]
+      type = IterationAdaptiveDT
+      cutback_factor = 0.9
+      dt = 1e-10
+      growth_factor = 1.01
+    []
+  []
 []
 
 [Preconditioning]
-  [./smp]
+  [smp]
     type = SMP
     full = true
-  [../]
+  []
 []
 
 [Outputs]
   # console = false
   csv = true
-  # [./Console]
+  # [Console]
   #   output_screen = false
-  # [../]
+  # []
 []

@@ -8,67 +8,67 @@
 []
 
 [Variables]
-  [./e]
+  [e]
     family = SCALAR
     order = FIRST
     initial_condition = 1e6
-  [../]
+  []
 
-  [./Ar+]
+  [Ar+]
     family = SCALAR
     order = FIRST
     initial_condition = 1e6
-  [../]
+  []
 
-  [./Ar]
+  [Ar]
     family = SCALAR
     order = FIRST
     initial_condition = 3.21883e18
     scaling = 1e-18
-  [../]
+  []
 
-  [./Ar*]
+  [Ar*]
     family = SCALAR
     order = FIRST
     initial_condition = 1e6
-  [../]
+  []
 
-  [./Ar2+]
+  [Ar2+]
     family = SCALAR
     order = FIRST
     initial_condition = 1
-  [../]
+  []
 []
 
 [ScalarKernels]
-  [./de_dt]
+  [de_dt]
     type = ODETimeDerivative
     variable = e
-  [../]
+  []
 
-  [./dAr+_dt]
+  [dAr+_dt]
     type = ODETimeDerivative
     variable = Ar+
-  [../]
+  []
 
-  [./dAr_dt]
+  [dAr_dt]
     type = ODETimeDerivative
     variable = Ar
-  [../]
+  []
 
-  [./dAr*_dt]
+  [dAr*_dt]
     type = ODETimeDerivative
     variable = Ar*
-  [../]
+  []
 
-  [./dAr2_dt]
+  [dAr2_dt]
     type = ODETimeDerivative
     variable = Ar2+
-  [../]
+  []
 []
 
 [ChemicalReactions]
-  [./ScalarNetwork]
+  [ScalarNetwork]
     species = 'e Ar* Ar+ Ar Ar2+'
     file_location = 'Example2'
     interpolation_type = 'spline'
@@ -78,7 +78,6 @@
     equation_values = '300 2.405 3.141'
     equation_variables = 'Te'
     rate_provider_var = 'reduced_field'
-
 
     reactions = 'e + Ar -> e + e + Ar+          : EEDF
                  e + Ar -> Ar* + e              : EEDF
@@ -93,50 +92,50 @@
                  e -> W                         : {1.52*(760/100)*(Tgas/273.16)*(Te/1.5)*((J/0.4)^2 + (pi/0.4)^2)}
                  Ar+ -> W                       : {1.52*(760/100)*(Tgas/273.16)*(Te/1.5)*((J/0.4)^2 + (pi/0.4)^2)}
                  Ar2+ -> W                      : {1.52*(760/100)*(Tgas/273.16)*(Te/1.5)*((J/0.4)^2 + (pi/0.4)^2)}'
-  [../]
+  []
 []
 
 [AuxVariables]
-  [./all_neutral]
+  [all_neutral]
     order = FIRST
     family = SCALAR
     initial_condition = 3.21883e18
-  [../]
+  []
 
-  [./reduced_field]
+  [reduced_field]
     order = FIRST
     family = SCALAR
     initial_condition = 7.7667949e-20
-  [../]
+  []
 
-  [./mobility]
+  [mobility]
     order = FIRST
     family = SCALAR
     initial_condition = 2.546334e-01
-  [../]
+  []
 
-  [./Te]
+  [Te]
     order = FIRST
     family = SCALAR
     initial_condition = 50000
-  [../]
+  []
 
-  [./current]
+  [current]
     order = FIRST
     family = SCALAR
     initial_condition = 0
-  [../]
+  []
 []
 
 [AuxScalarKernels]
-  [./species_sum]
+  [species_sum]
     type = VariableSum
     variable = all_neutral
     args = 'Ar Ar*'
     execute_on = 'LINEAR TIMESTEP_END'
-  [../]
+  []
 
-  [./reduced_field_calculate]
+  [reduced_field_calculate]
     type = ParsedAuxScalar
     variable = reduced_field
     constant_names = 'V d qe R'
@@ -144,9 +143,9 @@
     args = 'reduced_field all_neutral current'
     function = 'V/(d+R*current/(reduced_field*all_neutral*1e6))/(all_neutral*1e6)'
     execute_on = 'TIMESTEP_END'
-  [../]
+  []
 
-  [./e_drift]
+  [e_drift]
     type = ParsedAuxScalar
     variable = current
     constant_names = 'r pi'
@@ -154,32 +153,32 @@
     args = 'reduced_field mobility all_neutral e'
     function = '(reduced_field * mobility * all_neutral*1e6) * 1.6e-19 * pi*(r^2.0) * (e*1e6)'
     execute_on = 'TIMESTEP_BEGIN'
-  [../]
+  []
 
-  [./mobility_calculation]
+  [mobility_calculation]
     type = ScalarSplineInterpolation
     variable = mobility
     sampler = reduced_field
     property_file = 'Example2/electron_mobility.txt'
     execute_on = 'INITIAL TIMESTEP_BEGIN'
-  [../]
+  []
 
-  [./temperature_calculation]
+  [temperature_calculation]
     type = ScalarSplineInterpolation
     variable = Te
     sampler = reduced_field
     property_file = 'Example2/electron_temperature.txt'
     execute_on = 'INITIAL TIMESTEP_BEGIN'
-  [../]
+  []
 []
 
 [UserObjects]
   active = 'value_provider'
 
-  [./value_provider]
+  [value_provider]
     type = ValueProvider
     property_file = 'Example2/electron_temperature.txt'
-  [../]
+  []
 []
 
 [Executioner]
@@ -190,24 +189,26 @@
   dtmax = 1e-5
   petsc_options_iname = '-snes_linesearch_type'
   petsc_options_value = 'basic'
-  [./TimeStepper]
-    type = IterationAdaptiveDT
-    cutback_factor = 0.9
-    dt = 1e-10
-    growth_factor = 1.01
-  [../]
+  [TimeSteppers]
+    [adaptive]
+      type = IterationAdaptiveDT
+      cutback_factor = 0.9
+      dt = 1e-10
+      growth_factor = 1.01
+    []
+  []
 []
 
 [Preconditioning]
-  [./smp]
+  [smp]
     type = SMP
     full = true
-  [../]
+  []
 []
 
 [Outputs]
-  [./out]
+  [out]
     type = Exodus
     execute_on = 'TIMESTEP_END'
-  [../]
+  []
 []

@@ -8,67 +8,67 @@
 
 [Variables]
   # ODE variables
-  [./e]
+  [e]
     family = SCALAR
     order = FIRST
     initial_condition = 1e6
     # scaling = 1e-2
-  [../]
+  []
 
-  [./Ar+]
+  [Ar+]
     family = SCALAR
     order = FIRST
     initial_condition = 1e6
     # scaling = 1e-2
-  [../]
+  []
 
-  [./Ar]
+  [Ar]
     family = SCALAR
     order = FIRST
     initial_condition = 3.21883e18
     #scaling = 1e-15
-  [../]
+  []
 
-  [./Ar*]
+  [Ar*]
     family = SCALAR
     order = FIRST
     initial_condition = 1e6
     # scaling = 1e-2
-  [../]
+  []
 
-  [./Ar2+]
+  [Ar2+]
     family = SCALAR
     order = FIRST
     initial_condition = 1
     # scaling = 1e-2
-  [../]
+  []
 []
 
 [ScalarKernels]
-  [./de_dt]
+  [de_dt]
     type = ODETimeDerivative
     variable = e
-  [../]
+  []
 
-  [./dAr+_dt]
+  [dAr+_dt]
     type = ODETimeDerivative
     variable = Ar+
-  [../]
+  []
 
-  [./dAr_dt]
+  [dAr_dt]
     type = ODETimeDerivative
     variable = Ar
-  [../]
+  []
 
-  [./dAr*_dt]
+  [dAr*_dt]
     type = ODETimeDerivative
     variable = Ar*
-  [../]
+  []
 
-  [./dAr2_dt]
+  [dAr2_dt]
     type = ODETimeDerivative
     variable = Ar2+
-  [../]
+  []
 []
 
 [GlobalReactions]
@@ -81,7 +81,6 @@
     equation_values = '300 2.405 3.141'
     equation_variables = 'Te'
     sampling_variable = 'reduced_field'
-
 
     reactions = 'e + Ar -> e + e + Ar+          : EEDF (Ar_ionization)
                  e + Ar -> Ar* + e              : EEDF (Ar_excitation)
@@ -100,26 +99,26 @@
 []
 
 [AuxVariables]
-  [./reduced_field]
+  [reduced_field]
     order = FIRST
     family = SCALAR
     initial_condition = 7.7667949e-20
-  [../]
+  []
 
-  [./mobility]
+  [mobility]
     order = FIRST
     family = SCALAR
-  [../]
+  []
 
-  [./Te]
+  [Te]
     order = FIRST
     family = SCALAR
-  [../]
+  []
 
-  [./current]
+  [current]
     order = FIRST
     family = SCALAR
-  [../]
+  []
 []
 
 [AuxScalarKernels]
@@ -167,10 +166,10 @@
 #[UserObjects]
 #  active = 'value_provider'
 #
-  #[./value_provider]
-  #  type = ValueProvider
-  #  property_file = 'data/electron_temperature.txt'
-  #[../]
+#[./value_provider]
+#  type = ValueProvider
+#  property_file = 'data/electron_temperature.txt'
+#[../]
 #[]
 
 [Executioner]
@@ -181,23 +180,25 @@
   dtmax = 1e-6
   line_search = none
   steady_state_detection = true
-  [./TimeStepper]
-    type = IterationAdaptiveDT
-    cutback_factor = 0.9
-    dt = 1e-10
-    growth_factor = 1.01
-  [../]
+  [TimeSteppers]
+    [adaptive]
+      type = IterationAdaptiveDT
+      cutback_factor = 0.9
+      dt = 1e-10
+      growth_factor = 1.01
+    []
+  []
   #[TimeIntegrator]
   #  type = LStableDirk2
   #[]
 []
 
 [Preconditioning]
-  [./smp]
+  [smp]
     type = SMP
     full = true
     #ksp_norm = none
-  [../]
+  []
 []
 
 [Outputs]

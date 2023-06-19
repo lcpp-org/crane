@@ -10,33 +10,33 @@
 
 [Variables]
   # ODE variables
-  [./x]
+  [x]
     family = SCALAR
     order = FIRST
     initial_condition = 1
-  [../]
+  []
 
-  [./y]
+  [y]
     family = SCALAR
     order = FIRST
     initial_condition = 1
-  [../]
+  []
 []
 
 [ScalarKernels]
   # Time derivatives
-  [./dx_dt]
+  [dx_dt]
     type = ODETimeDerivative
     variable = x
-  [../]
-  [./dy_dt]
+  []
+  [dy_dt]
     type = ODETimeDerivative
     variable = y
-  [../]
+  []
 []
 
 [ChemicalReactions]
-  [./ScalarNetwork]
+  [ScalarNetwork]
     species = 'x y'
     reaction_coefficient_format = 'rate'
     track_rates = True
@@ -44,7 +44,7 @@
                  x + y -> y             : 1.333333
                  y + x -> x + y + y     : 1
                  y -> z                 : 1'
-  [../]
+  []
 []
 
 [Executioner]
@@ -57,16 +57,16 @@
 []
 
 [Preconditioning]
-  [./smp]
+  [smp]
     type = SMP
     full = true
-  [../]
+  []
 []
 
 [Outputs]
   csv = true
-  [./console]
+  [console]
     type = Console
     # execute_scalars_on = 'none'
-  [../]
+  []
 []

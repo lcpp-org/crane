@@ -7,122 +7,122 @@
 []
 
 [Variables]
-  [./N]
+  [N]
     family = SCALAR
     order = FIRST
     initial_condition = 1
-  [../]
+  []
 
-  [./N2]
+  [N2]
     family = SCALAR
     order = FIRST
     initial_condition = 2.447463768e19
     scaling = 2.447e-19
-  [../]
+  []
 
-  [./N2A]
+  [N2A]
     family = SCALAR
     order = FIRST
     initial_condition = 1
-  [../]
+  []
 
-  [./N2B]
+  [N2B]
     family = SCALAR
     order = FIRST
     initial_condition = 1
-  [../]
+  []
 
-  [./N2a1]
+  [N2a1]
     family = SCALAR
     order = FIRST
     initial_condition = 1
-  [../]
+  []
 
-  [./N2C]
+  [N2C]
     family = SCALAR
     order = FIRST
     initial_condition = 1
-  [../]
+  []
 
-  [./N+]
+  [N+]
     family = SCALAR
     order = FIRST
     initial_condition = 1
-  [../]
+  []
 
-  [./N2+]
+  [N2+]
     family = SCALAR
     order = FIRST
     initial_condition = 1
-  [../]
+  []
 
-  [./N3+]
+  [N3+]
     family = SCALAR
     order = FIRST
     initial_condition = 1
-  [../]
+  []
 
-  [./N4+]
+  [N4+]
     family = SCALAR
     order = FIRST
     initial_condition = 1
-  [../]
+  []
 []
 
 [ScalarKernels]
-  [./dN_dt]
+  [dN_dt]
     type = ODETimeDerivative
     variable = N
-  [../]
+  []
 
-  [./dN2_dt]
+  [dN2_dt]
     type = ODETimeDerivative
     variable = N2
-  [../]
+  []
 
-  [./dN2A_dt]
+  [dN2A_dt]
     type = ODETimeDerivative
     variable = N2A
-  [../]
+  []
 
-  [./dN2B_dt]
+  [dN2B_dt]
     type = ODETimeDerivative
     variable = N2B
-  [../]
+  []
 
-  [./dN2a_dt]
+  [dN2a_dt]
     type = ODETimeDerivative
     variable = N2a1
-  [../]
+  []
 
-  [./dN2C_dt]
+  [dN2C_dt]
     type = ODETimeDerivative
     variable = N2C
-  [../]
+  []
 
-  [./dN+_dt]
+  [dN+_dt]
     type = ODETimeDerivative
     variable = N+
-  [../]
+  []
 
-  [./dN2+_dt]
+  [dN2+_dt]
     type = ODETimeDerivative
     variable = N2+
-  [../]
+  []
 
-  [./dN3+_dt]
+  [dN3+_dt]
     type = ODETimeDerivative
     variable = N3+
-  [../]
+  []
 
-  [./dN4+_dt]
+  [dN4+_dt]
     type = ODETimeDerivative
     variable = N4+
-  [../]
+  []
 []
 
 [ChemicalReactions]
-  [./ScalarNetwork]
+  [ScalarNetwork]
     species = 'N N2 N2A N2B N2a1 N2C N+ N2+ N3+ N4+'
     aux_species = 'e'
     file_location = 'Example3'
@@ -131,7 +131,6 @@
     # These are parameters required equation-based rate coefficients
     equation_variables = 'Te Teff'
     rate_provider_var = 'reduced_field'
-
 
     reactions = 'e + N2 -> e + N2A          : EEDF
                  e + N2 -> e + N2B          : EEDF
@@ -167,58 +166,58 @@
                  N2C + N2 -> N2 + N2a1      : 1.0e-11
                  N + N + N2 -> N2A + N2     : 1.7e-33
                  N + N + N2 -> N2B + N2     : 2.4e-33'
-  [../]
+  []
 []
 
 [AuxVariables]
-  [./reduced_field]
+  [reduced_field]
     order = FIRST
     family = SCALAR
-  [../]
+  []
 
-  [./e]
+  [e]
     order = FIRST
     family = SCALAR
-  [../]
+  []
 
-  [./Te]
+  [Te]
     order = FIRST
     family = SCALAR
-  [../]
+  []
 
-  [./Teff]
+  [Teff]
     order = FIRST
     family = SCALAR
-  [../]
+  []
 []
 
 [AuxScalarKernels]
-  [./field_calculation]
+  [field_calculation]
     type = ScalarSplineInterpolation
     variable = reduced_field
     use_time = true
     property_file = 'Example3/reduced_field.txt'
     execute_on = 'TIMESTEP_BEGIN'
-  [../]
+  []
 
-  [./temperature_calculation]
+  [temperature_calculation]
     type = ScalarSplineInterpolation
     variable = Te
     scale_factor = 1.5e-1
     sampler = reduced_field
     property_file = 'Example3/electron_temperature.txt'
     execute_on = 'TIMESTEP_BEGIN'
-  [../]
+  []
 
-  [./density_calculation]
+  [density_calculation]
     type = ScalarSplineInterpolation
     variable = e
     use_time = true
     property_file = 'Example3/electron_density.txt'
     execute_on = 'TIMESTEP_BEGIN'
-  [../]
+  []
 
-  [./Teff_calculation]
+  [Teff_calculation]
     type = ParsedAuxScalar
     variable = Teff
     constant_names = 'Tgas'
@@ -226,7 +225,7 @@
     args = 'reduced_field'
     function = 'Tgas+(0.12*(reduced_field*1e21)^2)'
     execute_on = 'INITIAL TIMESTEP_BEGIN'
-  [../]
+  []
 []
 
 [Executioner]
@@ -241,15 +240,15 @@
 []
 
 [Preconditioning]
-  [./smp]
+  [smp]
     type = SMP
     full = true
-  [../]
+  []
 []
 
 [Outputs]
-  [./out]
+  [out]
     type = Exodus
     execute_on = 'TIMESTEP_END'
-  [../]
+  []
 []

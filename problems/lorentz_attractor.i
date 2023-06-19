@@ -5,45 +5,45 @@
 []
 
 [Variables]
-  [./x]
+  [x]
     family = SCALAR
     order = FIRST
     # initial_condition = 10.1
     initial_condition = 1.0
-  [../]
+  []
 
-  [./y]
+  [y]
     family = SCALAR
     order = FIRST
     initial_condition = 1.0
-  [../]
+  []
 
-  [./z]
+  [z]
     family = SCALAR
     order = FIRST
     initial_condition = 1.0
-  [../]
+  []
 []
 
 [ScalarKernels]
-  [./dx_dt]
+  [dx_dt]
     type = ODETimeDerivative
     variable = x
-  [../]
+  []
 
-  [./dy_dt]
+  [dy_dt]
     type = ODETimeDerivative
     variable = y
-  [../]
+  []
 
-  [./dz_dt]
+  [dz_dt]
     type = ODETimeDerivative
     variable = z
-  [../]
+  []
 []
 
 [ChemicalReactions]
-  [./ScalarNetwork]
+  [ScalarNetwork]
     species = 'x y z'
     equation_constants = 'sigma R p'
     equation_values = '10.0 8.0/3.0 28.0'
@@ -55,7 +55,7 @@
                  x + z -> x + y + z  : -1.0
                  x + y -> x + y + z  : 1.0
                  z -> a  : {R}'
-  [../]
+  []
 []
 
 [Executioner]
@@ -67,10 +67,10 @@
 []
 
 [Preconditioning]
-  [./smp]
+  [smp]
     type = SMP
     full = true
-  [../]
+  []
 []
 
 [Outputs]
