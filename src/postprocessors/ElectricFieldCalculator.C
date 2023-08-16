@@ -35,7 +35,7 @@ ElectricFieldCalculator::ElectricFieldCalculator(const InputParameters & paramet
 }
 
 Real
-ElectricFieldCalculator::getValue()
+ElectricFieldCalculator::getValue() const
 {
   return 1000;
   // _Vdr[_qp] = mult1 * _reduced_field_old[_qp] * _mobility.sample(_reduced_field_old[_qp]);
