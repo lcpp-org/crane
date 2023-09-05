@@ -14,7 +14,8 @@ CRANE (Chemical ReAction NEtwork) is an open source software dedicated to modeli
 
 After installing MOOSE, make sure you have the following folder on your local machine containing MOOSE
 
-`~/projects`
+`~/projects`  
+
 
 **Step 2.** After installing the MOOSE environment, execute the following commands:
 
