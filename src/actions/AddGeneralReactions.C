@@ -288,7 +288,7 @@ AddGeneralReactions::act()
       // if (_energy_change[i] == true)
       // {
       // Gas temperature is almost in place, but not finished yet.
-      // std::cout << "WARNING: energy dependence is not yet implemented." << std::endl;
+      // mooseError("Energy dependence is not yet implemented.");
       // }
     }
   }
@@ -346,7 +346,6 @@ AddGeneralReactions::act()
           reactant_kernel_name += "Log";
         }
       }
-      // std::cout << energy_kernel_name << ", " << _energy_change[i] << std::endl;
 
       // if (_energy_change[i] && _rate_type[i] == "EEDF")
       // {
@@ -557,8 +556,6 @@ AddGeneralReactions::act()
               InputParameters params = _factory.getValidParams(reactant_kernel_name);
               params.set<NonlinearVariableName>("variable") = _species[j];
               params.set<Real>("coefficient") = _species_count[i][j];
-              // std::cout << getParam<std::vector<SubdomainName>>("block")[0] << ", " <<
-              // _species_count[i][j] << std::endl; mooseError("TESTING");
               params.set<std::string>("reaction") = _reaction[i];
               if (find_other || find_aux)
               {
@@ -670,8 +667,6 @@ AddGeneralReactions::act()
               // If a species is not tracked, it is treated as a background gas.
               for (unsigned int k = 0; k < _reactants[i].size(); ++k)
               {
-                // std::cout << _reaction[i] << ": \n" << "  " << _reactants[i][k] << ", " <<
-                // include_species[k] << std::endl;
                 if (include_species[k])
                 {
                   params.set<std::vector<VariableName>>(other_variables[k]) = {_reactants[i][k]};

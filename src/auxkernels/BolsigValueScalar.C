@@ -35,9 +35,6 @@ BolsigValueScalar::BolsigValueScalar(const InputParameters & parameters)
 Real
 BolsigValueScalar::computeValue()
 {
-  // std::cout << _data.test(0) << std::endl;
-  // return 0.0;
-
   if (_data_type == "diffusivity")
   {
     mooseError("No diffusivity function yet! Whoops!");

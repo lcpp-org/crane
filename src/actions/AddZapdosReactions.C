@@ -299,7 +299,7 @@ AddZapdosReactions::act()
       // First all EEDF-based reactions are added.
       for (unsigned int i = 0; i < _num_eedf_reactions; ++i)
       {
-        std::cout << _ad_prepend + "ReactionRateEEDF" + _townsend_append + _log_append << std::endl;
+        mooseInfo(_ad_prepend, "ReactionRateEEDF", _townsend_append, _log_append);
         if (_coefficient_format == "townsend")
           addAuxRate(_ad_prepend + "ReactionRateEEDF" + _townsend_append + _log_append,
                      _eedf_reaction_number[i],

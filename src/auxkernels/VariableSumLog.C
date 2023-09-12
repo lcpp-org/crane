@@ -33,9 +33,6 @@ VariableSumLog::computeValue()
   Real variable_sum = 0;
   for (unsigned int i = 0; i < _nargs; ++i)
   {
-    // variables += (i == 0 ? "" : ",") + getScalarVar("args", i)->name();
-    // _args[i] = &coupledScalarValue("args", i);
-    // std::cout << (*_args[i])[_i] << std::endl;
     variable_sum += std::exp(coupledScalarValue("args", i)[_i]);
   }
   return std::log(variable_sum);

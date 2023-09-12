@@ -235,8 +235,6 @@ ReactionSecondOrder::computeQpOffDiagJacobian(unsigned int jvar)
   }
   else
   {
-    // std::cout << getParam<std::string>("reaction") << ": " << _v_eq_u << ", " << _w_eq_u <<
-    // std::endl;
     mooseError("ReactionSecondOrder, computeQpOffDiagJacobian: this is not yet implemented for the "
                "current case.");
   }*/
