@@ -95,5 +95,4 @@ SuperelasticReactionRate::computeQpProperties()
   (delta_a[4]/20.0)*std::pow(_Tgas[_qp], 4.0) - delta_a[5]*std::pow(_Tgas[_qp], -1.0) + delta_a[6]);
 
   _reaction_rate[_qp] = _reversible_rate[_qp] / _equilibrium_constant;
-  // std::cout << _reversible_rate[_qp] << std::endl;
 }

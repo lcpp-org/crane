@@ -357,7 +357,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(const InputParameters & params)
       //////////
       // if (_rate_equation_string[i].find("Tgas") != std::string::npos)
       // {
-      //   std::cout << "found!" << std::endl;
+      //   mooseInfo("found!");
       // }
       //////////
 
@@ -367,7 +367,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(const InputParameters & params)
       // std::string token;
       // while (std::getline(iss >> std::ws, token,'/'))
       // {
-      //   std::cout << token << std::endl;
+      //   mooseInfo(token);
       // }
     }
     else
@@ -388,7 +388,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(const InputParameters & params)
       }
       catch (const std::out_of_range &)
       {
-        std::cerr << "Argument out of range for a double\n";
+        mooseError("Argument out of range for a double\n");
         throw;
       }
       // _rate_coefficient[i] = std::stod(rate_coefficient_string[i]);
@@ -730,15 +730,6 @@ ChemicalReactionsBase::ChemicalReactionsBase(const InputParameters & params)
   }
 
   _num_reactions += superelastic_reactions;
-  // for (unsigned int i=0; i<_num_reactions; ++i)
-  // {
-  //   std::cout << _reaction[i] << std::endl;
-  //   for (unsigned int j=0; j<_species.size(); ++j)
-  //   {
-  //     std::cout << _species[j] << ", " << _species_count[i][j] << std::endl;
-  //   }
-  // }
-  // mooseError("TEST");
   _reaction_coefficient_name.resize(_num_reactions);
   // Find the unique species across all reaction pathways
   // Note that this also accounts for species that are not tracked in case
@@ -910,11 +901,16 @@ ChemicalReactionsBase::ChemicalReactionsBase(const InputParameters & params)
     }
     if (unbalanced)
     {
-      std::cout << "WARNING: The following equations are unbalanced." << std::endl;
+      std:string error_str;
       for (unsigned int i = 0; i < faulty_reaction.size(); ++i)
-        std::cout << "    " << faulty_reaction[i] << std::endl;
+      {
+        error_str.append("    ");
+        error_str.append(faulty_reaction[i]);
+        error_str.append("\n");
+      }
 
-      mooseError("Fix unbalanced reactions or particle conservation will not be enforced.");
+      mooseError("The following equations are unbalanced:\n", error_str,
+                 "Fix unbalanced reactions or particle conservation will not be enforced.");
     }
   }
 

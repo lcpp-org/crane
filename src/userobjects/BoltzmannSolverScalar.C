@@ -196,7 +196,6 @@ BoltzmannSolverScalar::BoltzmannSolverScalar(const InputParameters & parameters)
       line_counter++;
       if (line.find(current_reaction) != std::string::npos)
       {
-        // std::cout << line_counter << std::endl;
         // If a line number is found, we know that we can simply skip two lines
         // to get to the rate coefficient (Bolsig+ output files are very uniformly structured.)
         _reaction_line[i] = line_counter + 2;
@@ -214,8 +213,6 @@ BoltzmannSolverScalar::BoltzmannSolverScalar(const InputParameters & parameters)
     line_counter++;
     if (line.find("Mobility *N") != std::string::npos)
     {
-      // std::cout << line << std::endl;
-      // mooseError("EXIT");
       _mobility_line = line_counter + 1;
       break;
     }
@@ -302,7 +299,6 @@ BoltzmannSolverScalar::initialize()
   // Here we can write the input file based on input parameters
   // Required input: gas composition fractions, gas temperature
 
-  // std::cout << std::to_string((*_args[1])[0]) << std::endl;
   // To rewrite file, we can use a bash command (using system()):
   // sed -e "34s/.*/0.23 0.77  \/ Gas composition fraction/" -i ''  temp_in.dat
   //   line # ^     [       ] <- replacement string
@@ -313,13 +309,11 @@ BoltzmannSolverScalar::initialize()
     {
       std::string edit_command;
       edit_command = "sed -e \"34s/.*/";
-      // std::cout << coupledScalarValue("mole_fractions", 0) << std::endl;
       // For each variable we add both the value (converted to a string) and a following space
       // character.
       for (unsigned int i = 0; i < _nargs; ++i)
       {
         _fractions_string[i] << std::setprecision(10) << (*_args[i])[0];
-        // std::cout << _fractions_string[i].str() << std::endl;
         edit_command = edit_command + _fractions_string[i].str() + " ";
 
         _fractions_string[i].str("");
@@ -349,7 +343,6 @@ BoltzmannSolverScalar::initialize()
         edit_command = "sed -e \"14s/.*/" + _field_string.str() +
                        " \\/ Reduced field (Td)/\" -i \'\' " + _file_name;
         _field_string.str("");
-        // std::cout << edit_command << std::endl;
         command = edit_command.c_str();
         err = system(command);
         if (err < 0)
@@ -384,11 +377,11 @@ BoltzmannSolverScalar::execute()
       _timestep_number = 1;
 
       const char * command = _bolsig_run.c_str();
-      std::cout << "\nRunning BOLSIG+..." << std::endl;
+      mooseInfo("Running BOLSIG+...");
       auto err = system(command);
       if (err < 0)
         mooseError("failed command:", _bolsig_run);
-      std::cout << "DONE" << std::endl;
+      mooseInfo("DONE running BOLSIG+");
       std::fstream file(_output_file_name);
 
       if (_output_table)
@@ -456,8 +449,6 @@ BoltzmannSolverScalar::execute()
     // file >> _x_val >> _rate_coefficient;
     // Now we will fit everything into data tables (automatically...difficult.)
     // Not sure how to do this easily. Ugh.
-
-    // std::cout << "Tabulating rate coefficients..." << std::endl;
   }
 }
 

@@ -1,9 +1,9 @@
 # This input file describes a simple system of two first-order reactions
 #
-# Based on the example shown in the textbook: 
+# Based on the example shown in the textbook:
 #
-# Lieberman, Michael A. and Lichtenberg, Allan J. "Principles of Plasma 
-# Discharges and Materials Processing." Second Edition. John Wiley & Sons, Inc. 
+# Lieberman, Michael A. and Lichtenberg, Allan J. "Principles of Plasma
+# Discharges and Materials Processing." Second Edition. John Wiley & Sons, Inc.
 # (2005)
 #
 # Chapter 9, Section 2, "First-Order Consecutive Reactions)
@@ -12,7 +12,7 @@
 [Mesh]
   # 'Dummy' mesh - a mesh is always needed to run MOOSE, but
   # scalar variables do not exist on a mesh.
-  # When you're doing a 0D problem you just need to give MOOSE 
+  # When you're doing a 0D problem you just need to give MOOSE
   # a single element to work with.
   type = GeneratedMesh
   dim = 1
@@ -104,8 +104,8 @@
   []
 
   # This next one is optional, but highly recommended.
-  # Without this, scalar variables are printed on the terminal as the 
-  # simulation runs. 
+  # Without this, scalar variables are printed on the terminal as the
+  # simulation runs.
   # It's best to keep this on to prevent things from being cluttered.
   [console]
     type = Console

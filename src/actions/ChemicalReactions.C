@@ -235,7 +235,7 @@ ChemicalReactions::ChemicalReactions(const InputParameters & params)
       //////////
       // if (_rate_equation_string[i].find("Tgas") != std::string::npos)
       // {
-      //   std::cout << "found!" << std::endl;
+      //   mooseInfo("found!");
       // }
       //////////
 
@@ -245,7 +245,7 @@ ChemicalReactions::ChemicalReactions(const InputParameters & params)
       // std::string token;
       // while (std::getline(iss >> std::ws, token,'/'))
       // {
-      //   std::cout << token << std::endl;
+      //   mooseInfo(token);
       // }
     }
     else
@@ -528,11 +528,7 @@ ChemicalReactions::act()
 
   if (gas_tracking)
   {
-    // mooseError("Functionality for tracking neutral gas densities and temperatures is under
-    // development.");
-    std::cout
-        << "WARNING: Functionality for tracking neutral gas densities is still under development."
-        << std::endl;
+    mooseError("Functionality for tracking neutral gas densities is still under development.");
   }
 
   else if (_current_task == "add_function" && _scalar_problem == false)
@@ -741,8 +737,7 @@ ChemicalReactions::act()
       }
       else if (_rate_type[i] == "Equation")
       {
-        std::cout << "WARNING: CRANE cannot yet handle equation-based equations." << std::endl;
-        // This should be a mooseError...but I'm using it for testing purposes.
+        mooseError("CRANE cannot yet handle equation-based equations.");
       }
       else if (_superelastic_reaction[i] == true)
       {
@@ -788,7 +783,7 @@ ChemicalReactions::act()
       if (_energy_change == true)
       {
         // Gas temperature is almost in place, but not finished yet.
-        std::cout << "WARNING: energy dependence is not yet implemented." << std::endl;
+        mooseError("Energy dependence is not yet implemented.");
       }
     }
   }
@@ -801,7 +796,6 @@ ChemicalReactions::act()
     std::vector<Real> rxn_coeff = getParam<std::vector<Real>>("reaction_coefficient");
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
-      // std::cout << rxn_coeff[i] << std::endl;
       if (_reactants[i].size() == 1)
       {
         product_kernel_name = "Product1BodyScalar";
@@ -881,8 +875,6 @@ ChemicalReactions::act()
 
           if (_species_count[i][j] > 0)
           {
-            // std::cout << _species_count[i][j] << std::endl;
-            // std::cout <<
             InputParameters params = _factory.getValidParams(product_kernel_name);
             params.set<NonlinearVariableName>("variable") = _species[j];
             // params.set<Real>("n_gas") = 3.219e24;

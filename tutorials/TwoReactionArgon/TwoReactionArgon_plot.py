@@ -1,5 +1,5 @@
  # import numpy for reading .txt file
-import numpy as np 
+import numpy as np
 # import matplotlib for visualization
 import matplotlib.pyplot as plt
 
@@ -24,7 +24,7 @@ time = data[:,0] # s
 n_e = data[:,3] # cm^-3
 
 # select ionization rate coefficient
-k_ion = data[:,4] # cm^3 s^-1 
+k_ion = data[:,4] # cm^3 s^-1
 
 # select recombination rate coefficient
 k_rec = data[:,5] # cm^6 s^-1

@@ -35,8 +35,6 @@ EEDFRateCoefficientScalar::EEDFRateCoefficientScalar(const InputParameters & par
 Real
 EEDFRateCoefficientScalar::computeValue()
 {
-  // std::cout << _data.test(0) << std::endl;
-  // return 0.0;
   Real val;
   if (_sample_value)
   {
@@ -49,7 +47,6 @@ EEDFRateCoefficientScalar::computeValue()
     {
       return val;
     }
-    // return _data.coefficient_sample(_reaction_number, _sampler_var[0]/1e-21);
   }
   else
   {
