@@ -49,3 +49,8 @@ To update CRANE, it is recommended to use fetch and rebase:
 `git fetch origin`
 
 `git rebase origin/master`
+
+For full documention about CRANE, please refer to ReadTheDocs:
+
+https://crane-plasma-chemistry.readthedocs.io/en/latest/ 
+
