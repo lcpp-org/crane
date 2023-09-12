@@ -25,7 +25,7 @@ protected:
   virtual void computeQpProperties();
 
   SplineInterpolation _coefficient_interpolation;
-  
+
   std::string _coefficient_format;
   ADMaterialProperty<Real> & _townsend_coefficient;
   const MaterialProperty<Real> & _massIncident;

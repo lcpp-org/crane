@@ -19,7 +19,7 @@ def exact_solution(time, n0, KA, KB):
     Equations 9.2.5 (nA), 9.2.6 (nB), 9.2.8 (nC)
     '''
     nA = n0 * np.exp(-KA * time)
-    
+
     nB = n0 * KA / (KB - KA) * (np.exp(-KA * time) - np.exp(-KB * time))
 
     nC = n0 * (1. + 1./(KA - KB) * (KB * np.exp(-KA * time) - KA * np.exp(-KB * time)))
