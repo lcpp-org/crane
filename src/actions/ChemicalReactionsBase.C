@@ -56,7 +56,7 @@ ChemicalReactionsBase::validParams()
       "species", "List of (tracked) species included in reactions (both products and reactants)");
   params.addParam<std::vector<std::string>>(
       "aux_species", "Auxiliary species that are not included in nonlinear solve.");
-  params.addParam<std::vector<Real>>("reaction_coefficient", "The reaction coefficients.");
+  params.addParam<std::vector<Real>>("reaction_coefficient", {}, "The reaction coefficients.");
   params.addParam<bool>(
       "include_electrons", false, "Whether or not electrons are being considered.");
   params.addParam<bool>(
@@ -65,9 +65,9 @@ ChemicalReactionsBase::validParams()
       "track_rates", false, "Whether or not to track production rates for each reaction");
   params.addParam<std::string>("electron_density", "The variable used for density of electrons.");
   params.addParam<std::vector<NonlinearVariableName>>(
-      "electron_energy", "Electron energy, used for energy-dependent reaction rates.");
+      "electron_energy", {}, "Electron energy, used for energy-dependent reaction rates.");
   params.addParam<std::vector<NonlinearVariableName>>(
-      "gas_energy", "Gas energy, used for energy-dependent reaction rates.");
+      "gas_energy", {}, "Gas energy, used for energy-dependent reaction rates.");
   params.addParam<std::vector<std::string>>("gas_species",
                                             "All of the background gas species in the system.");
   params.addParam<std::vector<Real>>("gas_fraction", "The initial fraction of each gas species.");
@@ -81,10 +81,10 @@ ChemicalReactionsBase::validParams()
       "sampling_variable",
       "reduced_field",
       "Sample rate constants with E/N (reduced_field) or Te (electron_energy).");
-  params.addParam<std::vector<std::string>>("equation_constants",
-                                            "The constants included in the reaction equation(s).");
   params.addParam<std::vector<std::string>>(
-      "equation_values", "The values of the constants included in the reaction equation(s).");
+      "equation_constants", {}, "The constants included in the reaction equation(s).");
+  params.addParam<std::vector<std::string>>(
+      "equation_values", {}, "The values of the constants included in the reaction equation(s).");
   params.addParam<std::vector<VariableName>>(
       "equation_variables", "Any nonlinear variables that appear in the equations.");
   params.addParam<std::vector<VariableName>>(
@@ -93,8 +93,8 @@ ChemicalReactionsBase::validParams()
                         false,
                         "If true, the input file parser will look for a parameter denoting lumped "
                         "species (NEUTRAL for now...eventually arbitrary?).");
-  params.addParam<std::vector<std::string>>("lumped",
-                                            "The neutral species that will be lumped together.");
+  params.addParam<std::vector<std::string>>(
+      "lumped", {}, "The neutral species that will be lumped together.");
   params.addParam<std::string>("lumped_name",
                                "The name of the variable that will account for multiple species.");
   params.addParam<bool>(
@@ -189,7 +189,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(const InputParameters & params)
   else
     _aux_species.push_back("none");
 
-  if (getParam<bool>("lumped_species") && !isParamValid("lumped"))
+  if (getParam<bool>("lumped_species") && _lumped_species.size() == 0)
     mooseError("The lumped_species parameter is set to true, but vector of neutrals (lumped = "
                "'...') is not set.");
 
@@ -832,17 +832,17 @@ ChemicalReactionsBase::ChemicalReactionsBase(const InputParameters & params)
 
     if (_energy_change[i])
     {
-      if (!isParamValid("electron_energy") && !isParamValid("gas_energy"))
+      if (_electron_energy.size() == 0 && _gas_energy.size() == 0)
         mooseError("Reactions have energy changes, but no electron or gas temperature variable is "
                    "included!");
     }
   }
-  if (isParamValid("electron_energy"))
+  if (_electron_energy.size() > 0)
   {
     _electron_energy_term.push_back(true);
     _energy_variable.push_back(_electron_energy[0]);
   }
-  if (isParamValid("gas_energy"))
+  if (_gas_energy.size() > 0)
   {
     _electron_energy_term.push_back(false);
     _energy_variable.push_back(_gas_energy[0]);
