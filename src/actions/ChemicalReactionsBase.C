@@ -901,7 +901,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(const InputParameters & params)
     }
     if (unbalanced)
     {
-      std:string error_str;
+      std::string error_str;
       for (unsigned int i = 0; i < faulty_reaction.size(); ++i)
       {
         error_str.append("    ");
