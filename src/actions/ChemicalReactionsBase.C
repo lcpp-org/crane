@@ -901,7 +901,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(const InputParameters & params)
     }
     if (unbalanced)
     {
-      std::string error_str;
+      string error_str;
       for (unsigned int i = 0; i < faulty_reaction.size(); ++i)
       {
         error_str.append("    ");
@@ -909,7 +909,8 @@ ChemicalReactionsBase::ChemicalReactionsBase(const InputParameters & params)
         error_str.append("\n");
       }
 
-      mooseError("The following equations are unbalanced:\n", error_str,
+      mooseError("The following equations are unbalanced:\n",
+                 error_str,
                  "Fix unbalanced reactions or particle conservation will not be enforced.");
     }
   }
