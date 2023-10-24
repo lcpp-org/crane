@@ -52,7 +52,7 @@ ChemicalReactions::validParams()
   InputParameters params = AddVariableAction::validParams();
   params.addRequiredParam<std::vector<NonlinearVariableName>>(
       "species", "List of (tracked) species included in reactions (both products and reactants)");
-  params.addParam<std::vector<Real>>("reaction_coefficient", "The reaction coefficients.");
+  params.addParam<std::vector<Real>>("reaction_coefficient", {}, "The reaction coefficients.");
   params.addParam<bool>(
       "include_electrons", false, "Whether or not electrons are being considered.");
   params.addParam<bool>("track_energy", false, "Whether or not to track gas energy/temperature.");
@@ -64,7 +64,7 @@ ChemicalReactions::validParams()
       "List of (tracked) energy values. (Optional; requires 'track_energy' to be True.)");
   params.addParam<std::string>("electron_density", "The variable used for density of electrons.");
   params.addParam<std::vector<VariableName>>(
-      "electron_energy", "Electron energy, used for energy-dependent reaction rates.");
+      "electron_energy", {}, "Electron energy, used for energy-dependent reaction rates.");
   params.addParam<std::vector<std::string>>("gas_species",
                                             "All of the background gas species in the system.");
   params.addParam<std::vector<Real>>("gas_fraction", "The initial fraction of each gas species.");
@@ -92,10 +92,10 @@ ChemicalReactions::validParams()
       "Sample rate constants with E/N (reduced_field) or Te (electron_energy).");
   params.addParam<bool>(
       "scalar_problem", false, "The problem is scalar if it is a pure ODE problem (Global/0D).");
-  params.addParam<std::vector<std::string>>("equation_constants",
-                                            "The constants included in the reaction equation(s).");
   params.addParam<std::vector<std::string>>(
-      "equation_values", "The values of the constants included in the reaction equation(s).");
+      "equation_constants", {}, "The constants included in the reaction equation(s).");
+  params.addParam<std::vector<std::string>>(
+      "equation_values", {}, "The values of the constants included in the reaction equation(s).");
   params.addParam<std::vector<VariableName>>(
       "equation_variables", "Any nonlinear variables that appear in the equations.");
   params.addParam<std::vector<VariableName>>(
