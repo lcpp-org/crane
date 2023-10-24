@@ -8,3 +8,4 @@ Rate Coefficients
    rates/RateCoeff_Maxwellian
    rates/RateCoeff_BOLSIG
    rates/RateCoeff_LOKI
+   rates/Examples
