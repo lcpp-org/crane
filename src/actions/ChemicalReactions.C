@@ -52,7 +52,7 @@ ChemicalReactions::validParams()
   InputParameters params = AddVariableAction::validParams();
   params.addRequiredParam<std::vector<NonlinearVariableName>>(
       "species", "List of (tracked) species included in reactions (both products and reactants)");
-  params.addParam<std::vector<Real>>("reaction_coefficient", "The reaction coefficients.");
+  params.addParam<std::vector<Real>>("reaction_coefficient", {}, "The reaction coefficients.");
   params.addParam<bool>(
       "include_electrons", false, "Whether or not electrons are being considered.");
   params.addParam<bool>("track_energy", false, "Whether or not to track gas energy/temperature.");
@@ -64,7 +64,7 @@ ChemicalReactions::validParams()
       "List of (tracked) energy values. (Optional; requires 'track_energy' to be True.)");
   params.addParam<std::string>("electron_density", "The variable used for density of electrons.");
   params.addParam<std::vector<VariableName>>(
-      "electron_energy", "Electron energy, used for energy-dependent reaction rates.");
+      "electron_energy", {}, "Electron energy, used for energy-dependent reaction rates.");
   params.addParam<std::vector<std::string>>("gas_species",
                                             "All of the background gas species in the system.");
   params.addParam<std::vector<Real>>("gas_fraction", "The initial fraction of each gas species.");
@@ -92,10 +92,10 @@ ChemicalReactions::validParams()
       "Sample rate constants with E/N (reduced_field) or Te (electron_energy).");
   params.addParam<bool>(
       "scalar_problem", false, "The problem is scalar if it is a pure ODE problem (Global/0D).");
-  params.addParam<std::vector<std::string>>("equation_constants",
-                                            "The constants included in the reaction equation(s).");
   params.addParam<std::vector<std::string>>(
-      "equation_values", "The values of the constants included in the reaction equation(s).");
+      "equation_constants", {}, "The constants included in the reaction equation(s).");
+  params.addParam<std::vector<std::string>>(
+      "equation_values", {}, "The values of the constants included in the reaction equation(s).");
   params.addParam<std::vector<VariableName>>(
       "equation_variables", "Any nonlinear variables that appear in the equations.");
   params.addParam<std::vector<VariableName>>(
@@ -235,7 +235,7 @@ ChemicalReactions::ChemicalReactions(const InputParameters & params)
       //////////
       // if (_rate_equation_string[i].find("Tgas") != std::string::npos)
       // {
-      //   std::cout << "found!" << std::endl;
+      //   mooseInfo("found!");
       // }
       //////////
 
@@ -245,7 +245,7 @@ ChemicalReactions::ChemicalReactions(const InputParameters & params)
       // std::string token;
       // while (std::getline(iss >> std::ws, token,'/'))
       // {
-      //   std::cout << token << std::endl;
+      //   mooseInfo(token);
       // }
     }
     else
@@ -528,11 +528,7 @@ ChemicalReactions::act()
 
   if (gas_tracking)
   {
-    // mooseError("Functionality for tracking neutral gas densities and temperatures is under
-    // development.");
-    std::cout
-        << "WARNING: Functionality for tracking neutral gas densities is still under development."
-        << std::endl;
+    mooseError("Functionality for tracking neutral gas densities is still under development.");
   }
 
   else if (_current_task == "add_function" && _scalar_problem == false)
@@ -611,7 +607,7 @@ ChemicalReactions::act()
         params.set<std::vector<VariableName>>("sampler") = {"reduced_field"};
         params.set<FileName>("property_file") = "reaction_" + _reaction[i] + ".txt";
         params.set<std::string>("file_location") = "OutputRates_Crane_ex3";
-        params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
+        params.set<ExecFlagEnum>("execute_on") = "INITIAL TIMESTEP_BEGIN";
         _problem->addAuxScalarKernel("DataReadScalar", "aux_rate" + std::to_string(i), params);
       }
       else if (_rate_type[i] == "Equation")
@@ -643,7 +639,7 @@ ChemicalReactions::act()
         }
         params.set<std::vector<VariableName>>("args") = {"Te"};
         // params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN NONLINEAR";
-        params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
+        params.set<ExecFlagEnum>("execute_on") = "INITIAL TIMESTEP_BEGIN";
         _problem->addAuxScalarKernel(
             "ParsedScalarRateCoefficient", "aux_rate" + std::to_string(i), params);
       }
@@ -741,8 +737,7 @@ ChemicalReactions::act()
       }
       else if (_rate_type[i] == "Equation")
       {
-        std::cout << "WARNING: CRANE cannot yet handle equation-based equations." << std::endl;
-        // This should be a mooseError...but I'm using it for testing purposes.
+        mooseError("CRANE cannot yet handle equation-based equations.");
       }
       else if (_superelastic_reaction[i] == true)
       {
@@ -788,7 +783,7 @@ ChemicalReactions::act()
       if (_energy_change == true)
       {
         // Gas temperature is almost in place, but not finished yet.
-        std::cout << "WARNING: energy dependence is not yet implemented." << std::endl;
+        mooseError("Energy dependence is not yet implemented.");
       }
     }
   }
@@ -801,7 +796,6 @@ ChemicalReactions::act()
     std::vector<Real> rxn_coeff = getParam<std::vector<Real>>("reaction_coefficient");
     for (unsigned int i = 0; i < _num_reactions; ++i)
     {
-      // std::cout << rxn_coeff[i] << std::endl;
       if (_reactants[i].size() == 1)
       {
         product_kernel_name = "Product1BodyScalar";
@@ -881,8 +875,6 @@ ChemicalReactions::act()
 
           if (_species_count[i][j] > 0)
           {
-            // std::cout << _species_count[i][j] << std::endl;
-            // std::cout <<
             InputParameters params = _factory.getValidParams(product_kernel_name);
             params.set<NonlinearVariableName>("variable") = _species[j];
             // params.set<Real>("n_gas") = 3.219e24;

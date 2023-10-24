@@ -56,7 +56,7 @@ ChemicalReactionsBase::validParams()
       "species", "List of (tracked) species included in reactions (both products and reactants)");
   params.addParam<std::vector<std::string>>(
       "aux_species", "Auxiliary species that are not included in nonlinear solve.");
-  params.addParam<std::vector<Real>>("reaction_coefficient", "The reaction coefficients.");
+  params.addParam<std::vector<Real>>("reaction_coefficient", {}, "The reaction coefficients.");
   params.addParam<bool>(
       "include_electrons", false, "Whether or not electrons are being considered.");
   params.addParam<bool>(
@@ -65,9 +65,9 @@ ChemicalReactionsBase::validParams()
       "track_rates", false, "Whether or not to track production rates for each reaction");
   params.addParam<std::string>("electron_density", "The variable used for density of electrons.");
   params.addParam<std::vector<NonlinearVariableName>>(
-      "electron_energy", "Electron energy, used for energy-dependent reaction rates.");
+      "electron_energy", {}, "Electron energy, used for energy-dependent reaction rates.");
   params.addParam<std::vector<NonlinearVariableName>>(
-      "gas_energy", "Gas energy, used for energy-dependent reaction rates.");
+      "gas_energy", {}, "Gas energy, used for energy-dependent reaction rates.");
   params.addParam<std::vector<std::string>>("gas_species",
                                             "All of the background gas species in the system.");
   params.addParam<std::vector<Real>>("gas_fraction", "The initial fraction of each gas species.");
@@ -81,10 +81,10 @@ ChemicalReactionsBase::validParams()
       "sampling_variable",
       "reduced_field",
       "Sample rate constants with E/N (reduced_field) or Te (electron_energy).");
-  params.addParam<std::vector<std::string>>("equation_constants",
-                                            "The constants included in the reaction equation(s).");
   params.addParam<std::vector<std::string>>(
-      "equation_values", "The values of the constants included in the reaction equation(s).");
+      "equation_constants", {}, "The constants included in the reaction equation(s).");
+  params.addParam<std::vector<std::string>>(
+      "equation_values", {}, "The values of the constants included in the reaction equation(s).");
   params.addParam<std::vector<VariableName>>(
       "equation_variables", "Any nonlinear variables that appear in the equations.");
   params.addParam<std::vector<VariableName>>(
@@ -93,8 +93,8 @@ ChemicalReactionsBase::validParams()
                         false,
                         "If true, the input file parser will look for a parameter denoting lumped "
                         "species (NEUTRAL for now...eventually arbitrary?).");
-  params.addParam<std::vector<std::string>>("lumped",
-                                            "The neutral species that will be lumped together.");
+  params.addParam<std::vector<std::string>>(
+      "lumped", {}, "The neutral species that will be lumped together.");
   params.addParam<std::string>("lumped_name",
                                "The name of the variable that will account for multiple species.");
   params.addParam<bool>(
@@ -189,7 +189,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(const InputParameters & params)
   else
     _aux_species.push_back("none");
 
-  if (getParam<bool>("lumped_species") && !isParamValid("lumped"))
+  if (getParam<bool>("lumped_species") && _lumped_species.size() == 0)
     mooseError("The lumped_species parameter is set to true, but vector of neutrals (lumped = "
                "'...') is not set.");
 
@@ -357,7 +357,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(const InputParameters & params)
       //////////
       // if (_rate_equation_string[i].find("Tgas") != std::string::npos)
       // {
-      //   std::cout << "found!" << std::endl;
+      //   mooseInfo("found!");
       // }
       //////////
 
@@ -367,7 +367,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(const InputParameters & params)
       // std::string token;
       // while (std::getline(iss >> std::ws, token,'/'))
       // {
-      //   std::cout << token << std::endl;
+      //   mooseInfo(token);
       // }
     }
     else
@@ -388,7 +388,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(const InputParameters & params)
       }
       catch (const std::out_of_range &)
       {
-        std::cerr << "Argument out of range for a double\n";
+        mooseError("Argument out of range for a double\n");
         throw;
       }
       // _rate_coefficient[i] = std::stod(rate_coefficient_string[i]);
@@ -730,15 +730,6 @@ ChemicalReactionsBase::ChemicalReactionsBase(const InputParameters & params)
   }
 
   _num_reactions += superelastic_reactions;
-  // for (unsigned int i=0; i<_num_reactions; ++i)
-  // {
-  //   std::cout << _reaction[i] << std::endl;
-  //   for (unsigned int j=0; j<_species.size(); ++j)
-  //   {
-  //     std::cout << _species[j] << ", " << _species_count[i][j] << std::endl;
-  //   }
-  // }
-  // mooseError("TEST");
   _reaction_coefficient_name.resize(_num_reactions);
   // Find the unique species across all reaction pathways
   // Note that this also accounts for species that are not tracked in case
@@ -841,17 +832,17 @@ ChemicalReactionsBase::ChemicalReactionsBase(const InputParameters & params)
 
     if (_energy_change[i])
     {
-      if (!isParamValid("electron_energy") && !isParamValid("gas_energy"))
+      if (_electron_energy.size() == 0 && _gas_energy.size() == 0)
         mooseError("Reactions have energy changes, but no electron or gas temperature variable is "
                    "included!");
     }
   }
-  if (isParamValid("electron_energy"))
+  if (_electron_energy.size() > 0)
   {
     _electron_energy_term.push_back(true);
     _energy_variable.push_back(_electron_energy[0]);
   }
-  if (isParamValid("gas_energy"))
+  if (_gas_energy.size() > 0)
   {
     _electron_energy_term.push_back(false);
     _energy_variable.push_back(_gas_energy[0]);
@@ -910,11 +901,17 @@ ChemicalReactionsBase::ChemicalReactionsBase(const InputParameters & params)
     }
     if (unbalanced)
     {
-      std::cout << "WARNING: The following equations are unbalanced." << std::endl;
+      string error_str;
       for (unsigned int i = 0; i < faulty_reaction.size(); ++i)
-        std::cout << "    " << faulty_reaction[i] << std::endl;
+      {
+        error_str.append("    ");
+        error_str.append(faulty_reaction[i]);
+        error_str.append("\n");
+      }
 
-      mooseError("Fix unbalanced reactions or particle conservation will not be enforced.");
+      mooseError("The following equations are unbalanced:\n",
+                 error_str,
+                 "Fix unbalanced reactions or particle conservation will not be enforced.");
     }
   }
 

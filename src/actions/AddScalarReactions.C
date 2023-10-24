@@ -249,7 +249,7 @@ AddScalarReactions::act()
             params.set<FileName>("property_file") = "reaction_" + _reaction[i] + ".txt";
           }
           params.set<std::string>("file_location") = getParam<std::string>("file_location");
-          params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
+          params.set<ExecFlagEnum>("execute_on") = "INITIAL TIMESTEP_BEGIN";
           _problem->addAuxScalarKernel(
               data_read_name, _name + "aux_rate" + std::to_string(i), params);
         }
@@ -286,7 +286,7 @@ AddScalarReactions::act()
         params.set<std::vector<VariableName>>("args") =
             getParam<std::vector<VariableName>>("equation_variables");
         // params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN NONLINEAR";
-        params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
+        params.set<ExecFlagEnum>("execute_on") = "INITIAL TIMESTEP_BEGIN";
         _problem->addAuxScalarKernel(
             "ParsedScalarRateCoefficient", _name + "aux_rate" + std::to_string(i), params);
       }
@@ -308,7 +308,7 @@ AddScalarReactions::act()
         params.set<Real>("Tgas_const") = 300;
         params.set<UserObjectName>("polynomial_provider") =
             "superelastic_coeff" + std::to_string(_superelastic_index[i]);
-        params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
+        params.set<ExecFlagEnum>("execute_on") = "INITIAL TIMESTEP_BEGIN";
         _problem->addAuxScalarKernel(
             "SuperelasticRateCoefficientScalar", _name + "aux_rate" + std::to_string(i), params);
       }
@@ -329,7 +329,7 @@ AddScalarReactions::act()
           params.set<AuxVariableName>("variable") = {"rate" + std::to_string(i)};
           params.set<std::vector<VariableName>>("rate_coefficient") = {_aux_scalar_var_name[i]};
           params.set<Real>("coefficient") = 1; //_reaction_stoichiometric_coeff[i].back();
-          params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
+          params.set<ExecFlagEnum>("execute_on") = "INITIAL TIMESTEP_BEGIN";
           _problem->addAuxScalarKernel("ReactionRateOneBodyScalar",
                                        _name + "Calc_Production_Rate" + std::to_string(i),
                                        params);
@@ -342,7 +342,7 @@ AddScalarReactions::act()
           params.set<AuxVariableName>("variable") = {"rate" + std::to_string(i)};
           params.set<std::vector<VariableName>>("rate_coefficient") = {_aux_scalar_var_name[i]};
           params.set<Real>("coefficient") = 1; //_reaction_stoichiometric_coeff[i].back();
-          params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
+          params.set<ExecFlagEnum>("execute_on") = "INITIAL TIMESTEP_BEGIN";
           _problem->addAuxScalarKernel("ReactionRateTwoBodyScalar",
                                        _name + "Calc_Production_Rate" + std::to_string(i),
                                        params);
@@ -357,7 +357,7 @@ AddScalarReactions::act()
           params.set<AuxVariableName>("variable") = {"rate" + std::to_string(i)};
           params.set<std::vector<VariableName>>("rate_coefficient") = {_aux_scalar_var_name[i]};
           params.set<Real>("coefficient") = 1; //_reaction_stoichiometric_coeff[i].back();
-          params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
+          params.set<ExecFlagEnum>("execute_on") = "INITIAL TIMESTEP_BEGIN";
           _problem->addAuxScalarKernel("ReactionRateThreeBodyScalar",
                                        _name + "Calc_Production_Rate" + std::to_string(i),
                                        params);

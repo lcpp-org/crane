@@ -111,7 +111,6 @@ RateCoefficientProvider::reaction_coefficient() const
 
       reaction_rate = reaction_rate * 1e6;
 
-      // std::cout << reaction_rate << std::endl;
       // _reaction_rate[_qp] = _reaction_rate[_qp] * 6.022e23; // convert from [dens]/s to
       // [dens]/mol/s _d_k_d_en[_qp] =
       // _coefficient_interpolation.sampleDerivative(_reduced_field[_qp]);
@@ -181,8 +180,6 @@ RateCoefficientProvider::electron_temperature(const Real E_N) const
 void
 RateCoefficientProvider::initialize()
 {
-  // std::cout << "TESTING INITIALIZATION ROUTINE IN RATECOEFFICIENTPROVIDER USEROBJECT" <<
-  // std::endl;
 }
 
 void

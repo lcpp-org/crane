@@ -7,10 +7,10 @@ data = np.genfromtxt("lookUpTableRateCoeff.txt",comments='#')
 # delete first line that contains non-acceptable string information
 data = data[1:,:]
 
-# select reduced electric field column 
+# select reduced electric field column
 RedField = data[:,0] # Td
 
-# select ionization rate coefficient 
+# select ionization rate coefficient
 kIon = data[:,3] # m^3/s
 # convert to cm3/s
 kIon = kIon*1e6 # cm^3/s

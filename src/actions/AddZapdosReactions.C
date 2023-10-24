@@ -299,7 +299,7 @@ AddZapdosReactions::act()
       // First all EEDF-based reactions are added.
       for (unsigned int i = 0; i < _num_eedf_reactions; ++i)
       {
-        std::cout << _ad_prepend + "ReactionRateEEDF" + _townsend_append + _log_append << std::endl;
+        mooseInfo(_ad_prepend, "ReactionRateEEDF", _townsend_append, _log_append);
         if (_coefficient_format == "townsend")
           addAuxRate(_ad_prepend + "ReactionRateEEDF" + _townsend_append + _log_append,
                      _eedf_reaction_number[i],
@@ -366,7 +366,7 @@ AddZapdosReactions::addAuxRate(const std::string & aux_kernel_name,
   params.set<std::string>("reaction") = _reaction[reaction_num];
   params.set<AuxVariableName>("variable") = {"rate" + std::to_string(reaction_num) + "_" + _name};
   params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
-  params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_END";
+  params.set<ExecFlagEnum>("execute_on") = "INITIAL TIMESTEP_BEGIN";
   _problem->addAuxKernel(
       aux_kernel_name, "Calc_Reaction_Rate" + std::to_string(reaction_num) + "_" + _name, params);
 }

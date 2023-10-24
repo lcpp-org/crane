@@ -69,7 +69,6 @@ ParsedScalarRateCoefficient::ParsedScalarRateCoefficient(const InputParameters &
   // {
     // Real extra_value = _data.electron_temperature(7.7e-20);
     // _constant_names.push_back(getParam<std::vector<std::string>>("file_value")[0]);
-    // std::cout << _reduced_field[_i] << std::endl;
     // if (isCoupledScalar("reduced_field"))
       // _constant_expressions.push_back(std::to_string(_data.electron_temperature(_reduced_field[_i])));
     // else
