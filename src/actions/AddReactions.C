@@ -367,7 +367,7 @@ AddReactions::addAuxRate(const std::string & aux_kernel_name,
   //params.set<AuxVariableName>("variable") = {"rate" + std::to_string(reaction_num) + "_" + _name};
   params.set<AuxVariableName>("variable") = {_aux_var_name[reaction_num]};
   params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
-  params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_END";
+  params.set<ExecFlagEnum>("execute_on") = "INITIAL TIMESTEP_BEGIN";
   _problem->addAuxKernel(
       aux_kernel_name, "Calc_Reaction_Rate" + std::to_string(reaction_num) + "_" + _name, params);
 }

@@ -607,7 +607,7 @@ ChemicalReactions::act()
         params.set<std::vector<VariableName>>("sampler") = {"reduced_field"};
         params.set<FileName>("property_file") = "reaction_" + _reaction[i] + ".txt";
         params.set<std::string>("file_location") = "OutputRates_Crane_ex3";
-        params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
+        params.set<ExecFlagEnum>("execute_on") = "INITIAL TIMESTEP_BEGIN";
         _problem->addAuxScalarKernel("DataReadScalar", "aux_rate" + std::to_string(i), params);
       }
       else if (_rate_type[i] == "Equation")
@@ -639,7 +639,7 @@ ChemicalReactions::act()
         }
         params.set<std::vector<VariableName>>("args") = {"Te"};
         // params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN NONLINEAR";
-        params.set<ExecFlagEnum>("execute_on") = "TIMESTEP_BEGIN";
+        params.set<ExecFlagEnum>("execute_on") = "INITIAL TIMESTEP_BEGIN";
         _problem->addAuxScalarKernel(
             "ParsedScalarRateCoefficient", "aux_rate" + std::to_string(i), params);
       }
