@@ -22,6 +22,7 @@ Contents
    running
    tutorials
    contributing
+   references
 
 Acknowledgements
 ----------------
