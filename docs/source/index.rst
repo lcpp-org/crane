@@ -24,6 +24,29 @@ Contents
    contributing
    references
 
+Citing
+------
+
+If you use hPIC2, please cite us in your publication :cite:`keniely2019crane`:
+
+.. code-block:: bibtex
+
+   @misc{keniley2019crane,
+      title={CRANE: A MOOSE-based Open Source Tool for Plasma Chemistry Applications},
+      author={Shane Keniley and Davide Curreli},
+      year={2019},
+      eprint={1905.10004},
+      archivePrefix={arXiv},
+      primaryClass={physics.plasm-ph}
+   }
+
+.. admonition:: Citing
+
+   S. Keniley and D. Curreli,
+   CRANE: A MOOSE-based Open Source Tool for Plasma Chemistry Applications,
+   arXiv:1905.10004v1 [physics.plasma-ph], 2019.
+   `https://arxiv.org/abs/1905.10004 <https://arxiv.org/abs/1905.10004>`_
+
 Acknowledgements
 ----------------
 
