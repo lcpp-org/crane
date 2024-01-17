@@ -60,6 +60,7 @@ void
 CraneApp::registerApps()
 {
   registerApp(CraneApp);
+  ModulesApp::registerApps();
 }
 
 /***************************************************************************************************
