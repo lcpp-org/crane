@@ -84,7 +84,7 @@ ChemicalReactions::validParams()
   params.addParam<FileName>(
       "file_location",
       ".",
-      "The location of the reaction rate files. Default: empty string (current directory).");
+      "The location of the reaction rate files. Default: the current directory.");
   params.addParam<bool>("use_moles", "Whether to use molar units.");
   params.addParam<std::string>(
       "sampling_format",
