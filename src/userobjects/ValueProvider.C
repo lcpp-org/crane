@@ -17,9 +17,10 @@ InputParameters
 ValueProvider::validParams()
 {
   InputParameters params = GeneralUserObject::validParams();
-  params.addParam<FileName>("property_file", "",
-      "The file containing interpolation tables for material properties.");
-  params.addParam<std::string>("file_location", "", "The name of the file that stores the reaction rate tables.");
+  params.addRequiredParam<RelativeFileName>(
+      "property_file", "The file containing interpolation tables for material properties.");
+  params.addParam<FileName>(
+      "file_location", ".", "The name of the file that stores the reaction rate tables.");
   params.addParam<std::string>("sampling_format", "reduced_field",
     "The format that the rate constant files are in. Options: reduced_field and electron_energy.");
   return params;
@@ -31,7 +32,8 @@ ValueProvider::ValueProvider(const InputParameters & parameters)
 {
     std::vector<Real> reduced_field;
     std::vector<Real> electron_temperature;
-    std::string file_name = getParam<std::string>("file_location") + "/" + getParam<FileName>("property_file");
+    std::string file_name =
+        getParam<FileName>("file_location") + "/" + getParam<RelativeFileName>("property_file");
     MooseUtils::checkFileReadable(file_name);
     const char * charPath = file_name.c_str();
     std::ifstream myfile(charPath);

@@ -196,7 +196,7 @@ AddScalarReactions::act()
         InputParameters params = _factory.getValidParams("PolynomialCoefficients");
         params.set<std::vector<Real>>("stoichiometric_coeff") = _reaction_stoichiometric_coeff[i];
         params.set<std::vector<std::string>>("participants") = _reaction_participants[i];
-        params.set<std::string>("file_location") = "PolynomialCoefficients";
+        params.set<FileName>("file_location") = "PolynomialCoefficients";
         params.set<ExecFlagEnum>("execute_on") = "INITIAL";
         _problem->addUserObject(
             "PolynomialCoefficients", _name + "_superelastic_coeff" + std::to_string(i), params);
@@ -242,13 +242,13 @@ AddScalarReactions::act()
               getParam<std::string>("sampling_variable")};
           if (_is_identified[i])
           {
-            params.set<FileName>("property_file") = _reaction_identifier[i];
+            params.set<RelativeFileName>("property_file") = _reaction_identifier[i];
           }
           else
           {
-            params.set<FileName>("property_file") = "reaction_" + _reaction[i] + ".txt";
+            params.set<RelativeFileName>("property_file") = "reaction_" + _reaction[i] + ".txt";
           }
-          params.set<std::string>("file_location") = getParam<std::string>("file_location");
+          params.set<FileName>("file_location") = getParam<FileName>("file_location");
           params.set<ExecFlagEnum>("execute_on") = "INITIAL TIMESTEP_BEGIN";
           _problem->addAuxScalarKernel(
               data_read_name, _name + "aux_rate" + std::to_string(i), params);

@@ -19,7 +19,8 @@ PolynomialCoefficients::validParams()
   InputParameters params = GeneralUserObject::validParams();
   params.addRequiredParam<std::vector<Real>>("stoichiometric_coeff", "The coefficients of each reactant and product.");
   params.addRequiredParam<std::vector<std::string>>("participants", "All reaction participants.");
-  params.addRequiredParam<std::string>("file_location", "The name of the file that stores the reaction rate tables.");
+  params.addRequiredParam<FileName>("file_location",
+                                    "The name of the file that stores the reaction rate tables.");
   return params;
 }
 
@@ -57,7 +58,7 @@ PolynomialCoefficients::initialize()
   for (unsigned int i = 0; i < _participants.size(); ++i)
   {
     _power_coefficient += _coefficients[i];  // Finko, equation 7
-    file_name = getParam<std::string>("file_location") + "/" + _participants[i] + ".txt";
+    file_name = getParam<FileName>("file_location") + "/" + _participants[i] + ".txt";
     MooseUtils::checkFileReadable(file_name);
     const char * charPath = file_name.c_str();
     std::ifstream myfile(charPath);

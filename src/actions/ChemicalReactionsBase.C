@@ -73,9 +73,9 @@ ChemicalReactionsBase::validParams()
   params.addParam<std::vector<Real>>("gas_fraction", "The initial fraction of each gas species.");
   params.addRequiredParam<std::string>("reactions", "The list of reactions to be added");
   params.addParam<Real>("position_units", 1.0, "The units of position.");
-  params.addParam<std::string>(
+  params.addParam<FileName>(
       "file_location",
-      "",
+      ".",
       "The location of the reaction rate files. Default: empty string (current directory).");
   params.addParam<std::string>(
       "sampling_variable",
@@ -938,7 +938,7 @@ ChemicalReactionsBase::ChemicalReactionsBase(const InputParameters & params)
   {
     if (_is_identified[i])
     {
-      std::string fileloc = getParam<std::string>("file_location") + "/" + _reaction_identifier[i];
+      std::string fileloc = getParam<FileName>("file_location") + "/" + _reaction_identifier[i];
       if (file_exists(fileloc))
       {
         continue;

@@ -571,17 +571,17 @@ AddZapdosReactions::addEEDFCoefficient(const unsigned & reaction_num)
 
   auto params = _factory.getValidParams(material_name);
   params.set<std::string>("reaction") = _reaction[reaction_num];
-  params.set<std::string>("file_location") = getParam<std::string>("file_location");
+  params.set<FileName>("file_location") = getParam<FileName>("file_location");
   params.set<std::vector<VariableName>>("electrons") = {
       _reactants[reaction_num][_electron_index[reaction_num]]};
   params.set<std::vector<VariableName>>("mean_energy") = {_electron_energy[0]};
   if (_is_identified[reaction_num])
   {
-    params.set<FileName>("property_file") = _reaction_identifier[reaction_num];
+    params.set<RelativeFileName>("property_file") = _reaction_identifier[reaction_num];
   }
   else
   {
-    params.set<FileName>("property_file") = "reaction_" + _reaction[reaction_num] + ".txt";
+    params.set<RelativeFileName>("property_file") = "reaction_" + _reaction[reaction_num] + ".txt";
   }
 
   params.set<std::string>("number") = Moose::stringify(reaction_num);
@@ -682,7 +682,7 @@ AddZapdosReactions::addSuperelasticRateCoefficient(const unsigned & reaction_num
   params.set<std::string>("original_reaction") = _reaction[_superelastic_index[reaction_num]];
   params.set<std::vector<Real>>("stoichiometric_coeff") = active_constants;
   params.set<std::vector<std::string>>("participants") = active_participants;
-  params.set<std::string>("file_location") = "PolynomialCoefficients";
+  params.set<FileName>("file_location") = "PolynomialCoefficients";
   params.set<std::vector<SubdomainName>>("block") = getParam<std::vector<SubdomainName>>("block");
   params.set<std::string>("number") = Moose::stringify(reaction_num);
   _problem->addMaterial("SuperelasticReactionRate",

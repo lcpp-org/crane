@@ -20,7 +20,8 @@ InputParameters
 DiffusionRateTemp::validParams()
 {
   InputParameters params = Material::validParams();
-  params.addRequiredParam<std::string>("file_location", "The name of the file that stores the mobility table.");
+  params.addRequiredParam<FileName>("file_location",
+                                    "The name of the file that stores the mobility table.");
   // params.addRequiredParam<std::string>("reaction", "The full reaction equation.");
   // params.addRequiredParam<Real>("", "The value of the reaction rate (constant).");
 
@@ -33,7 +34,7 @@ DiffusionRateTemp::DiffusionRateTemp(const InputParameters & parameters)
     _gap_length(getMaterialProperty<Real>("gap_length")),
     _radius(getMaterialProperty<Real>("radius"))
 {
-  std::string file_name = getParam<std::string>("file_location") + "/" + "electron_temperature.txt";
+  std::string file_name = getParam<FileName>("file_location") + "/" + "electron_temperature.txt";
   MooseUtils::checkFileReadable(file_name);
   const char * charPath = file_name.c_str();
   std::ifstream myfile(charPath);

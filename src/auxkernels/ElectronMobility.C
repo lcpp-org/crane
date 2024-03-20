@@ -17,7 +17,8 @@ InputParameters
 ElectronMobility::validParams()
 {
  InputParameters params = AuxScalarKernel::validParams();
- params.addRequiredParam<std::string>("file_location", "The name of the file that stores the mobility table.");
+ params.addRequiredParam<FileName>("file_location",
+                                   "The name of the file that stores the mobility table.");
  params.addCoupledVar("reduced_field", "The electron mobility.");
  return params;
 }
@@ -26,7 +27,7 @@ ElectronMobility::ElectronMobility(const InputParameters & parameters)
  : AuxScalarKernel(parameters),
   _reduced_field(coupledScalarValue("reduced_field"))
 {
-  std::string file_name = getParam<std::string>("file_location") + "/" + "electron_mobility.txt";
+  std::string file_name = getParam<FileName>("file_location") + "/" + "electron_mobility.txt";
   MooseUtils::checkFileReadable(file_name);
   const char * charPath = file_name.c_str();
   std::ifstream myfile(charPath);

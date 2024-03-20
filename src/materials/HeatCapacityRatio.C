@@ -21,7 +21,8 @@ HeatCapacityRatio::validParams()
 {
   InputParameters params = SpeciesSum::validParams();
   params.addRequiredParam<std::vector<std::string>>("species", "The list of gaseous species contributing to gas temperature.");
-  params.addRequiredParam<std::string>("file_location", "The name of the file that stores the reaction rate tables.");
+  params.addRequiredParam<FileName>("file_location",
+                                    "The name of the file that stores the reaction rate tables.");
   params.addCoupledVar("gas_temperature", "The temperature of the background gas. Needed for rate constant calculation. Default: 300 K.");
   // params.addCoupledVar("all_species", "The coupled variables to sum.");
   return params;
@@ -49,7 +50,7 @@ HeatCapacityRatio::HeatCapacityRatio(const InputParameters & parameters)
   _molar_heat_capacity.resize(_species.size());
   for (unsigned int i = 0; i < _species.size(); ++i)
   {
-    file_name = getParam<std::string>("file_location") + "/" + _species[i] + ".txt";
+    file_name = getParam<FileName>("file_location") + "/" + _species[i] + ".txt";
     MooseUtils::checkFileReadable(file_name);
     const char * charPath = file_name.c_str();
     std::ifstream myfile(charPath);

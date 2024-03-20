@@ -20,7 +20,8 @@ InputParameters
 ElectricField::validParams()
 {
   InputParameters params = Material::validParams();
-  params.addRequiredParam<std::string>("file_location", "The name of the file that stores the mobility table.");
+  params.addRequiredParam<FileName>("file_location",
+                                    "The name of the file that stores the mobility table.");
   params.addParam<bool>("use_log", false, "Whether or not to use logarithmic form.");
   params.addCoupledVar("electron_density", "The electron density.");
   params.addCoupledVar("neutral_density", "The neutral gas density.");
@@ -41,7 +42,7 @@ ElectricField::ElectricField(const InputParameters & parameters)
   _use_log(getParam<bool>("use_log")),
   _n_gas(getMaterialProperty<Real>("n_gas"))
 {
-  std::string file_name = getParam<std::string>("file_location") + "/" + "electron_mobility.txt";
+  std::string file_name = getParam<FileName>("file_location") + "/" + "electron_mobility.txt";
   MooseUtils::checkFileReadable(file_name);
   const char * charPath = file_name.c_str();
   std::ifstream myfile(charPath);
