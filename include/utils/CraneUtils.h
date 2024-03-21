@@ -24,7 +24,7 @@ namespace CraneUtils
 using Real = libMesh::Real;
 
 /**
- * The prarameters that describe the base of where to retrieve a property
+ * The parameters that describe the base of where to retrieve a property
  * file from.
  */
 InputParameters propertyPathParams();
