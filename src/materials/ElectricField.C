@@ -9,7 +9,8 @@
 //* https://www.gnu.org/licenses/lgpl-2.1.html
 
 #include "ElectricField.h"
-#include "MooseUtils.h"
+
+#include "CraneUtils.h"
 
 // MOOSE includes
 #include "MooseVariable.h"
@@ -20,8 +21,9 @@ InputParameters
 ElectricField::validParams()
 {
   InputParameters params = Material::validParams();
-  params.addRequiredParam<FileName>("file_location",
-                                    "The name of the file that stores the mobility table.");
+  params += CraneUtils::propertyFileParams();
+  params.makeParamNotRequired("property_file");
+  params.set<RelativeFileName>("property_file") = "electron_mobility.txt";
   params.addParam<bool>("use_log", false, "Whether or not to use logarithmic form.");
   params.addCoupledVar("electron_density", "The electron density.");
   params.addCoupledVar("neutral_density", "The neutral gas density.");
@@ -42,27 +44,7 @@ ElectricField::ElectricField(const InputParameters & parameters)
   _use_log(getParam<bool>("use_log")),
   _n_gas(getMaterialProperty<Real>("n_gas"))
 {
-  std::string file_name = getParam<FileName>("file_location") + "/" + "electron_mobility.txt";
-  MooseUtils::checkFileReadable(file_name);
-  const char * charPath = file_name.c_str();
-  std::ifstream myfile(charPath);
-  Real value;
-
-  std::vector<Real> reduced_field;
-  std::vector<Real> mobility;
-  if (myfile.is_open())
-  {
-    while (myfile >> value)
-    {
-      reduced_field.push_back(value);
-      myfile >> value;
-      mobility.push_back(value);
-    }
-    myfile.close();
-  }
-  else
-    mooseError("Unable to open file");
-
+  const auto [reduced_field, mobility] = CraneUtils::getReactionRates(*this);
   _mobility.setData(reduced_field, mobility);
 }
 

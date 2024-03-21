@@ -10,12 +10,15 @@
 
 #include "ScalarLinearInterpolation.h"
 
+#include "CraneUtils.h"
+
 registerMooseObject("CraneApp", ScalarLinearInterpolation);
 
 InputParameters
 ScalarLinearInterpolation::validParams()
 {
   InputParameters params = AuxScalarKernel::validParams();
+  params += CraneUtils::propertyFileParams();
   params.addCoupledVar("sampler", 0, "The variable with which the data will be sampled.");
   params.addParam<bool>("use_time", false, "Whether or not to sample with time.");
   params.addParam<bool>(
@@ -25,10 +28,6 @@ ScalarLinearInterpolation::validParams()
                         "Multiplies the sampled output by a given factor. Convert from m^3 to "
                         "cm^3, for example.(Optional)");
   params.addParam<Real>("const_sampler", 0, "The value with which the data will be sampled.");
-  params.addRequiredParam<RelativeFileName>(
-      "property_file", "The file containing interpolation tables for material properties.");
-  params.addParam<FileName>(
-      "file_location", ".", "The name of the file that stores the reaction rate tables.");
   params.addParam<std::string>("sampling_format",
                                "reduced_field",
                                "The format that the rate constant files are in. Options: "
@@ -45,28 +44,7 @@ ScalarLinearInterpolation::ScalarLinearInterpolation(const InputParameters & par
     _use_log(getParam<bool>("use_log")),
     _scale_factor(getParam<Real>("scale_factor"))
 {
-  std::vector<Real> x_val;
-  std::vector<Real> y_val;
-  std::string file_name =
-      getParam<FileName>("file_location") + "/" + getParam<RelativeFileName>("property_file");
-  MooseUtils::checkFileReadable(file_name);
-  const char * charPath = file_name.c_str();
-  std::ifstream myfile(charPath);
-  Real value;
-
-  if (myfile.is_open())
-  {
-    while (myfile >> value)
-    {
-      x_val.push_back(value);
-      myfile >> value;
-      y_val.push_back(value);
-    }
-    myfile.close();
-  }
-  else
-    mooseError("Unable to open file");
-
+  const auto [x_val, y_val] = CraneUtils::getReactionRates(*this);
   _coefficient_interpolation.setData(x_val, y_val);
 }
 

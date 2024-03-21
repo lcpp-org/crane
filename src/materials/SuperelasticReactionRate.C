@@ -9,7 +9,8 @@
 //* https://www.gnu.org/licenses/lgpl-2.1.html
 
 #include "SuperelasticReactionRate.h"
-#include "MooseUtils.h"
+
+#include "CraneUtils.h"
 
 // MOOSE includes
 #include "MooseVariable.h"
@@ -20,12 +21,11 @@ InputParameters
 SuperelasticReactionRate::validParams()
 {
   InputParameters params = Material::validParams();
+  params += CraneUtils::propertyPathParams();
   params.addRequiredParam<std::string>("reaction", "The full reaction equation.");
   params.addRequiredParam<std::string>("original_reaction", "The original (reversible) reaction from which this reaction was derived.");
   params.addRequiredParam<std::vector<Real>>("stoichiometric_coeff", "The coefficients of each reactant and product.");
   params.addRequiredParam<std::vector<std::string>>("participants", "All reaction participants.");
-  params.addRequiredParam<FileName>("file_location",
-                                    "The name of the file that stores the reaction rate tables.");
   params.addCoupledVar("gas_temperature", "The temperature of the background gas. Needed for rate constant calculation. Default: 300 K.");
   return params;
 }
@@ -44,31 +44,13 @@ SuperelasticReactionRate::SuperelasticReactionRate(const InputParameters & param
   // Section 2.2, Equation 13
 
   // Read the participant species' coefficients from files
-  std::string file_name;
   std::vector<std::vector<Real>> polynomial_coefficients;
   polynomial_coefficients.resize(_participants.size());
   _power_coefficient = 0.0;
   for (unsigned int i = 0; i < _participants.size(); ++i)
   {
     _power_coefficient += _coefficients[i];  // Finko, equation 7
-    file_name = getParam<FileName>("file_location") + "/" + _participants[i] + ".txt";
-    MooseUtils::checkFileReadable(file_name);
-    const char * charPath = file_name.c_str();
-    std::ifstream myfile(charPath);
-    Real value;
-
-    if (myfile.is_open())
-    {
-      while (myfile >> value)
-      {
-        polynomial_coefficients[i].push_back(value);
-      }
-      myfile.close();
-    }
-    else
-    {
-      mooseError("Unable to open file: " + file_name);
-    }
+    polynomial_coefficients[i] = CraneUtils::getCoefficients(*this, _participants[i] + ".txt");
   }
 
   // Sum the coefficients

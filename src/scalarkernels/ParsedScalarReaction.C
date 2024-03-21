@@ -10,6 +10,7 @@
 
 #include "ParsedScalarReaction.h"
 #include "ParsedODEKernel.h"
+#include "CraneUtils.h"
 
 registerMooseObject("CraneApp", ParsedScalarReaction);
 
@@ -17,10 +18,7 @@ InputParameters
 ParsedScalarReaction::validParams()
 {
   InputParameters params = ParsedODEKernel::validParams();
-  params.addRequiredParam<RelativeFileName>(
-      "property_file", "The file containing interpolation tables for material properties.");
-  params.addParam<FileName>(
-      "file_location", ".", "The name of the file that stores the reaction rate tables.");
+  params += CraneUtils::propertyFileParams();
   params.addParam<std::string>("sampling_format",
                                "reduced_field",
                                "The format that the rate constant files are in. Options: "
@@ -40,28 +38,7 @@ ParsedScalarReaction::ParsedScalarReaction(const InputParameters & parameters)
 // _stoichiometric_coeff(getParam<Real>("coefficient")),
 // _v_eq_u(getParam<bool>("v_eq_u"))
 {
-  std::vector<Real> reduced_field;
-  std::vector<Real> electron_temperature;
-  std::string file_name =
-      getParam<FileName>("file_location") + "/" + getParam<RelativeFileName>("property_file");
-  MooseUtils::checkFileReadable(file_name);
-  const char * charPath = file_name.c_str();
-  std::ifstream myfile(charPath);
-  Real value;
-
-  if (myfile.is_open())
-  {
-    while (myfile >> value)
-    {
-      reduced_field.push_back(value);
-      myfile >> value;
-      electron_temperature.push_back(value);
-    }
-    myfile.close();
-  }
-  else
-    mooseError("Unable to open file");
-
+  const auto [reduced_field, electron_temperature] = CraneUtils::getReactionRates(*this);
   _temperature_interpolation.setData(reduced_field, electron_temperature);
 }
 

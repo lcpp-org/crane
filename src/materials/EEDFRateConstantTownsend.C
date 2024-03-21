@@ -9,7 +9,8 @@
 //* https://www.gnu.org/licenses/lgpl-2.1.html
 
 #include "EEDFRateConstantTownsend.h"
-#include "MooseUtils.h"
+
+#include "CraneUtils.h"
 
 // MOOSE includes
 #include "MooseVariable.h"
@@ -20,11 +21,8 @@ InputParameters
 EEDFRateConstantTownsend::validParams()
 {
   InputParameters params = Material::validParams();
-  params.addRequiredParam<RelativeFileName>(
-      "property_file", "The file containing interpolation tables for material properties.");
+  params += CraneUtils::propertyFileParams();
   params.addRequiredParam<std::string>("reaction", "The full reaction equation.");
-  params.addRequiredParam<FileName>("file_location",
-                                    "The name of the file that stores the reaction rate tables.");
   params.addParam<bool>("elastic_collision",
                         false,
                         "Determining whether or not a collision is elastic. Energy change for "
@@ -58,32 +56,10 @@ EEDFRateConstantTownsend::EEDFRateConstantTownsend(const InputParameters & param
     _em(coupledValue("electrons")),
     _mean_en(coupledValue("mean_energy"))
 {
-  std::vector<Real> temp_x;
-  std::vector<Real> temp_y;
-  std::vector<Real> actual_mean_energy;
-  std::vector<Real> rate_coefficient;
-  std::string file_name =
-      getParam<FileName>("file_location") + "/" + getParam<RelativeFileName>("property_file");
-  MooseUtils::checkFileReadable(file_name);
-  const char * charPath = file_name.c_str();
-  std::ifstream myfile(charPath);
-  Real value;
-
-  if (myfile.is_open())
-  {
-    while (myfile >> value)
-    {
-      temp_x.push_back(value);
-      myfile >> value;
-      temp_y.push_back(value);
-
-      actual_mean_energy.push_back(1);
-      rate_coefficient.push_back(1);
-    }
-    myfile.close();
-  }
-  else
-    mooseError("Unable to open file");
+  const auto [temp_x, temp_y] = CraneUtils::getReactionRates(*this); // just need the sizes
+  std::vector<Real> actual_mean_energy, rate_coefficient;
+  actual_mean_energy.resize(temp_x.size(), 1);
+  rate_coefficient.resize(temp_y.size(), 1);
 
   // Ensure that arrays are sorted (should be done externally or by Bolsig+ wrapper; this is not
   // permanent)

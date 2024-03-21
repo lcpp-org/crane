@@ -9,7 +9,7 @@
 //* https://www.gnu.org/licenses/lgpl-2.1.html
 
 #include "DiffusionRateTemp.h"
-#include "MooseUtils.h"
+#include "CraneUtils.h"
 
 // MOOSE includes
 #include "MooseVariable.h"
@@ -20,6 +20,9 @@ InputParameters
 DiffusionRateTemp::validParams()
 {
   InputParameters params = Material::validParams();
+  params += CraneUtils::propertyFileParams();
+  params.makeParamNotRequired("property_file");
+  params.set<RelativeFileName>("property_file") = "electron_temperature.txt";
   params.addRequiredParam<FileName>("file_location",
                                     "The name of the file that stores the mobility table.");
   // params.addRequiredParam<std::string>("reaction", "The full reaction equation.");
@@ -34,27 +37,7 @@ DiffusionRateTemp::DiffusionRateTemp(const InputParameters & parameters)
     _gap_length(getMaterialProperty<Real>("gap_length")),
     _radius(getMaterialProperty<Real>("radius"))
 {
-  std::string file_name = getParam<FileName>("file_location") + "/" + "electron_temperature.txt";
-  MooseUtils::checkFileReadable(file_name);
-  const char * charPath = file_name.c_str();
-  std::ifstream myfile(charPath);
-  Real value;
-
-  std::vector<Real> reduced_field;
-  std::vector<Real> temperature;
-  if (myfile.is_open())
-  {
-    while (myfile >> value)
-    {
-      reduced_field.push_back(value);
-      myfile >> value;
-      temperature.push_back(value);
-    }
-    myfile.close();
-  }
-  else
-    mooseError("Unable to open file");
-
+  const auto [reduced_field, temperature] = CraneUtils::getReactionRates(*this);
   _elec_temp.setData(reduced_field, temperature);
 }
 

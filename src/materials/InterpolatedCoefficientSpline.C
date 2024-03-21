@@ -9,7 +9,8 @@
 //* https://www.gnu.org/licenses/lgpl-2.1.html
 
 #include "InterpolatedCoefficientSpline.h"
-#include "MooseUtils.h"
+
+#include "CraneUtils.h"
 
 // MOOSE includes
 #include "MooseVariable.h"
@@ -20,11 +21,8 @@ InputParameters
 InterpolatedCoefficientSpline::validParams()
 {
   InputParameters params = ADMaterial::validParams();
-  params.addRequiredParam<RelativeFileName>(
-      "property_file", "The file containing interpolation tables for material properties.");
+  params += CraneUtils::propertyFileParams();
   params.addRequiredParam<std::string>("reaction", "The full reaction equation.");
-  params.addRequiredParam<FileName>("file_location",
-                                    "The name of the file that stores the reaction rate tables.");
   params.addRequiredCoupledVar("mean_energy", "The electron mean energy in log form.");
   params.addRequiredCoupledVar("electrons", "The electron density.");
   params.addParam<bool>("townsend",
@@ -57,28 +55,7 @@ InterpolatedCoefficientSpline::InterpolatedCoefficientSpline(const InputParamete
     _em(adCoupledValue("electrons")),
     _mean_en(adCoupledValue("mean_energy"))
 {
-  std::vector<Real> val_x;
-  std::vector<Real> rate_coefficient;
-  std::string file_name =
-      getParam<FileName>("file_location") + "/" + getParam<RelativeFileName>("property_file");
-  MooseUtils::checkFileReadable(file_name);
-  const char * charPath = file_name.c_str();
-  std::ifstream myfile(charPath);
-  Real value;
-
-  if (myfile.is_open())
-  {
-    while (myfile >> value)
-    {
-      val_x.push_back(value);
-      myfile >> value;
-      rate_coefficient.push_back(value);
-    }
-    myfile.close();
-  }
-  else
-    mooseError("Unable to open file");
-
+  const auto [val_x, rate_coefficient] = CraneUtils::getReactionRates(*this);
   _coefficient_interpolation.setData(val_x, rate_coefficient);
 }
 
