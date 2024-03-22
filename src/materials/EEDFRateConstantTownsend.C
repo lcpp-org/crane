@@ -56,23 +56,27 @@ EEDFRateConstantTownsend::EEDFRateConstantTownsend(const InputParameters & param
     _em(coupledValue("electrons")),
     _mean_en(coupledValue("mean_energy"))
 {
-  const auto [temp_x, temp_y] = CraneUtils::getReactionRates(*this); // just need the sizes
-  std::vector<Real> actual_mean_energy, rate_coefficient;
-  actual_mean_energy.resize(temp_x.size(), 1);
-  rate_coefficient.resize(temp_y.size(), 1);
+  const auto x_y_pair = CraneUtils::getReactionRates(*this);
+  const auto & unsorted_mean_energy = x_y_pair.first;
+  const auto & unsorted_rate_coefficient = x_y_pair.second;
+
+  std::vector<Real> mean_energy(unsorted_mean_energy.size()),
+      rate_coefficient(unsorted_mean_energy.size());
 
   // Ensure that arrays are sorted (should be done externally or by Bolsig+ wrapper; this is not
   // permanent)
-  std::vector<size_t> idx(actual_mean_energy.size());
+  std::vector<size_t> idx(unsorted_mean_energy.size());
   std::iota(idx.begin(), idx.end(), 0);
-  std::sort(
-      idx.begin(), idx.end(), [&temp_x](size_t i1, size_t i2) { return temp_x[i1] < temp_x[i2]; });
-  for (MooseIndex(idx) i = 0; i < idx.size(); ++i)
+  std::sort(idx.begin(),
+            idx.end(),
+            [&unsorted_mean_energy](size_t i1, size_t i2)
+            { return unsorted_mean_energy[i1] < unsorted_mean_energy[i2]; });
+  for (const auto i : index_range(idx))
   {
-    actual_mean_energy[i] = temp_x[idx[i]];
-    rate_coefficient[i] = temp_y[idx[i]];
+    mean_energy[i] = unsorted_mean_energy[idx[i]];
+    rate_coefficient[i] = unsorted_rate_coefficient[idx[i]];
   }
-  _coefficient_interpolation.setData(actual_mean_energy, rate_coefficient);
+  _coefficient_interpolation.setData(mean_energy, rate_coefficient);
 }
 
 void
