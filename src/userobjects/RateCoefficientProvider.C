@@ -9,6 +9,7 @@
 //* https://www.gnu.org/licenses/lgpl-2.1.html
 
 #include "RateCoefficientProvider.h"
+#include "CraneUtils.h"
 // #include "Function.h"
 
 registerMooseObject("CraneApp", RateCoefficientProvider);
@@ -17,11 +18,9 @@ InputParameters
 RateCoefficientProvider::validParams()
 {
   InputParameters params = GeneralUserObject::validParams();
+  params += CraneUtils::propertyFileParams();
+  params.makeParamNotRequired("property_file");
   params.addCoupledVar("reduced_field", 0, "The value of the reduced electric field [V m^2].");
-  params.addParam<FileName>(
-      "property_file", "", "The file containing interpolation tables for material properties.");
-  params.addParam<std::string>(
-      "file_location", "", "The name of the file that stores the reaction rate tables.");
   params.addParam<std::string>("sampling_format",
                                "reduced_field",
                                "The format that the rate constant files are in. Options: "
@@ -54,28 +53,10 @@ RateCoefficientProvider::RateCoefficientProvider(const InputParameters & paramet
 {
   if (_rate_format == "EEDF")
   {
-    std::vector<Real> reduced_field;
-    std::vector<Real> rate_coefficient;
-    std::string file_name =
-        getParam<std::string>("file_location") + "/" + getParam<FileName>("property_file");
-    MooseUtils::checkFileReadable(file_name);
-    const char * charPath = file_name.c_str();
-    std::ifstream myfile(charPath);
-    Real value;
-
-    if (myfile.is_open())
-    {
-      while (myfile >> value)
-      {
-        reduced_field.push_back(value);
-        myfile >> value;
-        rate_coefficient.push_back(value);
-      }
-      myfile.close();
-    }
-    else
-      mooseError("Unable to open file");
-
+    if (!isParamValid("property_file"))
+      paramError("rate_format",
+                 "The parameter 'property_file' must be specified with rate_format=EEDF");
+    const auto [reduced_field, rate_coefficient] = CraneUtils::getReactionRates(*this);
     _coefficient_interpolation.setData(reduced_field, rate_coefficient);
   }
   else if (_rate_format == "Constant")
