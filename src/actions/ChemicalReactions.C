@@ -81,10 +81,10 @@ ChemicalReactions::validParams()
   params.addRequiredParam<std::string>(
       "reaction_coefficient_format",
       "The format of the reaction coefficient. Options: rate or townsend.");
-  params.addParam<std::string>(
+  params.addParam<FileName>(
       "file_location",
-      "",
-      "The location of the reaction rate files. Default: empty string (current directory).");
+      ".",
+      "The location of the reaction rate files. Default: the current directory.");
   params.addParam<bool>("use_moles", "Whether to use molar units.");
   params.addParam<std::string>(
       "sampling_format",
@@ -543,9 +543,9 @@ ChemicalReactions::act()
   //     // if (_rate_type[i] == "EEDF")
   //     // {
   //     //   InputParameters params = _factory.getValidParams("RateCoefficientProvider");
-  //     //   params.set<std::string>("file_location") = getParam<std::string>("file_location");
+  //     //   params.set<FileName>("file_location") = getParam<FileName>("file_location");
   //     //   params.set<std::string>("sampling_format") = _sampling_format;
-  //     //   params.set<FileName>("property_file") = "reaction_"+_reaction[i]+".txt";
+  //     //   params.set<RelativeFileName>("property_file") = "reaction_"+_reaction[i]+".txt";
   //     //   params.set<std::string>("rate_format") = _rate_type[i];
   //     //   params.set<std::vector<VariableName>>("reduced_field") = getParam<std::vector<VariableName>>("rate_provider_var");
   //     //   // params.set<std::vector<VariableName>>("reduced_field") = {"Te"};
@@ -605,8 +605,8 @@ ChemicalReactions::act()
         InputParameters params = _factory.getValidParams("DataReadScalar");
         params.set<AuxVariableName>("variable") = {_aux_var_name[i]};
         params.set<std::vector<VariableName>>("sampler") = {"reduced_field"};
-        params.set<FileName>("property_file") = "reaction_" + _reaction[i] + ".txt";
-        params.set<std::string>("file_location") = "OutputRates_Crane_ex3";
+        params.set<RelativeFileName>("property_file") = "reaction_" + _reaction[i] + ".txt";
+        params.set<FileName>("file_location") = "OutputRates_Crane_ex3";
         params.set<ExecFlagEnum>("execute_on") = "INITIAL TIMESTEP_BEGIN";
         _problem->addAuxScalarKernel("DataReadScalar", "aux_rate" + std::to_string(i), params);
       }
@@ -671,7 +671,7 @@ ChemicalReactions::act()
         Real position_units = getParam<Real>("position_units");
         InputParameters params = _factory.getValidParams("EEDFRateConstantTownsend");
         params.set<std::string>("reaction") = _reaction[i];
-        params.set<std::string>("file_location") = getParam<std::string>("file_location");
+        params.set<FileName>("file_location") = getParam<FileName>("file_location");
         params.set<Real>("position_units") = position_units;
         params.set<std::vector<VariableName>>("em") = {_reactants[i][_electron_index[i]]};
         params.set<std::vector<VariableName>>("mean_en") =
@@ -713,7 +713,7 @@ ChemicalReactions::act()
           params.set<std::vector<VariableName>>("target_species") = {_reactants[i][target]};
         }
         params.set<bool>("elastic_collision") = {_elastic_collision[i]};
-        params.set<FileName>("property_file") = "reaction_" + _reaction[i] + ".txt";
+        params.set<RelativeFileName>("property_file") = "reaction_" + _reaction[i] + ".txt";
 
         _problem->addMaterial("EEDFRateConstantTownsend", "reaction_" + std::to_string(i), params);
       }
@@ -722,10 +722,10 @@ ChemicalReactions::act()
         Real position_units = getParam<Real>("position_units");
         InputParameters params = _factory.getValidParams("EEDFRateConstant");
         params.set<std::string>("reaction") = _reaction[i];
-        params.set<std::string>("file_location") = getParam<std::string>("file_location");
+        params.set<FileName>("file_location") = getParam<FileName>("file_location");
         params.set<Real>("position_units") = position_units;
         params.set<std::string>("sampling_format") = _sampling_format;
-        params.set<FileName>("property_file") = "reaction_" + _reaction[i] + ".txt";
+        params.set<RelativeFileName>("property_file") = "reaction_" + _reaction[i] + ".txt";
         _problem->addMaterial("EEDFRateConstant", "reaction_" + std::to_string(i), params);
       }
       else if (_rate_type[i] == "Constant")
@@ -774,7 +774,7 @@ ChemicalReactions::act()
         params.set<std::string>("original_reaction") = _reaction[_superelastic_index[i]];
         params.set<std::vector<Real>>("stoichiometric_coeff") = active_constants;
         params.set<std::vector<std::string>>("participants") = active_participants;
-        params.set<std::string>("file_location") = "PolynomialCoefficients";
+        params.set<FileName>("file_location") = "PolynomialCoefficients";
         _problem->addMaterial("SuperelasticReactionRate", "reaction_" + std::to_string(i), params);
       }
 

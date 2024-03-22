@@ -9,7 +9,8 @@
 //* https://www.gnu.org/licenses/lgpl-2.1.html
 
 #include "EEDFRateConstant.h"
-#include "MooseUtils.h"
+
+#include "CraneUtils.h"
 
 // MOOSE includes
 #include "MooseVariable.h"
@@ -20,11 +21,8 @@ InputParameters
 EEDFRateConstant::validParams()
 {
   InputParameters params = Material::validParams();
-  params.addRequiredParam<FileName>(
-      "property_file", "The file containing interpolation tables for material properties.");
+  params += CraneUtils::propertyFileParams();
   params.addRequiredParam<std::string>("reaction", "The full reaction equation.");
-  params.addRequiredParam<std::string>(
-      "file_location", "The name of the file that stores the reaction rate tables.");
   params.addParam<bool>("elastic_collision", false, "If the reaction is elastic (true/false).");
   params.addCoupledVar("sampler", "The variable used to sample.");
   params.addCoupledVar("target_species", "The target species in this collision.");
@@ -49,31 +47,7 @@ EEDFRateConstant::EEDFRateConstant(const InputParameters & parameters)
     _em(isCoupled("electrons") ? coupledValue("electrons") : _zero),
     _mean_en(isCoupled("mean_energy") ? coupledValue("mean_energy") : _zero)
 {
-  if (!isCoupled("sampler"))
-    mooseError("Sampling variable is not coupled! Please input the variable (aux or nonlinear) "
-               "that will be used to sample from data files.");
-  std::vector<Real> val_x;
-  std::vector<Real> rate_coefficient;
-  std::string file_name =
-      getParam<std::string>("file_location") + "/" + getParam<FileName>("property_file");
-  MooseUtils::checkFileReadable(file_name);
-  const char * charPath = file_name.c_str();
-  std::ifstream myfile(charPath);
-  Real value;
-
-  if (myfile.is_open())
-  {
-    while (myfile >> value)
-    {
-      val_x.push_back(value);
-      myfile >> value;
-      rate_coefficient.push_back(value);
-    }
-    myfile.close();
-  }
-  else
-    mooseError("Unable to open file");
-
+  const auto [val_x, rate_coefficient] = CraneUtils::getReactionRates(*this);
   _coefficient_interpolation.setData(val_x, rate_coefficient);
 }
 

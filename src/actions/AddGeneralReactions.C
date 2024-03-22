@@ -124,7 +124,7 @@ AddGeneralReactions::act()
         Real position_units = getParam<Real>("position_units");
         InputParameters params = _factory.getValidParams("EEDFRateConstantTownsend");
         params.set<std::string>("reaction") = _reaction[i];
-        params.set<std::string>("file_location") = getParam<std::string>("file_location");
+        params.set<FileName>("file_location") = getParam<FileName>("file_location");
         params.set<Real>("position_units") = position_units;
         params.set<std::vector<VariableName>>("em") = {_reactants[i][_electron_index[i]]};
         params.set<std::vector<VariableName>>("mean_en") = {_electron_energy[0]};
@@ -183,7 +183,7 @@ AddGeneralReactions::act()
         params.set<bool>("is_target_aux") = target_species_aux;
 
         params.set<bool>("elastic_collision") = {_elastic_collision[i]};
-        params.set<FileName>("property_file") = "reaction_" + _reaction[i] + ".txt";
+        params.set<RelativeFileName>("property_file") = "reaction_" + _reaction[i] + ".txt";
         params.set<std::vector<SubdomainName>>("block") =
             getParam<std::vector<SubdomainName>>("block");
         _problem->addMaterial("EEDFRateConstantTownsend",
@@ -197,10 +197,10 @@ AddGeneralReactions::act()
         Real position_units = getParam<Real>("position_units");
         InputParameters params = _factory.getValidParams("ZapdosEEDFRateConstant");
         params.set<std::string>("reaction") = _reaction[i];
-        params.set<std::string>("file_location") = getParam<std::string>("file_location");
+        params.set<FileName>("file_location") = getParam<FileName>("file_location");
         params.set<Real>("position_units") = position_units;
         params.set<std::string>("sampling_format") = _sampling_variable;
-        params.set<FileName>("property_file") = "reaction_" + _reaction[i] + ".txt";
+        params.set<RelativeFileName>("property_file") = "reaction_" + _reaction[i] + ".txt";
         params.set<std::vector<VariableName>>("em") = {_reactants[i][_electron_index[i]]};
         params.set<std::vector<VariableName>>("mean_en") = {_electron_energy[0]};
         params.set<bool>("elastic_collision") = _elastic_collision[i];
@@ -276,7 +276,7 @@ AddGeneralReactions::act()
         params.set<std::string>("original_reaction") = _reaction[_superelastic_index[i]];
         params.set<std::vector<Real>>("stoichiometric_coeff") = active_constants;
         params.set<std::vector<std::string>>("participants") = active_participants;
-        params.set<std::string>("file_location") = "PolynomialCoefficients";
+        params.set<FileName>("file_location") = "PolynomialCoefficients";
         params.set<std::vector<SubdomainName>>("block") =
             getParam<std::vector<SubdomainName>>("block");
         _problem->addMaterial("SuperelasticReactionRate",

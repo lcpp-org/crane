@@ -9,7 +9,8 @@
 //* https://www.gnu.org/licenses/lgpl-2.1.html
 
 #include "HeatCapacityRatio.h"
-#include "MooseUtils.h"
+
+#include "CraneUtils.h"
 
 // MOOSE includes
 #include "MooseVariable.h"
@@ -20,8 +21,12 @@ InputParameters
 HeatCapacityRatio::validParams()
 {
   InputParameters params = SpeciesSum::validParams();
+  params += CraneUtils::propertyPathParams();
   params.addRequiredParam<std::vector<std::string>>("species", "The list of gaseous species contributing to gas temperature.");
-  params.addRequiredParam<std::string>("file_location", "The name of the file that stores the reaction rate tables.");
+  params.addParam<FileName>(
+      "file_location",
+      ".",
+      "The name of the file that stores reaction rate tables (defaults to the current directory).");
   params.addCoupledVar("gas_temperature", "The temperature of the background gas. Needed for rate constant calculation. Default: 300 K.");
   // params.addCoupledVar("all_species", "The coupled variables to sum.");
   return params;
@@ -44,30 +49,11 @@ HeatCapacityRatio::HeatCapacityRatio(const InputParameters & parameters)
   // {
   //   _vals[i] = &coupledValue("coupled_vars", i);
   // }
-  std::string file_name;
+
   _polynomial_coefficients.resize(_species.size());
   _molar_heat_capacity.resize(_species.size());
   for (unsigned int i = 0; i < _species.size(); ++i)
-  {
-    file_name = getParam<std::string>("file_location") + "/" + _species[i] + ".txt";
-    MooseUtils::checkFileReadable(file_name);
-    const char * charPath = file_name.c_str();
-    std::ifstream myfile(charPath);
-    Real value;
-
-    if (myfile.is_open())
-    {
-      while (myfile >> value)
-      {
-        _polynomial_coefficients[i].push_back(value);
-      }
-      myfile.close();
-    }
-    else
-    {
-      mooseError("Unable to open file: " + file_name);
-    }
-  }
+    _polynomial_coefficients[i] = CraneUtils::getCoefficients(*this, _species[i] + ".txt");
 }
 
 void
