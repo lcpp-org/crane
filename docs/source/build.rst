@@ -15,7 +15,7 @@ After installing MOOSE, make sure you have the following folder on your local ma
 
 ``~/projects``
 
-**Step 2.** After installing the MOOSE environment, execute the following commands:
+**Step 2.** After installing the MOOSE environment, execute the following commands to install crane and update any dependencies (moose):
 
 
 .. code-block:: bash
@@ -25,11 +25,18 @@ After installing MOOSE, make sure you have the following folder on your local ma
     cd crane
     git submodule update --init moose
 
-and then make,
+Before continuing, make sure that the moose environment is activated:
 
 .. code-block:: bash
 
-   make -jn
+    conda activate moose
+
+and then navigate to the crane directory and compile:
+
+.. code-block:: bash
+
+    cd ~/projects/crane
+    make -jn
 
 where ``n`` is the number of logical processors on your computer. 
 
