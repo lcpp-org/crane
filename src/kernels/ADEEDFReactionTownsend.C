@@ -60,9 +60,10 @@ ADEEDFReactionTownsendLog::ADEEDFReactionTownsendLog(const InputParameters & par
 ADReal
 ADEEDFReactionTownsendLog::computeQpResidual()
 {
-  return -_test[_i][_qp] * _alpha[_qp] * std::exp(_target[_qp]) *
-         (std::exp(_em[_qp]) * (-_muem[_qp] * -_grad_potential[_qp] * _r_units -
-                                _diffem[_qp] * _grad_em[_qp] * _r_units))
+  using std::exp;
+  return -_test[_i][_qp] * _alpha[_qp] * exp(_target[_qp]) *
+         (exp(_em[_qp]) * (-_muem[_qp] * -_grad_potential[_qp] * _r_units -
+                           _diffem[_qp] * _grad_em[_qp] * _r_units))
              .norm() *
          _coefficient;
 }
