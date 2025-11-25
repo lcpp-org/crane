@@ -276,7 +276,6 @@ AddZapdosReactions::act()
     {
       for (unsigned int i = 0; i < _num_reactions; ++i)
       {
-        _problem->addAuxVariable(_aux_var_name[i], FIRST);
         auto params = _factory.getValidParams("MooseVariableConstMonomial");
         params.set<MooseEnum>("order") = "CONSTANT";
         params.set<MooseEnum>("family") = "MONOMIAL";
