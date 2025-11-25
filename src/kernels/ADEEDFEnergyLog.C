@@ -48,6 +48,7 @@ ADEEDFEnergyLog::ADEEDFEnergyLog(const InputParameters & parameters)
 ADReal
 ADEEDFEnergyLog::computeQpResidual()
 {
-  return -_test[_i][_qp] * _reaction_coefficient[_qp] * std::exp(_em[_qp] + _target[_qp]) *
+  using std::exp;
+  return -_test[_i][_qp] * _reaction_coefficient[_qp] * exp(_em[_qp] + _target[_qp]) *
          _threshold_energy;
 }

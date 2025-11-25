@@ -51,5 +51,6 @@ ADEEDFReactionLog::ADEEDFReactionLog(const InputParameters & parameters)
 ADReal
 ADEEDFReactionLog::computeQpResidual()
 {
-  return -_test[_i][_qp] * _reaction_coeff[_qp] * std::exp(_em[_qp] + _target[_qp]) * _coefficient;
+  using std::exp;
+  return -_test[_i][_qp] * _reaction_coeff[_qp] * exp(_em[_qp] + _target[_qp]) * _coefficient;
 }

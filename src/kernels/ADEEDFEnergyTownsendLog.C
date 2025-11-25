@@ -57,10 +57,10 @@ ADEEDFEnergyTownsendLog::ADEEDFEnergyTownsendLog(const InputParameters & paramet
 ADReal
 ADEEDFEnergyTownsendLog::computeQpResidual()
 {
-  _electron_flux_mag = (std::exp(_em[_qp]) * (-_muem[_qp] * -_grad_potential[_qp] * _r_units -
-                                              _diffem[_qp] * _grad_em[_qp] * _r_units))
+  using std::exp;
+  _electron_flux_mag = (exp(_em[_qp]) * (-_muem[_qp] * -_grad_potential[_qp] * _r_units -
+                                         _diffem[_qp] * _grad_em[_qp] * _r_units))
                            .norm();
 
-  return -_test[_i][_qp] * _alpha[_qp] * std::exp(_target[_qp]) * _electron_flux_mag *
-         _threshold_energy;
+  return -_test[_i][_qp] * _alpha[_qp] * exp(_target[_qp]) * _electron_flux_mag * _threshold_energy;
 }

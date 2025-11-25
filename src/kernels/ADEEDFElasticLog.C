@@ -50,7 +50,8 @@ ADEEDFElasticLog::ADEEDFElasticLog(
 ADReal
 ADEEDFElasticLog::computeQpResidual()
 {
-  ADReal Eel = -3.0 * _massem / _massGas[_qp] * 2.0 / 3. * std::exp(_u[_qp] - _em[_qp]);
+  using std::exp;
+  ADReal Eel = -3.0 * _massem / _massGas[_qp] * 2.0 / 3. * exp(_u[_qp] - _em[_qp]);
 
-  return -_test[_i][_qp] * _reaction_coefficient[_qp] * std::exp(_em[_qp] + _target[_qp]) * Eel;
+  return -_test[_i][_qp] * _reaction_coefficient[_qp] * exp(_em[_qp] + _target[_qp]) * Eel;
 }
