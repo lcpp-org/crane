@@ -61,14 +61,16 @@ template <bool is_ad>
 GenericReal<is_ad>
 ReactionThirdOrderLogTempl<is_ad>::computeQpResidual()
 {
+  using std::exp;
   return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] *
-         std::exp(_v[_qp] + _w[_qp] + _x[_qp]);
+         exp(_v[_qp] + _w[_qp] + _x[_qp]);
 }
 
 template <bool is_ad>
 Real
 ReactionThirdOrderLogTempl<is_ad>::computeQpJacobian()
 {
+  using std::exp;
   Real power;
 
   power = 0;
@@ -79,14 +81,15 @@ ReactionThirdOrderLogTempl<is_ad>::computeQpJacobian()
   if (_x_eq_u)
     power += 1;
 
-  return -_test[_i][_qp] * _stoichiometric_coeff * raw_value(_reaction_coeff[_qp] * power *
-         std::exp(_v[_qp] + _w[_qp] + _x[_qp])) * _phi[_j][_qp];
+  return -_test[_i][_qp] * _stoichiometric_coeff *
+         raw_value(_reaction_coeff[_qp] * power * exp(_v[_qp] + _w[_qp] + _x[_qp])) * _phi[_j][_qp];
 }
 
 template <bool is_ad>
 Real
 ReactionThirdOrderLogTempl<is_ad>::computeQpOffDiagJacobian(unsigned int jvar)
 {
+  using std::exp;
   Real power;
   power = 0;
 
@@ -99,8 +102,8 @@ ReactionThirdOrderLogTempl<is_ad>::computeQpOffDiagJacobian(unsigned int jvar)
   if (!_x_eq_u && jvar == _x_id)
     power += 1;
 
-  return -_test[_i][_qp] * _stoichiometric_coeff * raw_value(_reaction_coeff[_qp] *
-         std::exp(_v[_qp] + _w[_qp] + _x[_qp])) * power * _phi[_j][_qp];
+  return -_test[_i][_qp] * _stoichiometric_coeff *
+         raw_value(_reaction_coeff[_qp] * exp(_v[_qp] + _w[_qp] + _x[_qp])) * power * _phi[_j][_qp];
 }
 
 template class ReactionThirdOrderLogTempl<false>;

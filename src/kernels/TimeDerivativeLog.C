@@ -27,5 +27,6 @@ TimeDerivativeLog::TimeDerivativeLog(const InputParameters & parameters)
 ADReal
 TimeDerivativeLog::precomputeQpResidual()
 {
-  return std::exp(_u[_qp]) * ADTimeDerivative::precomputeQpResidual();
+  using std::exp;
+  return exp(_u[_qp]) * ADTimeDerivative::precomputeQpResidual();
 }

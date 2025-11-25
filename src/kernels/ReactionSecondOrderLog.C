@@ -56,8 +56,8 @@ template <bool is_ad>
 GenericReal<is_ad>
 ReactionSecondOrderLogTempl<is_ad>::computeQpResidual()
 {
-  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] *
-         std::exp(_v[_qp] + _w[_qp]);
+  using std::exp;
+  return -_test[_i][_qp] * _stoichiometric_coeff * _reaction_coeff[_qp] * exp(_v[_qp] + _w[_qp]);
 }
 
 template <bool is_ad>
@@ -79,8 +79,9 @@ ReactionSecondOrderLogTempl<is_ad>::computeQpJacobian()
   }
   else
   {
+    using std::exp;
     return -_test[_i][_qp] * _stoichiometric_coeff * power *
-           raw_value(_reaction_coeff[_qp] * std::exp(_v[_qp] + _w[_qp])) * _phi[_j][_qp];
+           raw_value(_reaction_coeff[_qp] * exp(_v[_qp] + _w[_qp])) * _phi[_j][_qp];
   }
 }
 
@@ -88,6 +89,7 @@ template <bool is_ad>
 Real
 ReactionSecondOrderLogTempl<is_ad>::computeQpOffDiagJacobian(unsigned int jvar)
 {
+  using std::exp;
   Real power;
   power = 0;
 
@@ -98,7 +100,7 @@ ReactionSecondOrderLogTempl<is_ad>::computeQpOffDiagJacobian(unsigned int jvar)
     power += 1;
 
   return -_test[_i][_qp] * _stoichiometric_coeff *
-         raw_value(_reaction_coeff[_qp] * std::exp(_v[_qp] + _w[_qp])) * power * _phi[_j][_qp];
+         raw_value(_reaction_coeff[_qp] * exp(_v[_qp] + _w[_qp])) * power * _phi[_j][_qp];
 }
 
 template class ReactionSecondOrderLogTempl<false>;
