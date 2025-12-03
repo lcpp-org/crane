@@ -15,7 +15,7 @@
 class CraneApp : public MooseApp
 {
 public:
-  CraneApp(InputParameters parameters);
+  CraneApp(const InputParameters & parameters);
   static InputParameters validParams();
 
   virtual ~CraneApp();
