@@ -21,7 +21,7 @@ CraneApp::validParams()
   return params;
 }
 
-CraneApp::CraneApp(InputParameters parameters) : MooseApp(parameters)
+CraneApp::CraneApp(const InputParameters & parameters) : MooseApp(parameters)
 {
   CraneApp::registerAll(_factory, _action_factory, _syntax);
 }
